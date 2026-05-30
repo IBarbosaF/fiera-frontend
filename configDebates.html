@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIERA V2 — Configurar debate</title>
+
+  <!-- Google Fonts: Inter — fuente global del proyecto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+
+  <!-- Estilos globales compartidos -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- Estilos específicos de la página de debate -->
+  <link rel="stylesheet" href="css/configDebates.css" />
+</head>
+<body class="con-sesion">
+
+  <!-- Canvas de partículas de fondo -->
+  <canvas id="particles"></canvas>
+
+  <!-- ================================================
+       HEADER — igual que index.html con sesión activa
+  ================================================ -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo-circle" aria-label="Inicio">
+        <img src="assets/R_simple.png" alt="Logo Retorika" class="logo-img" />
+      </a>
+      <nav class="main-nav">
+        <a href="configDebates.html" class="nav-activo">Debates</a>
+        <a href="ia.html">IA avanzada</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="progreso.html">Tu progreso</a>
+      </nav>
+      <button class="btn-nav-cerrar" id="btnCerrarSesion">Cerrar sesión</button>
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="configDebates.html">Debates</a>
+      <a href="ia.html">IA avanzada</a>
+      <a href="feedback.html">Feedback</a>
+      <a href="progreso.html">Tu progreso</a>
+      <button class="btn-nav-cerrar mobile-cerrar" id="btnCerrarSesionMobile">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- ================================================
+       LAYOUT PRINCIPAL
+       Sidebar izquierdo + panel de contenido derecho
+  ================================================ -->
+  <div class="debate-layout">
+
+    <!-- ── SIDEBAR: navegación entre secciones ── -->
+    <aside class="debate-sidebar">
+      <button class="sidebar-item active" data-seccion="configuracion">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+        <span>Configuración</span>
+      </button>
+      <button class="sidebar-item" data-seccion="tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Tema</span>
+      </button>
+      <button class="sidebar-item" data-seccion="fiera">
+        <img src="assets/R_simple.png" alt="FIERA" class="sidebar-logo" />
+        <span>FIERA</span>
+      </button>
+      <button class="sidebar-item" data-seccion="turnos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <span>Turnos</span>
+      </button>
+      <button class="sidebar-item" data-seccion="resumen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Resumen</span>
+      </button>
+    </aside>
+
+    <!-- ── PANEL DE CONTENIDO ── -->
+    <main class="debate-panel">
+
+      <!-- ============================================
+           SECCIÓN: CONFIGURACIÓN (activa por defecto)
+      ============================================ -->
+      <section class="seccion active" id="sec-configuracion">
+        <h2 class="panel-titulo">Configura tu debate</h2>
+
+        <!-- Tiempo de intervenciones -->
+        <div class="config-bloque">
+          <div class="config-bloque-header">
+            <h3 class="config-label">TIEMPO DE INTERVENCIONES
+              <span class="config-tag">personalizable</span>
+            </h3>
+            <!-- Icono de info -->
+            <button class="btn-info" aria-label="Más información" title="Puedes personalizar el tiempo de cada intervención">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </button>
+          </div>
+
+          <!-- Fila de tiempo por intervención -->
+          <div class="tiempo-lista">
+
+            <div class="tiempo-fila">
+              <span class="tiempo-nombre">Introducción</span>
+              <div class="tiempo-control">
+                <button class="btn-tiempo" data-accion="restar" data-campo="intro">−</button>
+                <span class="tiempo-valor" id="val-intro">03:00</span>
+                <button class="btn-tiempo" data-accion="sumar" data-campo="intro">+</button>
+              </div>
+              <span class="tiempo-unidad">min</span>
+            </div>
+
+            <div class="tiempo-fila">
+              <span class="tiempo-nombre">1ª Refutación</span>
+              <div class="tiempo-control">
+                <button class="btn-tiempo" data-accion="restar" data-campo="ref1">−</button>
+                <span class="tiempo-valor" id="val-ref1">04:00</span>
+                <button class="btn-tiempo" data-accion="sumar" data-campo="ref1">+</button>
+              </div>
+              <span class="tiempo-unidad">min</span>
+            </div>
+
+            <div class="tiempo-fila">
+              <span class="tiempo-nombre">2ª Refutación</span>
+              <div class="tiempo-control">
+                <button class="btn-tiempo" data-accion="restar" data-campo="ref2">−</button>
+                <span class="tiempo-valor" id="val-ref2">05:00</span>
+                <button class="btn-tiempo" data-accion="sumar" data-campo="ref2">+</button>
+              </div>
+              <span class="tiempo-unidad">min</span>
+            </div>
+
+            <div class="tiempo-fila">
+              <span class="tiempo-nombre">Conclusión</span>
+              <div class="tiempo-control">
+                <button class="btn-tiempo" data-accion="restar" data-campo="conclusion">−</button>
+                <span class="tiempo-valor" id="val-conclusion">03:00</span>
+                <button class="btn-tiempo" data-accion="sumar" data-campo="conclusion">+</button>
+              </div>
+              <span class="tiempo-unidad">min</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Nivel de dificultad -->
+        <div class="config-bloque">
+          <h3 class="config-label">NIVEL DE DIFICULTAD DE FIERA</h3>
+          <div class="btn-grupo" id="grupoDificultad">
+            <button class="btn-opcion" data-grupo="dificultad" data-valor="basico">Básico</button>
+            <button class="btn-opcion active" data-grupo="dificultad" data-valor="medio">Medio</button>
+            <button class="btn-opcion" data-grupo="dificultad" data-valor="avanzado">
+              Avanzado
+              <svg class="icono-bar" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="14" width="4" height="8"/><rect x="9" y="10" width="4" height="12"/><rect x="16" y="5" width="4" height="17"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Modo de debate -->
+        <div class="config-bloque">
+          <h3 class="config-label">MODO DE DEBATE</h3>
+          <div class="btn-grupo" id="grupoModo">
+            <button class="btn-opcion active icono-left" data-grupo="modo" data-valor="completo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Debate completo
+            </button>
+            <button class="btn-opcion icono-left" data-grupo="modo" data-valor="express">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Debate express
+            </button>
+          </div>
+        </div>
+
+        <!-- Postura -->
+        <div class="config-bloque">
+          <h3 class="config-label">POSTURA</h3>
+          <div class="btn-grupo" id="grupoPostura">
+            <button class="btn-opcion" data-grupo="postura" data-valor="favor">A favor</button>
+            <button class="btn-opcion" data-grupo="postura" data-valor="contra">En contra</button>
+            <button class="btn-opcion active" data-grupo="postura" data-valor="aleatoria">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+              Aleatoria
+            </button>
+          </div>
+        </div>
+
+        <!-- Botón continuar -->
+        <div class="panel-footer">
+          <button class="btn-primary" id="btnSiguiente">Siguiente →</button>
+        </div>
+
+      </section>
+
+      <!-- ============================================
+           RESTO DE SECCIONES (vacías hasta desarrollar)
+      ============================================ -->
+      <section class="seccion" id="sec-tema">
+        <h2 class="panel-titulo">Selección de tema</h2>
+
+        <!-- Pestañas: Banco de temas / Ingresar manualmente -->
+        <div class="tabs">
+          <button class="tab active" data-tab="banco">Banco de temas</button>
+          <button class="tab" data-tab="manual">Ingresar manualmente</button>
+        </div>
+
+        <!-- ── PESTAÑA: BANCO DE TEMAS ── -->
+        <div class="tab-panel active" id="tab-banco">
+
+          <!-- Buscador + filtro -->
+          <div class="buscador-wrapper">
+            <div class="buscador">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="inputBuscar" placeholder="Buscar tema..." />
+            </div>
+            <button class="btn-filtro" aria-label="Filtrar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            </button>
+          </div>
+
+          <!-- Lista de temas -->
+          <div class="temas-lista" id="temasLista">
+            <!-- Los temas se renderizan desde configDebates.js -->
+          </div>
+
+          <!-- Acciones -->
+          <div class="tema-footer">
+            <button class="btn-secondary icono-left" id="btnTemaAleatorio">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+              Tema aleatorio
+            </button>
+            <button class="btn-primary" id="btnContinuarTema" disabled>CONTINUAR</button>
+          </div>
+
+        </div>
+
+        <!-- ── PESTAÑA: INGRESAR MANUALMENTE ── -->
+        <div class="tab-panel" id="tab-manual">
+
+          <div class="form-group">
+            <label for="temaManual">Tema del debate</label>
+            <input
+              type="text"
+              id="temaManual"
+              placeholder="Ej: El cambio climático es la mayor amenaza del siglo XXI"
+            />
+            <p class="campo-ayuda">El contexto general sobre el que se debatirá.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="preguntaManual">Pregunta de debate</label>
+            <input
+              type="text"
+              id="preguntaManual"
+              placeholder="Ej: ¿Debe ser obligatoria la reducción de emisiones para todas las empresas?"
+            />
+            <p class="campo-ayuda">La pregunta concreta que guiará los argumentos.</p>
+          </div>
+
+          <div class="tema-footer">
+            <button class="btn-primary" id="btnContinuarManual" disabled>CONTINUAR</button>
+          </div>
+
+        </div>
+
+      </section>
+
+      <section class="seccion" id="sec-fiera">
+        <h2 class="panel-titulo">Elige la personalidad de FIERA</h2>
+        <p class="panel-subtitulo">Esto definirá el estilo de argumentación y tono del avatar.</p>
+
+        <!-- Grid de personalidades -->
+        <div class="personalidad-grid" id="personalidadGrid">
+
+          <div class="personalidad-card" data-valor="agresiva">
+            <div class="personalidad-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <img src="assets/fieraLogo.png" alt="Personalidad Agresiva" class="personalidad-img" />
+            <div class="personalidad-info">
+              <h3 class="personalidad-nombre">Agresiva</h3>
+              <p class="personalidad-desc">Directa, desafiante y confrontativa.</p>
+            </div>
+          </div>
+
+          <div class="personalidad-card" data-valor="elegante">
+            <div class="personalidad-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <img src="assets/fieraLogo.png" alt="Personalidad Elegante" class="personalidad-img" />
+            <div class="personalidad-info">
+              <h3 class="personalidad-nombre">Elegante</h3>
+              <p class="personalidad-desc">Refinada, persuasiva y sofisticada.</p>
+            </div>
+          </div>
+
+          <div class="personalidad-card" data-valor="sarcastica">
+            <div class="personalidad-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <img src="assets/fieraLogo.png" alt="Personalidad Sarcástica" class="personalidad-img" />
+            <div class="personalidad-info">
+              <h3 class="personalidad-nombre">Sarcástica</h3>
+              <p class="personalidad-desc">Irónica, punzante y provocadora.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Botón continuar -->
+        <div class="panel-footer">
+          <button class="btn-primary" id="btnContinuarFiera" disabled>CONTINUAR</button>
+        </div>
+
+      </section>
+
+      <section class="seccion" id="sec-turnos">
+        <h2 class="panel-titulo">Elige quién participa en cada turno</h2>
+        <p class="panel-subtitulo">Selecciona los turnos que realizará tu equipo y los que hará FIERA.</p>
+
+        <!-- Filas de turnos -->
+        <div class="turnos-lista">
+
+          <div class="turno-fila">
+            <span class="turno-nombre">Introducción</span>
+            <div class="turno-opciones">
+              <button class="btn-turno active" data-turno="intro" data-valor="equipo">Mi equipo</button>
+              <button class="btn-turno" data-turno="intro" data-valor="fiera">FIERA</button>
+            </div>
+          </div>
+
+          <div class="turno-fila">
+            <span class="turno-nombre">1ª Refutación</span>
+            <div class="turno-opciones">
+              <button class="btn-turno active" data-turno="ref1" data-valor="equipo">Mi equipo</button>
+              <button class="btn-turno" data-turno="ref1" data-valor="fiera">FIERA</button>
+            </div>
+          </div>
+
+          <div class="turno-fila">
+            <span class="turno-nombre">2ª Refutación</span>
+            <div class="turno-opciones">
+              <button class="btn-turno active" data-turno="ref2" data-valor="equipo">Mi equipo</button>
+              <button class="btn-turno" data-turno="ref2" data-valor="fiera">FIERA</button>
+            </div>
+          </div>
+
+          <div class="turno-fila">
+            <span class="turno-nombre">Conclusión</span>
+            <div class="turno-opciones">
+              <button class="btn-turno active" data-turno="conclusion" data-valor="equipo">Mi equipo</button>
+              <button class="btn-turno" data-turno="conclusion" data-valor="fiera">FIERA</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Nota informativa modo express -->
+        <div class="turno-nota">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p>En el modo express, solo se ejecutarán los turnos seleccionados en orden.</p>
+        </div>
+
+        <!-- Botón continuar -->
+        <div class="panel-footer">
+          <button class="btn-primary" id="btnContinuarTurnos">CONTINUAR</button>
+        </div>
+
+      </section>
+
+      <section class="seccion" id="sec-resumen">
+        <h2 class="panel-titulo">Resumen de tu debate</h2>
+
+        <div class="resumen-card">
+
+          <!-- Tema -->
+          <div class="resumen-fila">
+            <span class="resumen-label">Tema</span>
+            <span class="resumen-valor" id="res-tema">—</span>
+          </div>
+
+          <div class="resumen-separador"></div>
+
+          <!-- Postura -->
+          <div class="resumen-fila">
+            <span class="resumen-label">Postura</span>
+            <span class="resumen-valor" id="res-postura">—</span>
+          </div>
+
+          <div class="resumen-separador"></div>
+
+          <!-- Tiempo por turno -->
+          <div class="resumen-fila resumen-fila-top">
+            <span class="resumen-label">Tiempo por turno</span>
+            <div class="resumen-tiempos" id="res-tiempos">
+              <div class="resumen-tiempo-fila">
+                <span class="resumen-tiempo-nombre">Introducción</span>
+                <span class="resumen-tiempo-valor" id="res-t-intro">—</span>
+              </div>
+              <div class="resumen-tiempo-fila">
+                <span class="resumen-tiempo-nombre">1ª Refutación</span>
+                <span class="resumen-tiempo-valor" id="res-t-ref1">—</span>
+              </div>
+              <div class="resumen-tiempo-fila">
+                <span class="resumen-tiempo-nombre">2ª Refutación</span>
+                <span class="resumen-tiempo-valor" id="res-t-ref2">—</span>
+              </div>
+              <div class="resumen-tiempo-fila">
+                <span class="resumen-tiempo-nombre">Conclusión</span>
+                <span class="resumen-tiempo-valor" id="res-t-conclusion">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-separador"></div>
+
+          <!-- Nivel de dificultad -->
+          <div class="resumen-fila">
+            <span class="resumen-label">Nivel de dificultad</span>
+            <span class="resumen-valor" id="res-dificultad">—</span>
+          </div>
+
+          <div class="resumen-separador"></div>
+
+          <!-- Personalidad de FIERA -->
+          <div class="resumen-fila">
+            <span class="resumen-label">Personalidad de FIERA</span>
+            <span class="resumen-valor" id="res-personalidad">—</span>
+          </div>
+
+          <div class="resumen-separador"></div>
+
+          <!-- Modo -->
+          <div class="resumen-fila">
+            <span class="resumen-label">Modo</span>
+            <span class="resumen-valor" id="res-modo">—</span>
+          </div>
+
+        </div>
+
+        <!-- Botones footer -->
+        <div class="panel-footer resumen-footer">
+          <button class="btn-secondary" id="btnVolver">VOLVER</button>
+          <button class="btn-primary icono-right" id="btnIniciarDebate">
+            INICIAR DEBATE
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <script src="js/particles.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/configDebates.js"></script>
+</body>
+</html>

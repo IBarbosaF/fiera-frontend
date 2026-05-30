@@ -1,0 +1,1001 @@
+/* ============================================================
+   configDebates.css — Estilos específicos de la página de debate
+   Se carga junto a styles.css (que es global)
+============================================================ */
+
+/* ------------------------------------------------------------
+   Layout principal: sidebar + panel
+   Ocupa toda la pantalla menos el header
+------------------------------------------------------------ */
+.debate-layout {
+  display    : flex;
+  min-height : 100vh;
+  padding-top: var(--header-height);
+  position   : relative;
+  z-index    : 1;
+}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+.debate-sidebar {
+  width          : 100px;
+  background     : rgba(8, 14, 26, 0.85);
+  border-right   : 1px solid rgba(255, 255, 255, 0.06);
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  padding        : 24px 0;
+  gap            : 8px;
+  flex-shrink    : 0;
+  backdrop-filter: blur(8px);
+}
+
+/* Ítem del sidebar */
+.sidebar-item {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  gap            : 6px;
+  width          : 80px;
+  padding        : 12px 8px;
+  background     : transparent;
+  border         : none;
+  border-radius  : 10px;
+  color          : var(--texto-muted);
+  font-size      : 11px;
+  font-weight    : 500;
+  cursor         : pointer;
+  transition     : background 0.2s, color 0.2s;
+  text-align     : center;
+}
+
+.sidebar-item svg {
+  width : 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+/* Logo R en sidebar */
+.sidebar-logo {
+  width     : 22px;
+  height    : 22px;
+  object-fit: contain;
+  filter    : brightness(0.6);
+  transition: filter 0.2s;
+}
+
+.sidebar-item:hover {
+  background: rgba(21, 111, 231, 0.1);
+  color     : var(--blanco);
+}
+
+.sidebar-item:hover .sidebar-logo { filter: brightness(1); }
+
+/* Ítem activo */
+.sidebar-item.active {
+  background: rgba(21, 111, 231, 0.15);
+  color     : var(--azul-principal);
+}
+
+.sidebar-item.active .sidebar-logo { filter: brightness(1) saturate(2); }
+
+/* ============================================================
+   PANEL DE CONTENIDO
+============================================================ */
+.debate-panel {
+  flex      : 1;
+  padding   : 40px 48px;
+  overflow-y: auto;
+}
+
+/* Título de sección */
+.panel-titulo {
+  font-size    : 22px;
+  font-weight  : 700;
+  color        : var(--blanco);
+  margin-bottom: 28px;
+}
+
+/* Secciones: ocultas por defecto, visible la activa */
+.seccion        { display: none; }
+.seccion.active { display: block; }
+
+/* Placeholder para secciones en desarrollo */
+.texto-proximamente {
+  font-size : 15px;
+  color     : var(--texto-muted);
+  margin-top: 20px;
+}
+
+/* ============================================================
+   BLOQUES DE CONFIGURACIÓN
+============================================================ */
+.config-bloque {
+  margin-bottom: 32px;
+}
+
+/* Cabecera del bloque: label + icono info */
+.config-bloque-header {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  margin-bottom: 14px;
+}
+
+/* Etiqueta de sección */
+.config-label {
+  font-size     : 11px;
+  font-weight   : 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color         : var(--texto-muted);
+  margin-bottom : 14px;
+  display       : flex;
+  align-items   : center;
+  gap           : 8px;
+}
+
+/* Tag "personalizable" */
+.config-tag {
+  font-size     : 10px;
+  font-weight   : 500;
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
+  color         : var(--azul-principal);
+  background    : rgba(21, 111, 231, 0.12);
+  border        : 1px solid rgba(21, 111, 231, 0.25);
+  border-radius : 20px;
+  padding       : 2px 8px;
+}
+
+/* Botón de información */
+.btn-info {
+  background: none;
+  border    : none;
+  color     : var(--texto-muted);
+  padding   : 0;
+  display   : flex;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-info svg  { width: 16px; height: 16px; }
+.btn-info:hover { color: var(--blanco); }
+
+/* ============================================================
+   TABLA DE TIEMPOS
+============================================================ */
+.tiempo-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+}
+
+.tiempo-fila {
+  display        : flex;
+  align-items    : center;
+  gap            : 16px;
+  background     : rgba(255, 255, 255, 0.03);
+  border         : 1px solid rgba(255, 255, 255, 0.06);
+  border-radius  : 10px;
+  padding        : 10px 16px;
+}
+
+/* Nombre de la intervención */
+.tiempo-nombre {
+  flex      : 1;
+  font-size : 14px;
+  font-weight: 500;
+  color     : var(--blanco);
+}
+
+/* Controles − valor + */
+.tiempo-control {
+  display    : flex;
+  align-items: center;
+  gap        : 12px;
+}
+
+.btn-tiempo {
+  width          : 28px;
+  height         : 28px;
+  border-radius  : 50%;
+  border         : 1px solid rgba(255, 255, 255, 0.15);
+  background     : rgba(255, 255, 255, 0.05);
+  color          : var(--blanco);
+  font-size      : 18px;
+  line-height    : 1;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  transition     : background 0.2s, border-color 0.2s;
+}
+
+.btn-tiempo:hover {
+  background  : rgba(21, 111, 231, 0.2);
+  border-color: var(--azul-principal);
+  color       : var(--azul-principal);
+}
+
+.tiempo-valor {
+  font-size  : 15px;
+  font-weight: 600;
+  color      : var(--blanco);
+  min-width  : 48px;
+  text-align : center;
+}
+
+.tiempo-unidad {
+  font-size : 12px;
+  color     : var(--texto-muted);
+  min-width : 24px;
+}
+
+/* ============================================================
+   GRUPOS DE BOTONES DE OPCIÓN
+============================================================ */
+.btn-grupo {
+  display  : flex;
+  gap      : 10px;
+  flex-wrap: wrap;
+}
+
+/* Botón de opción individual */
+.btn-opcion {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 6px;
+  padding        : 10px 20px;
+  border-radius  : 10px;
+  border         : 1px solid rgba(255, 255, 255, 0.1);
+  background     : rgba(255, 255, 255, 0.04);
+  color          : var(--texto-muted);
+  font-size      : 13px;
+  font-weight    : 500;
+  cursor         : pointer;
+  transition     : background 0.2s, border-color 0.2s, color 0.2s;
+  white-space    : nowrap;
+}
+
+.btn-opcion svg {
+  width    : 15px;
+  height   : 15px;
+  flex-shrink: 0;
+}
+
+/* Icono de barras (avanzado) */
+.icono-bar {
+  width : 14px;
+  height: 14px;
+}
+
+.btn-opcion:hover {
+  background  : rgba(21, 111, 231, 0.12);
+  border-color: rgba(21, 111, 231, 0.4);
+  color       : var(--blanco);
+}
+
+/* Estado activo/seleccionado */
+.btn-opcion.active {
+  background  : var(--azul-principal);
+  border-color: var(--azul-principal);
+  color       : var(--blanco);
+}
+
+/* ============================================================
+   PIE DEL PANEL: botón siguiente
+============================================================ */
+.panel-footer {
+  margin-top : 36px;
+  padding-top: 24px;
+  border-top : 1px solid rgba(255, 255, 255, 0.06);
+  display    : flex;
+  justify-content: flex-end;
+}
+
+/* ============================================================
+   ENLACE ACTIVO EN NAV HEADER
+============================================================ */
+.nav-activo {
+  color: var(--blanco) !important;
+}
+
+/* ============================================================
+   RESPONSIVE — 768px
+============================================================ */
+@media (max-width: 768px) {
+
+  .debate-layout {
+    flex-direction: column;
+  }
+
+  /* Sidebar horizontal en móvil */
+  .debate-sidebar {
+    width          : 100%;
+    flex-direction : row;
+    justify-content: space-around;
+    padding        : 10px 8px;
+    border-right   : none;
+    border-bottom  : 1px solid rgba(255, 255, 255, 0.06);
+    overflow-x     : auto;
+    gap            : 4px;
+  }
+
+  .sidebar-item {
+    width  : auto;
+    padding: 8px 10px;
+    flex   : 1;
+    min-width: 56px;
+  }
+
+  .sidebar-item span {
+    font-size: 10px;
+  }
+
+  /* Panel con menos padding */
+  .debate-panel {
+    padding: 24px 20px 40px;
+  }
+
+  /* Tiempo: nombre en una línea, control debajo si no cabe */
+  .tiempo-fila {
+    flex-wrap: wrap;
+    gap      : 8px;
+  }
+
+  /* Botones de opción: ocupan el ancho disponible */
+  .btn-grupo      { gap: 8px; }
+  .btn-opcion     { flex: 1; min-width: 100px; }
+
+  /* Botón siguiente centrado */
+  .panel-footer {
+    justify-content: center;
+  }
+
+  .panel-footer .btn-primary {
+    width     : 100%;
+    text-align: center;
+  }
+}
+
+
+/* ============================================================
+   SECCIÓN TEMA — Pestañas, buscador, lista de temas
+============================================================ */
+
+/* ------------------------------------------------------------
+   Pestañas (Banco de temas / Ingresar manualmente)
+------------------------------------------------------------ */
+.tabs {
+  display      : flex;
+  gap          : 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 24px;
+}
+
+.tab {
+  padding      : 10px 20px;
+  font-size    : 14px;
+  font-weight  : 500;
+  color        : var(--texto-muted);
+  background   : none;
+  border       : none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor       : pointer;
+  transition   : color 0.2s, border-color 0.2s;
+}
+
+.tab:hover { color: var(--blanco); }
+
+.tab.active {
+  color       : var(--azul-principal);
+  border-color: var(--azul-principal);
+}
+
+/* Paneles de pestaña */
+.tab-panel        { display: none; }
+.tab-panel.active { display: block; }
+
+/* ------------------------------------------------------------
+   Buscador
+------------------------------------------------------------ */
+.buscador-wrapper {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  margin-bottom: 16px;
+}
+
+.buscador {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  flex         : 1;
+  background   : rgba(255, 255, 255, 0.04);
+  border       : 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding      : 10px 14px;
+  transition   : border-color 0.2s;
+}
+
+.buscador:focus-within {
+  border-color: var(--azul-principal);
+  box-shadow  : 0 0 0 3px rgba(21, 111, 231, 0.12);
+}
+
+.buscador svg {
+  width      : 16px;
+  height     : 16px;
+  color      : var(--texto-muted);
+  flex-shrink: 0;
+}
+
+.buscador input {
+  flex      : 1;
+  background: none;
+  border    : none;
+  outline   : none;
+  font-size : 14px;
+  color     : var(--blanco);
+}
+
+.buscador input::placeholder { color: var(--texto-muted); }
+
+/* Botón filtro */
+.btn-filtro {
+  width          : 42px;
+  height         : 42px;
+  border-radius  : 10px;
+  border         : 1px solid rgba(255, 255, 255, 0.1);
+  background     : rgba(255, 255, 255, 0.04);
+  color          : var(--texto-muted);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+  transition     : background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-filtro svg   { width: 18px; height: 18px; }
+.btn-filtro:hover {
+  background  : rgba(21, 111, 231, 0.12);
+  border-color: rgba(21, 111, 231, 0.4);
+  color       : var(--azul-principal);
+}
+
+/* ------------------------------------------------------------
+   Lista de temas
+------------------------------------------------------------ */
+.temas-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+  max-height    : 320px;
+  overflow-y    : auto;
+  margin-bottom : 20px;
+  /* Scroll suave */
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar personalizada */
+.temas-lista::-webkit-scrollbar       { width: 4px; }
+.temas-lista::-webkit-scrollbar-track { background: transparent; }
+.temas-lista::-webkit-scrollbar-thumb { background: rgba(21, 111, 231, 0.3); border-radius: 4px; }
+
+/* Ítem de tema */
+.tema-item {
+  display       : flex;
+  align-items   : center;
+  gap           : 14px;
+  padding       : 14px 16px;
+  border-radius : 10px;
+  border        : 1px solid rgba(255, 255, 255, 0.06);
+  background    : rgba(255, 255, 255, 0.03);
+  cursor        : pointer;
+  transition    : background 0.2s, border-color 0.2s;
+}
+
+.tema-item:hover {
+  background  : rgba(21, 111, 231, 0.08);
+  border-color: rgba(21, 111, 231, 0.25);
+}
+
+/* Ítem seleccionado */
+.tema-item.selected {
+  background  : rgba(21, 111, 231, 0.12);
+  border-color: var(--azul-principal);
+}
+
+/* Punto indicador izquierdo */
+.tema-punto {
+  width        : 8px;
+  height       : 8px;
+  border-radius: 50%;
+  border       : 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink  : 0;
+  transition   : background 0.2s, border-color 0.2s;
+}
+
+.tema-item.selected .tema-punto {
+  background  : var(--azul-principal);
+  border-color: var(--azul-principal);
+}
+
+/* Texto del tema */
+.tema-contenido {
+  flex: 1;
+}
+
+.tema-pregunta {
+  font-size  : 14px;
+  font-weight: 500;
+  color      : var(--blanco);
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+
+.tema-categoria {
+  font-size  : 12px;
+  font-weight: 500;
+  color      : var(--azul-principal);
+}
+
+/* Mensaje sin resultados */
+.temas-vacio {
+  text-align: center;
+  padding   : 32px 0;
+  color     : var(--texto-muted);
+  font-size : 14px;
+}
+
+/* ------------------------------------------------------------
+   Footer de acciones (Aleatorio + Continuar)
+------------------------------------------------------------ */
+.tema-footer {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 12px;
+  margin-top     : 8px;
+  padding-top    : 20px;
+  border-top     : 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Botón secundario: outline sin relleno */
+.btn-secondary {
+  font-size    : 14px;
+  font-weight  : 500;
+  color        : var(--texto-muted);
+  background   : transparent;
+  border       : 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radio-btn);
+  padding      : 14px 24px;
+  transition   : border-color 0.2s, color 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  color       : var(--blanco);
+}
+
+/* Con icono a la izquierda */
+.btn-secondary.icono-left {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+}
+
+.btn-secondary.icono-left svg { width: 15px; height: 15px; }
+
+/* Botón deshabilitado */
+.btn-primary:disabled {
+  background: rgba(21, 111, 231, 0.3);
+  cursor    : not-allowed;
+  transform : none;
+}
+
+/* ------------------------------------------------------------
+   Pestaña Manual: ayuda bajo los campos
+------------------------------------------------------------ */
+.campo-ayuda {
+  font-size : 12px;
+  color     : var(--texto-muted);
+  margin-top: 6px;
+}
+
+/* Espacio entre campos en modo manual */
+#tab-manual .form-group {
+  margin-bottom: 20px;
+}
+
+/* ------------------------------------------------------------
+   Responsive
+------------------------------------------------------------ */
+@media (max-width: 768px) {
+  .tema-footer {
+    flex-direction: column;
+  }
+
+  .tema-footer .btn-secondary,
+  .tema-footer .btn-primary {
+    width     : 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .temas-lista { max-height: 240px; }
+}
+
+
+/* ============================================================
+   SECCIÓN FIERA — Selección de personalidad
+============================================================ */
+
+/* Subtítulo de sección */
+.panel-subtitulo {
+  font-size    : 14px;
+  color        : var(--texto-muted);
+  margin-top   : -18px;
+  margin-bottom: 28px;
+  line-height  : 1.5;
+}
+
+/* Grid de 3 tarjetas: 2 columnas en desktop, 1 en móvil */
+.personalidad-grid {
+  display              : grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap                  : 16px;
+  margin-bottom        : 8px;
+}
+
+/* Tarjeta de personalidad */
+.personalidad-card {
+  position      : relative;
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  gap           : 12px;
+  padding       : 24px 16px 20px;
+  border-radius : 14px;
+  border        : 1px solid rgba(255, 255, 255, 0.08);
+  background    : rgba(255, 255, 255, 0.03);
+  cursor        : pointer;
+  transition    : background 0.2s, border-color 0.2s, transform 0.15s;
+  text-align    : center;
+}
+
+.personalidad-card:hover {
+  background  : rgba(21, 111, 231, 0.08);
+  border-color: rgba(21, 111, 231, 0.3);
+  transform   : translateY(-2px);
+}
+
+/* Tarjeta seleccionada */
+.personalidad-card.selected {
+  background  : rgba(21, 111, 231, 0.12);
+  border-color: var(--azul-principal);
+  border-width: 2px;
+}
+
+/* Check en esquina superior derecha: oculto por defecto */
+.personalidad-check {
+  position       : absolute;
+  top            : 10px;
+  right          : 10px;
+  width          : 22px;
+  height         : 22px;
+  border-radius  : 50%;
+  background     : var(--azul-principal);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  opacity        : 0;
+  transform      : scale(0.5);
+  transition     : opacity 0.2s, transform 0.2s;
+}
+
+.personalidad-check svg {
+  width : 12px;
+  height: 12px;
+  color : var(--blanco);
+}
+
+/* Mostrar check cuando está seleccionada */
+.personalidad-card.selected .personalidad-check {
+  opacity  : 1;
+  transform: scale(1);
+}
+
+/* Imagen de la leona */
+.personalidad-img {
+  width        : 90px;
+  height       : 90px;
+  object-fit   : cover;
+  border-radius: 50%;
+  border       : 2px solid rgba(255, 255, 255, 0.1);
+  transition   : border-color 0.2s;
+}
+
+.personalidad-card.selected .personalidad-img {
+  border-color: var(--azul-principal);
+}
+
+/* Nombre de la personalidad */
+.personalidad-nombre {
+  font-size  : 16px;
+  font-weight: 700;
+  color      : var(--blanco);
+}
+
+/* Descripción corta */
+.personalidad-desc {
+  font-size  : 13px;
+  color      : var(--texto-muted);
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------
+   Responsive
+------------------------------------------------------------ */
+@media (max-width: 900px) {
+  .personalidad-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .personalidad-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .personalidad-card {
+    flex-direction: row;
+    text-align    : left;
+    padding       : 16px;
+    gap           : 16px;
+  }
+
+  .personalidad-img {
+    width     : 64px;
+    height    : 64px;
+    flex-shrink: 0;
+  }
+
+  .personalidad-info { flex: 1; }
+}
+
+
+/* ============================================================
+   SECCIÓN TURNOS
+============================================================ */
+
+/* Lista de filas de turno */
+.turnos-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+  margin-bottom : 24px;
+}
+
+/* Fila individual de turno */
+.turno-fila {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 16px;
+  background     : rgba(255, 255, 255, 0.03);
+  border         : 1px solid rgba(255, 255, 255, 0.06);
+  border-radius  : 10px;
+  padding        : 12px 16px;
+}
+
+/* Nombre de la intervención */
+.turno-nombre {
+  font-size  : 14px;
+  font-weight: 500;
+  color      : var(--blanco);
+  flex       : 1;
+}
+
+/* Contenedor de los dos botones toggle */
+.turno-opciones {
+  display      : flex;
+  gap          : 0;
+  border-radius: 8px;
+  overflow     : hidden;
+  border       : 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Botón toggle individual */
+.btn-turno {
+  padding    : 8px 20px;
+  font-size  : 13px;
+  font-weight: 600;
+  color      : var(--texto-muted);
+  background : rgba(255, 255, 255, 0.03);
+  border     : none;
+  cursor     : pointer;
+  transition : background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-turno:first-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-turno:hover {
+  background: rgba(21, 111, 231, 0.12);
+  color     : var(--blanco);
+}
+
+/* Botón activo/seleccionado */
+.btn-turno.active {
+  background: var(--azul-principal);
+  color     : var(--blanco);
+}
+
+/* Nota informativa */
+.turno-nota {
+  display    : flex;
+  align-items: flex-start;
+  gap        : 10px;
+  background : rgba(21, 111, 231, 0.08);
+  border     : 1px solid rgba(21, 111, 231, 0.2);
+  border-radius: 10px;
+  padding    : 12px 16px;
+  margin-bottom: 8px;
+}
+
+.turno-nota svg {
+  width     : 16px;
+  height    : 16px;
+  color     : var(--azul-principal);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.turno-nota p {
+  font-size  : 13px;
+  color      : var(--texto-muted);
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------
+   Responsive
+------------------------------------------------------------ */
+@media (max-width: 768px) {
+  .turno-fila {
+    flex-wrap: wrap;
+    gap      : 10px;
+  }
+
+  .turno-opciones { width: 100%; }
+
+  .btn-turno { flex: 1; text-align: center; }
+}
+
+
+/* ============================================================
+   SECCIÓN RESUMEN
+============================================================ */
+
+/* Tarjeta contenedora del resumen */
+.resumen-card {
+  background   : rgba(255, 255, 255, 0.03);
+  border       : 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding      : 8px 0;
+  margin-bottom: 8px;
+}
+
+/* Fila de dato: label izquierda, valor derecha */
+.resumen-fila {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 16px;
+  padding        : 14px 20px;
+}
+
+/* Fila con contenido multilínea alineada arriba */
+.resumen-fila-top {
+  align-items: flex-start;
+}
+
+/* Separador entre filas */
+.resumen-separador {
+  height    : 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin    : 0 20px;
+}
+
+/* Etiqueta izquierda */
+.resumen-label {
+  font-size  : 13px;
+  font-weight: 500;
+  color      : var(--texto-muted);
+  flex-shrink: 0;
+}
+
+/* Valor derecha */
+.resumen-valor {
+  font-size  : 13px;
+  font-weight: 600;
+  color      : var(--blanco);
+  text-align : right;
+}
+
+/* Bloque de tiempos por turno */
+.resumen-tiempos {
+  display       : flex;
+  flex-direction: column;
+  gap           : 4px;
+  text-align    : right;
+}
+
+.resumen-tiempo-fila {
+  display        : flex;
+  justify-content: flex-end;
+  gap            : 16px;
+}
+
+.resumen-tiempo-nombre {
+  font-size: 13px;
+  color    : var(--texto-muted);
+}
+
+.resumen-tiempo-valor {
+  font-size  : 13px;
+  font-weight: 600;
+  color      : var(--blanco);
+  min-width  : 70px;
+  text-align : right;
+}
+
+/* Footer del resumen: VOLVER + INICIAR DEBATE */
+.resumen-footer {
+  justify-content: space-between;
+}
+
+/* Botón con icono a la derecha */
+.btn-primary.icono-right {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+}
+
+.btn-primary.icono-right svg {
+  width : 14px;
+  height: 14px;
+}
+
+/* ------------------------------------------------------------
+   Responsive
+------------------------------------------------------------ */
+@media (max-width: 768px) {
+  .resumen-fila {
+    flex-direction: column;
+    align-items   : flex-start;
+    gap           : 6px;
+  }
+
+  .resumen-valor   { text-align: left; }
+  .resumen-tiempos { text-align: left; }
+
+  .resumen-tiempo-fila { justify-content: flex-start; }
+
+  .resumen-footer {
+    flex-direction: column;
+  }
+
+  .resumen-footer .btn-secondary,
+  .resumen-footer .btn-primary {
+    width          : 100%;
+    justify-content: center;
+    text-align     : center;
+  }
+}
