@@ -494,7 +494,8 @@ document.getElementById('btnVolver')?.addEventListener('click', () => {
    o se navegará a la pantalla del debate en vivo.
 ------------------------------------------------------------ */
 document.getElementById('btnIniciarDebate')?.addEventListener('click', () => {
-  console.log('Debate iniciado con config:', estadoDebate);
-  /* TODO: navegar a la pantalla del debate en vivo */
-  alert('¡Debate iniciado! Aquí arrancará la pantalla del debate.');
+  /* Guardar configuración en localStorage para que debate.js la recupere */
+  localStorage.setItem('fiera_config', JSON.stringify(estadoDebate));
+  /* Navegar a la pantalla del debate en vivo */
+  window.location.href = 'debate.html';
 });

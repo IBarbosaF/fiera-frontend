@@ -1,0 +1,280 @@
+/* ============================================================
+   resultados.css — Pantalla de resultados del debate
+============================================================ */
+
+/* Centrar verticalmente en toda la pantalla */
+.resultados-wrapper {
+  min-height     : 100vh;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  padding        : 24px;
+  position       : relative;
+  z-index        : 1;
+}
+
+/* Tarjeta principal */
+.resultados-card {
+  background    : rgba(13, 21, 38, 0.95);
+  border        : 1px solid rgba(21, 111, 231, 0.2);
+  border-radius : 20px;
+  padding       : 40px 12px;
+  width         : 100%;
+  max-width     : 560px;
+  display       : flex;
+  flex-direction: column;
+  gap           : 28px;
+  position      : relative;
+  overflow      : hidden;
+}
+
+/* Título */
+.resultados-titulo {
+  font-size  : 26px;
+  font-weight: 700;
+  color      : var(--blanco);
+  text-align : center;
+}
+
+/* ── Layout: círculo izquierda + métricas derecha ── */
+.resultados-grid {
+  display    : flex;
+  align-items: center;
+  gap        : 24px;
+}
+
+/* ── Puntuación circular ── */
+.puntuacion-central {
+  position       : relative;
+  width          : 160px;
+  height         : 160px;
+  flex-shrink    : 0;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+}
+
+.puntuacion-svg {
+  position : absolute;
+  width    : 160px;
+  height   : 160px;
+  transform: rotate(-90deg);
+}
+
+/* Circunferencia r=68: 2*PI*68 ≈ 427 */
+.puntuacion-track {
+  fill        : none;
+  stroke      : rgba(255, 255, 255, 0.06);
+  stroke-width: 12;
+}
+
+.puntuacion-progress {
+  fill             : none;
+  stroke           : var(--azul-principal);
+  stroke-width     : 12;
+  stroke-linecap   : round;
+  stroke-dasharray : 427;
+  stroke-dashoffset: 427;
+  transition       : stroke-dashoffset 1.5s ease;
+  filter           : drop-shadow(0 0 8px rgba(21,111,231,0.6));
+}
+
+.puntuacion-texto {
+  position       : relative;
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  z-index        : 1;
+}
+
+.puntuacion-num {
+  font-size    : 52px;
+  font-weight  : 900;
+  color        : var(--blanco);
+  line-height  : 1;
+  letter-spacing: -2px;
+}
+
+.puntuacion-de {
+  font-size  : 14px;
+  color      : var(--texto-muted);
+  font-weight: 500;
+}
+
+/* ── Grid 2x2 de métricas ── */
+.metricas-grid {
+  display              : grid;
+  grid-template-columns: 1fr 1fr;
+  gap                  : 10px;
+  flex                 : 1;
+}
+
+/* Tarjeta de métrica individual */
+.metrica {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  background   : rgba(255, 255, 255, 0.04);
+  border       : 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding      : 12px 14px;
+}
+
+.metrica-icono {
+  width          : 36px;
+  height         : 36px;
+  border-radius  : 50%;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.metrica-icono svg { width: 18px; height: 18px; }
+
+/* Colores de iconos */
+.metrica-icono.naranja { background: rgba(255, 140, 0, 0.15);  color: #ff8c00; }
+.metrica-icono.verde   { background: rgba(3, 210, 110, 0.15);  color: #03d26e; }
+.metrica-icono.amarillo{ background: rgba(255, 200, 0, 0.15);  color: #ffc800; }
+.metrica-icono.azul    { background: rgba(21, 111, 231, 0.15); color: var(--azul-principal); }
+
+.metrica-texto {
+  display       : flex;
+  flex-direction: column;
+  gap           : 2px;
+}
+
+.metrica-nombre {
+  font-size     : 10px;
+  font-weight   : 700;
+  color         : var(--texto-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.metrica-valor {
+  font-size  : 14px;
+  font-weight: 600;
+  color      : var(--blanco);
+}
+
+.metrica-num {
+  font-size  : 22px;
+  font-weight: 900;
+}
+
+/* ── Mensaje motivacional ── */
+.mensaje-motivacional {
+  text-align: center;
+}
+
+.mensaje-motivacional p {
+  font-size  : 14px;
+  color      : var(--texto-muted);
+  line-height: 1.6;
+}
+
+/* ── Botones de acción ── */
+.resultados-footer {
+  display        : flex;
+  gap            : 12px;
+  justify-content: center;
+}
+
+.resultados-footer .btn-secondary {
+  font-family   : 'Inter', sans-serif;
+  font-size     : 13px;
+  font-weight   : 600;
+  color         : var(--texto-muted);
+  background    : transparent;
+  border        : 1.5px solid rgba(138,154,184,0.3);
+  border-radius : var(--radio-btn);
+  padding       : 14px 32px;
+  cursor        : pointer;
+  transition    : color 0.2s, border-color 0.2s;
+  letter-spacing: 0.8px;
+}
+
+.resultados-footer .btn-secondary:hover {
+  color       : var(--blanco);
+  border-color: rgba(255,255,255,0.4);
+}
+
+.resultados-footer .btn-primary {
+  display       : flex;
+  align-items   : center;
+  gap           : 8px;
+  font-size     : 13px;
+  letter-spacing: 0.8px;
+  padding       : 14px 32px;
+}
+
+.resultados-footer .btn-primary svg {
+  width : 16px;
+  height: 16px;
+}
+
+/* ============================================================
+   CONFETI CSS
+============================================================ */
+.confeti {
+  position      : absolute;
+  inset         : 0;
+  pointer-events: none;
+  overflow      : hidden;
+  border-radius : 20px;
+}
+
+.confeti span {
+  position  : absolute;
+  width     : 8px;
+  height    : 8px;
+  border-radius: 2px;
+  opacity   : 0;
+  animation : caerConfeti 3s ease-in forwards;
+}
+
+.confeti span:nth-child(1)  { left: 10%; background: #156fe7; animation-delay: 0.1s; }
+.confeti span:nth-child(2)  { left: 20%; background: #03d26e; animation-delay: 0.3s; width: 6px; height: 12px; }
+.confeti span:nth-child(3)  { left: 35%; background: #ff8c00; animation-delay: 0.2s; }
+.confeti span:nth-child(4)  { left: 50%; background: #156fe7; animation-delay: 0.5s; width: 10px; height: 6px; }
+.confeti span:nth-child(5)  { left: 65%; background: #ffc800; animation-delay: 0.15s; }
+.confeti span:nth-child(6)  { left: 75%; background: #03d26e; animation-delay: 0.4s; width: 6px; height: 10px; }
+.confeti span:nth-child(7)  { left: 85%; background: #ff3a72; animation-delay: 0.25s; }
+.confeti span:nth-child(8)  { left: 90%; background: #156fe7; animation-delay: 0.6s; width: 12px; height: 6px; }
+.confeti span:nth-child(9)  { left: 5%;  background: #ffc800; animation-delay: 0.35s; }
+.confeti span:nth-child(10) { left: 45%; background: #ff3a72; animation-delay: 0.45s; width: 6px; height: 14px; }
+.confeti span:nth-child(11) { left: 55%; background: #03d26e; animation-delay: 0.55s; }
+.confeti span:nth-child(12) { left: 30%; background: #ff8c00; animation-delay: 0.1s; width: 10px; height: 10px; }
+
+@keyframes caerConfeti {
+  0%   { top: -10%; opacity: 1; transform: rotate(0deg) translateX(0); }
+  100% { top: 110%;  opacity: 0; transform: rotate(720deg) translateX(40px); }
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 560px) {
+  .resultados-card { padding: 28px 16px; }
+
+  /* En móvil: círculo arriba centrado, métricas debajo */
+  .resultados-grid {
+    flex-direction: column;
+    align-items   : center;
+  }
+
+  .metricas-grid { width: 100%; }
+
+  .resultados-footer {
+    flex-direction: column;
+  }
+
+  .resultados-footer .btn-secondary,
+  .resultados-footer .btn-primary {
+    width          : 100%;
+    justify-content: center;
+    text-align     : center;
+  }
+}
