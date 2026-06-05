@@ -1,0 +1,61 @@
+<!-- ============================================================
+     Header — Barra de navegación global
+
+     Se muestra completo solo cuando hay sesión activa.
+     Sin sesión el header está oculto (gestionado por el layout).
+     AuthService.estaLogueado() controla la visibilidad.
+============================================================ -->
+<header class="site-header">
+  <div class="container header-inner">
+
+    <!-- Logo: siempre visible -->
+    <a routerLink="/" class="logo-circle" aria-label="Inicio">
+      <img src="assets/R_simple.png" alt="Logo Retorika" class="logo-img" />
+    </a>
+
+    <!-- Nav principal: visible solo con sesión -->
+    <nav class="main-nav">
+      <a routerLink="/configurar"
+         routerLinkActive="nav-activo"
+         (click)="cerrarMenu()">Debates</a>
+      <a routerLink="/ia"
+         routerLinkActive="nav-activo"
+         (click)="cerrarMenu()">IA avanzada</a>
+      <a routerLink="/feedback"
+         routerLinkActive="nav-activo"
+         (click)="cerrarMenu()">Feedback</a>
+      <a routerLink="/progreso"
+         routerLinkActive="nav-activo"
+         (click)="cerrarMenu()">Tu progreso</a>
+    </nav>
+
+    <!-- Botón cerrar sesión (desktop) -->
+    <button class="btn-nav-cerrar" (click)="cerrarSesion()">
+      Cerrar sesión
+    </button>
+
+    <!-- Hamburger: solo móvil -->
+    <button class="hamburger"
+            [class.abierto]="menuAbierto"
+            (click)="toggleMenu()"
+            aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+  </div>
+
+  <!-- Menú desplegable móvil -->
+  <div class="mobile-menu" [class.open]="menuAbierto">
+    <a routerLink="/configurar" (click)="cerrarMenu()">Debates</a>
+    <a routerLink="/ia"         (click)="cerrarMenu()">IA avanzada</a>
+    <a routerLink="/feedback"   (click)="cerrarMenu()">Feedback</a>
+    <a routerLink="/progreso"   (click)="cerrarMenu()">Tu progreso</a>
+    <button class="btn-nav-cerrar mobile-cerrar"
+            (click)="cerrarSesion()">
+      Cerrar sesión
+    </button>
+  </div>
+
+</header>

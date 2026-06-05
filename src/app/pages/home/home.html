@@ -1,0 +1,181 @@
+<!-- ============================================================
+     Home — Página principal
+
+     Sin sesión : logo + FIERA V2 + botones + leona
+     Con sesión : FIERA V2 + botón comenzar + leona
+
+     auth.estaLogueado() controla qué se muestra
+============================================================ -->
+
+<main class="hero-section">
+  <div class="container hero-inner">
+
+    <!-- ── Columna izquierda: texto y CTAs ── -->
+    <div class="hero-left">
+      <div class="hero-copy">
+
+        <!-- Logo sobre el título: solo sin sesión -->
+        @if (!auth.estaLogueado()) {
+          <div class="hero-logo">
+            <img src="assets/R_simple.png" alt="Retorika" class="hero-logo-img" />
+          </div>
+        }
+
+        <h1 class="title">FIERA <span class="title-accent">V2</span></h1>
+        <p class="subtitle">ENTRENA. DEBATE. IMPACTA.</p>
+        <p class="description">
+          Tu oponente ideal para mejorar tu argumentación y oratoria.
+        </p>
+      </div>
+
+      <!-- CTAs sin sesión -->
+      @if (!auth.estaLogueado()) {
+        <div class="cta-group">
+          <button class="btn-primary" (click)="abrirLogin()">
+            INICIAR SESIÓN
+          </button>
+          <a class="btn-ghost" (click)="abrirRegistro()">
+            Regístrate, sé una fiera →
+          </a>
+        </div>
+      }
+
+      <!-- CTA con sesión (desktop) -->
+      @if (auth.estaLogueado()) {
+        <div class="cta-logueado-desktop">
+          <a routerLink="/configurar" class="btn-primary">
+            COMENZAR DEBATE
+          </a>
+        </div>
+      }
+    </div>
+
+    <!-- ── Leona con anillo neón ── -->
+    <div class="hero-image-wrapper">
+      <div class="glow-ring"></div>
+      <img src="assets/fieraLogo.png"
+           alt="FIERA - Tu oponente de debate"
+           class="leona-img" />
+    </div>
+
+    <!-- CTA con sesión (móvil, debajo de la leona) -->
+    @if (auth.estaLogueado()) {
+      <div class="cta-logueado-mobile">
+        <a routerLink="/configurar" class="btn-primary">
+          COMENZAR DEBATE
+        </a>
+      </div>
+    }
+
+  </div>
+</main>
+
+<!-- ============================================================
+     MODAL: Inicio de sesión
+============================================================ -->
+@if (modalLoginAbierto()) {
+  <div class="modal-overlay"
+       (click)="cerrarAlClickarFuera($event, 'login')">
+    <div class="modal-card">
+      <button class="modal-close"
+              (click)="cerrarLogin()"
+              aria-label="Cerrar">&times;</button>
+      <h2 class="modal-title">Iniciar sesión</h2>
+      <p class="modal-subtitle">Bienvenido de nuevo, fiera.</p>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email"
+               placeholder="tu@email.com"
+               [value]="loginEmail()"
+               (input)="loginEmail.set($any($event.target).value)"
+               autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password"
+               placeholder="••••••••"
+               [value]="loginPassword()"
+               (input)="loginPassword.set($any($event.target).value)"
+               (keydown.enter)="login()"
+               autocomplete="current-password" />
+      </div>
+
+      @if (errorLogin()) {
+        <p class="form-error">{{ errorLogin() }}</p>
+      }
+
+      <button class="btn-primary btn-full" (click)="login()">
+        ENTRAR
+      </button>
+
+      <p class="modal-footer-text">
+        ¿No tienes cuenta?
+        <a (click)="irARegistro()">Regístrate aquí</a>
+      </p>
+    </div>
+  </div>
+}
+
+<!-- ============================================================
+     MODAL: Registro
+============================================================ -->
+@if (modalRegistroAbierto()) {
+  <div class="modal-overlay"
+       (click)="cerrarAlClickarFuera($event, 'registro')">
+    <div class="modal-card">
+      <button class="modal-close"
+              (click)="cerrarRegistro()"
+              aria-label="Cerrar">&times;</button>
+      <h2 class="modal-title">Regístrate</h2>
+      <p class="modal-subtitle">Sé una fiera. Empieza hoy.</p>
+
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text"
+               placeholder="Tu nombre"
+               [value]="regNombre()"
+               (input)="regNombre.set($any($event.target).value)"
+               autocomplete="given-name" />
+      </div>
+      <div class="form-group">
+        <label>Apellidos</label>
+        <input type="text"
+               placeholder="Tus apellidos"
+               [value]="regApellidos()"
+               (input)="regApellidos.set($any($event.target).value)"
+               autocomplete="family-name" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email"
+               placeholder="tu@email.com"
+               [value]="regEmail()"
+               (input)="regEmail.set($any($event.target).value)"
+               autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password"
+               placeholder="Mínimo 6 caracteres"
+               [value]="regPassword()"
+               (input)="regPassword.set($any($event.target).value)"
+               (keydown.enter)="registrar()"
+               autocomplete="new-password" />
+      </div>
+
+      @if (errorRegistro()) {
+        <p class="form-error">{{ errorRegistro() }}</p>
+      }
+
+      <button class="btn-primary btn-full" (click)="registrar()">
+        CREAR CUENTA
+      </button>
+
+      <p class="modal-footer-text">
+        ¿Ya tienes cuenta?
+        <a (click)="irALogin()">Inicia sesión</a>
+      </p>
+    </div>
+  </div>
+}

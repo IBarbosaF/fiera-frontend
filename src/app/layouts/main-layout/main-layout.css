@@ -1,0 +1,12 @@
+/* ============================================================
+   MainLayout — Estilos del layout con sesión
+============================================================ */
+
+/* Compensar la altura del header fijo en todas las páginas
+   que usen este layout */
+.main-content {
+  padding-top: var(--header-height);
+  min-height : 100vh;
+  position   : relative;
+  z-index    : 1;
+}

@@ -1,0 +1,213 @@
+/* ============================================================
+   Home — Estilos de la página principal
+   Los estilos globales (variables, botones, modales)
+   están en src/styles.css
+============================================================ */
+
+/* ── Hero section ── */
+.hero-section {
+  position   : relative;
+  z-index    : 1;
+  min-height : 100vh;
+  display    : flex;
+  align-items: center;
+}
+
+.hero-inner {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 48px;
+  padding-top    : 40px;
+  padding-bottom : 40px;
+  width          : 100%;
+}
+
+.hero-left {
+  flex          : 1;
+  max-width     : 540px;
+  display       : flex;
+  flex-direction: column;
+  gap           : 28px;
+}
+
+.hero-copy {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+}
+
+.hero-logo        { margin-bottom: 4px; }
+
+.hero-logo-img {
+  width     : 56px;
+  height    : 56px;
+  object-fit: contain;
+  filter    : drop-shadow(0 0 12px rgba(21, 111, 231, 0.4));
+}
+
+.title {
+  font-size     : clamp(52px, 8vw, 100px);
+  font-weight   : 900;
+  line-height   : 1;
+  letter-spacing: -2px;
+  text-transform: uppercase;
+  color         : var(--blanco);
+}
+
+.title-accent { color: var(--azul-principal); }
+
+.subtitle {
+  font-size     : clamp(10px, 1.1vw, 13px);
+  font-weight   : 600;
+  letter-spacing: 3px;
+  color         : var(--texto-muted);
+  text-transform: uppercase;
+}
+
+.description {
+  font-size  : clamp(15px, 1.5vw, 18px);
+  font-weight: 400;
+  line-height: 1.7;
+  color      : var(--texto-muted);
+}
+
+/* CTAs sin sesión */
+.cta-group {
+  display       : flex;
+  flex-direction: column;
+  align-items   : flex-start;
+  gap           : 16px;
+}
+
+/* CTA con sesión desktop */
+.cta-logueado-desktop { display: block; }
+
+/* CTA con sesión móvil */
+.cta-logueado-mobile  { display: none; }
+
+/* ── Leona con anillo ── */
+.hero-image-wrapper {
+  position       : relative;
+  flex-shrink    : 0;
+  width          : clamp(280px, 36vw, 500px);
+  height         : clamp(380px, 52vw, 660px);
+  display        : flex;
+  align-items    : flex-end;
+  justify-content: center;
+}
+
+.glow-ring {
+  position     : absolute;
+  width        : 58%;
+  aspect-ratio : 1;
+  border-radius: 50%;
+  border       : 2px solid var(--azul-principal);
+  top          : 8%;
+  left         : 50%;
+  transform    : translateX(-50%);
+  box-shadow   :
+    0 0 30px rgba(21,111,231,0.5),
+    inset 0 0 30px rgba(21,111,231,0.1);
+  animation    : pulse-ring 3s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%,100% {
+    box-shadow:
+      0 0 30px rgba(21,111,231,0.5),
+      inset 0 0 30px rgba(21,111,231,0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 60px rgba(21,111,231,0.85),
+      inset 0 0 50px rgba(21,111,231,0.25);
+  }
+}
+
+.leona-img {
+  position  : absolute;
+  bottom    : -44px;
+  width     : 100%;
+  object-fit: contain;
+  z-index   : 2;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero-inner {
+    flex-direction : column;
+    align-items    : center;
+    justify-content: center;
+    text-align     : center;
+    padding-top    : 32px;
+    padding-bottom : 32px;
+    min-height     : 100svh;
+    gap            : 0;
+  }
+
+  .hero-left {
+    display: contents;
+  }
+
+  .hero-copy {
+    order      : 1;
+    align-items: center;
+    width      : 100%;
+    gap        : 6px;
+    position   : relative;
+    z-index    : 3;
+  }
+
+  .hero-logo { display: none; }
+
+  .description { max-width: 100%; }
+
+  .hero-image-wrapper {
+    order      : 2;
+    width      : min(65vw, 260px);
+    height     : min(55vw, 300px);
+    margin-top : 16px;
+    flex-shrink: 0;
+    z-index    : 2;
+  }
+
+  .glow-ring { top: 4%; width: 70%; }
+
+  .cta-group {
+    order      : 3;
+    align-items: center;
+    width      : 100%;
+    margin-top : 44px;
+    position   : relative;
+    z-index    : 3;
+  }
+
+  .btn-primary {
+    width        : min(300px, 85vw);
+    text-align   : center;
+    border-radius: var(--radio-btn);
+  }
+
+  .cta-logueado-desktop { display: none; }
+
+  .cta-logueado-mobile {
+    display        : flex;
+    order          : 3;
+    align-items    : center;
+    justify-content: center;
+    width          : 100%;
+    margin-top     : 44px;
+    position       : relative;
+    z-index        : 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 20px; }
+
+  .hero-image-wrapper {
+    width : min(70vw, 240px);
+    height: min(58vw, 270px);
+  }
+}

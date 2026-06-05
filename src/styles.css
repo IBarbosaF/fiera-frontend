@@ -348,7 +348,7 @@ body.con-sesion .cta-logueado-desktop { display: block; }
    MODALES
 ============================================================ */
 .modal-overlay {
-  display        : none;
+  display        : flex;
   position       : fixed;
   inset          : 0;
   z-index        : 200;
@@ -359,7 +359,6 @@ body.con-sesion .cta-logueado-desktop { display: block; }
   padding        : 20px;
 }
 
-.modal-overlay.activo { display: flex; }
 
 .modal-card {
   position      : relative;
