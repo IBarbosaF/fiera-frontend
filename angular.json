@@ -35,8 +35,8 @@
             ]
           },
           "configurations": {
-            "baseHref": "/fiera-frontend/",
             "production": {
+              "baseHref": "/fiera-frontend/",
               "budgets": [
                 {
                   "type": "initial",

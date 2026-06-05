@@ -1,6 +1,6 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { DebateService } from '../../core/services/debate.service';
+import { DebateService, TemaApi } from '../../core/services/debate.service';
 
 /* ============================================================
    ConfigDebateComponent — Configuración del debate
@@ -19,16 +19,6 @@ import { DebateService } from '../../core/services/debate.service';
 /* Tipo para las secciones del sidebar */
 export type SeccionDebate = 'configuracion' | 'tema' | 'fiera' | 'turnos' | 'resumen';
 
-/* Temas hardcodeados — TODO: obtener del backend */
-export const TEMAS_BANCO = [
-  { id: 1, pregunta: '¿Debe aumentarse el presupuesto en educación superior pública?', categoria: 'Educación' },
-  { id: 2, pregunta: '¿La inteligencia artificial beneficiará más de lo que perjudicará a la sociedad?', categoria: 'Tecnología' },
-  { id: 3, pregunta: '¿Es ético el uso de animales en investigación científica?', categoria: 'Ética' },
-  { id: 4, pregunta: '¿Debe legalizarse la eutanasia?', categoria: 'Sociedad' },
-  { id: 5, pregunta: '¿Debería reducirse la jornada laboral a 4 días semanales?', categoria: 'Economía' },
-  { id: 6, pregunta: '¿Es la energía nuclear una solución viable para el cambio climático?', categoria: 'Medioambiente' },
-];
-
 @Component({
   selector         : 'app-config-debate',
   standalone       : true,
@@ -37,7 +27,7 @@ export const TEMAS_BANCO = [
   styleUrl         : './config-debate.css',
   changeDetection  : ChangeDetectionStrategy.OnPush
 })
-export class ConfigDebate {
+export class ConfigDebate implements OnInit {
 
   /* Servicios inyectados */
   debateService = inject(DebateService);
@@ -47,19 +37,49 @@ export class ConfigDebate {
   seccionActiva = signal<SeccionDebate>('configuracion');
 
   /* Temas disponibles */
-  temas         = TEMAS_BANCO;
-  temasFiltrados = signal(TEMAS_BANCO);
-  temaSeleccionado = signal<typeof TEMAS_BANCO[0] | null>(null);
+  temas            = signal<TemaApi[]>([]);
+  temasFiltrados   = signal<TemaApi[]>([]);
+  temaSeleccionado = signal<TemaApi | null>(null);
+  cargandoTemas    = signal(false);
+  errorTemas       = signal(false);
 
   /* Pestaña activa en sección Tema */
   pestanaActiva = signal<'banco' | 'manual'>('banco');
 
   /* Campos de tema manual */
-  temaManual    = signal('');
-  preguntaManual = signal('');
+  temaManual     = signal('');
+  enunciadoManual = signal('');
 
   /* ── Getters del config para el template ── */
   get config() { return this.debateService.config(); }
+
+  /* ----------------------------------------------------------
+     ngOnInit — Cargar temas del backend
+  ---------------------------------------------------------- */
+  ngOnInit(): void {
+    this.cargarTemas();
+  }
+
+  /* ----------------------------------------------------------
+     cargarTemas()
+     Obtiene los temas del backend y los almacena en signals
+  ---------------------------------------------------------- */
+  cargarTemas(): void {
+    this.cargandoTemas.set(true);
+    this.errorTemas.set(false);
+
+    this.debateService.getTemas().subscribe({
+      next: (temas) => {
+        this.temas.set(temas);
+        this.temasFiltrados.set(temas);
+        this.cargandoTemas.set(false);
+      },
+      error: () => {
+        this.errorTemas.set(true);
+        this.cargandoTemas.set(false);
+      }
+    });
+  }
 
   /* ----------------------------------------------------------
      navegarA(seccion)
@@ -117,30 +137,32 @@ export class ConfigDebate {
   buscarTema(texto: string): void {
     const q = texto.toLowerCase().trim();
     this.temasFiltrados.set(
-      q ? this.temas.filter(t =>
-        t.pregunta.toLowerCase().includes(q) ||
+      q ? this.temas().filter(t =>
+        t.enunciado.toLowerCase().includes(q) ||
         t.categoria.toLowerCase().includes(q)
-      ) : this.temas
+      ) : this.temas()
     );
   }
 
-  seleccionarTema(tema: typeof TEMAS_BANCO[0]): void {
+  seleccionarTema(tema: TemaApi): void {
     this.temaSeleccionado.set(tema);
     this.debateService.actualizarConfig({
-      tema: { pregunta: tema.pregunta, categoria: tema.categoria }
+      tema: { id: tema.id, enunciado: tema.enunciado, categoria: tema.categoria }
     });
   }
 
   temaAleatorio(): void {
-    const aleatorio = this.temas[Math.floor(Math.random() * this.temas.length)];
+    const lista = this.temas();
+    if (!lista.length) return;
+    const aleatorio = lista[Math.floor(Math.random() * lista.length)];
     this.seleccionarTema(aleatorio);
   }
 
   actualizarTemaManual(): void {
-    if (this.temaManual() && this.preguntaManual()) {
+    if (this.temaManual() && this.enunciadoManual()) {
       this.debateService.actualizarConfig({
         tema: {
-          pregunta : this.preguntaManual(),
+          enunciado: this.enunciadoManual(),
           categoria: this.temaManual(),
           manual   : true
         }

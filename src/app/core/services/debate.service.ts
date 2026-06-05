@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 /* ============================================================
    DebateService — Gestión del estado del debate
@@ -7,6 +8,16 @@ import { Injectable, signal } from '@angular/core';
    TODO: reemplazar localStorage por llamadas al backend
          cuando la API esté lista.
 ============================================================ */
+
+const API_BASE = 'http://fiera.retorika.es:9010';
+
+export interface TemaApi {
+  id       : number;
+  categoria: string;
+  enunciado: string;
+  torneo   : string;
+  año      : number;
+}
 
 export interface TiemposDebate {
   intro     : number;
@@ -23,7 +34,8 @@ export interface TurnosDebate {
 }
 
 export interface TemaDebate {
-  pregunta : string;
+  id?      : number;
+  enunciado: string;   /* antes: pregunta */
   categoria: string;
   manual?  : boolean;
 }
@@ -73,11 +85,21 @@ const CONFIG_INICIAL: ConfigDebate = {
 })
 export class DebateService {
 
+  private http = inject(HttpClient);
+
   /* Signal con la configuración actual del debate */
   private _config = signal<ConfigDebate>({ ...CONFIG_INICIAL });
 
   /* Config accesible desde cualquier componente */
   config = this._config.asReadonly();
+
+  /* ----------------------------------------------------------
+     getTemas()
+     Obtiene el banco de temas del backend
+  ---------------------------------------------------------- */
+  getTemas() {
+    return this.http.get<TemaApi[]>(`${API_BASE}/api/app/temas`);
+  }
 
   /* ----------------------------------------------------------
      actualizarConfig()

@@ -191,14 +191,21 @@
             </div>
 
             <!-- Lista de temas -->
-            <div class="temas-lista">
+            @if (cargandoTemas()) {
+              <p class="temas-vacio">Cargando temas...</p>
+            } @else if (errorTemas()) {
+              <div class="temas-error">
+                <p class="temas-vacio">No se pudieron cargar los temas.</p>
+                <button class="btn-secondary" (click)="cargarTemas()">Reintentar</button>
+              </div>
+            } @else {
               @for (tema of temasFiltrados(); track tema.id) {
                 <div class="tema-item"
-                     [class.selected]="temaSeleccionado()?.id === tema.id"
-                     (click)="seleccionarTema(tema)">
+                    [class.selected]="temaSeleccionado()?.id === tema.id"
+                    (click)="seleccionarTema(tema)">
                   <div class="tema-punto"></div>
                   <div class="tema-contenido">
-                    <p class="tema-pregunta">{{ tema.pregunta }}</p>
+                    <p class="tema-pregunta">{{ tema.enunciado }}</p>
                     <span class="tema-categoria">{{ tema.categoria }}</span>
                   </div>
                 </div>
@@ -206,8 +213,8 @@
               @empty {
                 <p class="temas-vacio">No se encontraron temas.</p>
               }
+            }
             </div>
-
             <div class="tema-footer">
               <button class="btn-secondary icono-left" (click)="temaAleatorio()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
@@ -219,7 +226,7 @@
                 CONTINUAR
               </button>
             </div>
-          </div>
+
         }
 
         <!-- Ingresar manualmente -->
@@ -234,16 +241,16 @@
               <p class="campo-ayuda">El contexto general sobre el que se debatirá.</p>
             </div>
             <div class="form-group">
-              <label>Pregunta de debate</label>
+              <label>Enunciado del debate</label>
               <input type="text"
-                     placeholder="Ej: ¿Debe ser obligatoria la reducción de emisiones?"
-                     [value]="preguntaManual()"
-                     (input)="preguntaManual.set($any($event.target).value); actualizarTemaManual()" />
+                    placeholder="Ej: ¿Debe ser obligatoria la reducción de emisiones?"
+                    [value]="enunciadoManual()"
+                    (input)="enunciadoManual.set($any($event.target).value); actualizarTemaManual()" />
               <p class="campo-ayuda">La pregunta concreta que guiará los argumentos.</p>
             </div>
             <div class="tema-footer">
               <button class="btn-primary"
-                      [disabled]="!temaManual() || !preguntaManual()"
+                      [disabled]="!temaManual() || !enunciadoManual()"
                       (click)="siguiente()">
                 CONTINUAR
               </button>
@@ -348,7 +355,7 @@
 
           <div class="resumen-fila">
             <span class="resumen-label">Tema</span>
-            <span class="resumen-valor">{{ config.tema?.pregunta || '—' }}</span>
+            <span class="resumen-valor">{{ config.tema?.enunciado || '—' }}</span>
           </div>
           <div class="resumen-separador"></div>
 
