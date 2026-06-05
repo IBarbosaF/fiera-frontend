@@ -1,1 +1,95 @@
-<p>resultados works!</p>
+<!-- ============================================================
+     Resultados — Pantalla de resultados del debate
+============================================================ -->
+<div class="resultados-wrapper">
+
+  <!-- Confeti decorativo -->
+  <div class="confeti" aria-hidden="true">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="resultados-card">
+
+    <h1 class="resultados-titulo">¡Debate finalizado!</h1>
+
+    <!-- Layout: círculo izquierda + métricas derecha -->
+    <div class="resultados-grid">
+
+      <!-- Puntuación circular -->
+      <div class="puntuacion-central">
+        <svg class="puntuacion-svg" viewBox="0 0 160 160">
+          <circle class="puntuacion-track"    cx="80" cy="80" r="68"/>
+          <circle class="puntuacion-progress"
+                  cx="80" cy="80" r="68"
+                  [style.stroke-dashoffset]="svgOffset()"/>
+        </svg>
+        <div class="puntuacion-texto">
+          <span class="puntuacion-num">{{ total() }}</span>
+          <span class="puntuacion-de">/100</span>
+        </div>
+      </div>
+
+      <!-- Grid 2x2 de métricas -->
+      <div class="metricas-grid">
+
+        <div class="metrica">
+          <div class="metrica-icono naranja">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="metrica-texto">
+            <span class="metrica-nombre">Argumentación</span>
+            <span class="metrica-valor"><span class="metrica-num">{{ argumentacion() }}</span>/25</span>
+          </div>
+        </div>
+
+        <div class="metrica">
+          <div class="metrica-icono verde">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="metrica-texto">
+            <span class="metrica-nombre">Claridad</span>
+            <span class="metrica-valor"><span class="metrica-num">{{ claridad() }}</span>/25</span>
+          </div>
+        </div>
+
+        <div class="metrica">
+          <div class="metrica-icono amarillo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </div>
+          <div class="metrica-texto">
+            <span class="metrica-nombre">Refutación</span>
+            <span class="metrica-valor"><span class="metrica-num">{{ refutacion() }}</span>/25</span>
+          </div>
+        </div>
+
+        <div class="metrica">
+          <div class="metrica-icono azul">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="metrica-texto">
+            <span class="metrica-nombre">Evidencia</span>
+            <span class="metrica-valor"><span class="metrica-num">{{ evidencia() }}</span>/25</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mensaje motivacional -->
+    <div class="mensaje-motivacional">
+      <p>{{ mensaje() }}</p>
+    </div>
+
+    <!-- Botones -->
+    <div class="resultados-footer">
+      <button class="btn-secondary" (click)="verDetalle()">VER DETALLE</button>
+      <a routerLink="/" class="btn-primary icono-right">
+        VOLVER AL INICIO
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </a>
+    </div>
+
+  </div>
+</div>

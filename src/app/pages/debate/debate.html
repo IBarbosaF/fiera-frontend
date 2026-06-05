@@ -1,1 +1,218 @@
-<p>debate works!</p>
+<!-- ============================================================
+     Debate — Pantalla del debate en vivo
+
+     Layout: sidebar izquierdo | centro | historial derecho
+============================================================ -->
+<div class="debate-vivo-layout">
+
+  <!-- ── SIDEBAR IZQUIERDO ── -->
+  <aside class="debate-vivo-sidebar">
+
+    <a routerLink="/" class="sidebar-logo-link" aria-label="Inicio">
+      <img src="assets/R_simple.png" alt="Logo" class="sidebar-logo-img" />
+    </a>
+
+    <div class="sidebar-acciones">
+      <button class="sidebar-accion active" title="Historial">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <button class="sidebar-accion" title="Notas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </button>
+      <button class="sidebar-accion" title="Configuración">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      </button>
+    </div>
+
+    <button class="sidebar-salir" title="Salir" (click)="abrirModalSalir()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+
+  </aside>
+
+  <!-- ── CONTENIDO CENTRAL ── -->
+  <main class="debate-vivo-main">
+
+    <!-- Header del turno -->
+    <div class="turno-header">
+      <div class="turno-info-wrapper">
+        <div class="turno-info">
+          <span class="turno-label">Turno:</span>
+          <span class="turno-nombre-actual">{{ subTurnoInfo?.nombre }}</span>
+        </div>
+        <p class="turno-tema">
+          {{ debateService.config().tema?.pregunta || 'Tema libre' }}
+        </p>
+      </div>
+
+      <div class="turno-badge" [class.fiera]="!esTuTurno">
+        {{ esTuTurno ? 'TU TURNO' : 'TURNO DE FIERA' }}
+      </div>
+
+      <img src="assets/fieraLogo.png" alt="FIERA" class="turno-avatar" />
+    </div>
+
+    <!-- Temporizador circular -->
+    <div class="timer-wrapper">
+      <div class="timer-circulo">
+        <svg class="timer-svg" viewBox="0 0 200 200">
+          <circle class="timer-track"    cx="100" cy="100" r="85"/>
+          <circle class="timer-progress"
+                  cx="100" cy="100" r="85"
+                  [class.urgente]="timerUrgente()"
+                  [style.stroke-dashoffset]="svgOffset()"/>
+        </svg>
+        <div class="timer-centro">
+          <span class="timer-tiempo">{{ formatearSegundos(segundosRest()) }}</span>
+          <span class="timer-total">de {{ duracionTotal }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer: input + botón acción -->
+    <div class="debate-footer">
+
+      <button class="btn-accion-turno"
+              [disabled]="esTuTurno && !esRefutacion && !esTuTurno"
+              (click)="accionPrincipal(argumentoInput.value, argumentoInput)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+        <span>{{ esTuTurno ? 'ENVIAR' : 'LEVANTAR MANO' }}</span>
+      </button>
+
+      <div class="argumento-input-wrapper">
+        <input #argumentoInput
+               type="text"
+               class="argumento-input"
+               [disabled]="!esTuTurno"
+               [placeholder]="esTuTurno ? 'Escribe tu argumento y pulsa Enviar o Enter...' : 'Espera tu turno...'"
+               (keydown.enter)="accionPrincipal(argumentoInput.value, argumentoInput)" />
+        <button class="btn-micro" title="Reconocimiento de voz (próximamente)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Consejo ARE -->
+    <div class="consejo-are">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>
+        @if (esTuTurno) {
+          Usa el método ARE (Afirmación, Razón, Evidencia).
+        } @else {
+          FIERA está argumentando. Escucha con atención.
+        }
+      </span>
+    </div>
+
+  </main>
+
+  <!-- ── PANEL DERECHO: HISTORIAL ── -->
+  <aside class="debate-historial">
+    <h3 class="historial-titulo">Historial del debate</h3>
+
+    <div class="historial-lista">
+      @if (historial().length === 0) {
+        <p class="historial-vacio">El debate aún no ha comenzado.</p>
+      }
+
+      @for (item of historial(); track $index) {
+        <div class="historial-item">
+          <span class="historial-item-titulo">{{ item.titulo }}</span>
+          <p class="historial-item-texto"
+             [class.expandido]="item.expandido">
+            {{ item.texto }}
+          </p>
+          <button class="historial-ver-mas"
+                  (click)="toggleHistorial($index)">
+            {{ item.expandido ? 'Ver menos' : 'Ver más' }}
+          </button>
+        </div>
+      }
+    </div>
+  </aside>
+
+</div>
+
+<!-- ============================================================
+     MODAL: Confirmar salida
+============================================================ -->
+@if (modalSalirAbierto()) {
+  <div class="modal-overlay">
+    <div class="modal-card">
+      <h2 class="modal-title">¿Salir del debate?</h2>
+      <p class="modal-subtitle">Perderás el progreso del debate actual.</p>
+      <div class="modal-salir-botones">
+        <button class="btn-secondary" (click)="cancelarSalir()">Cancelar</button>
+        <button class="btn-primary"   (click)="confirmarSalir()">Salir</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ============================================================
+     MODAL: FIERA levanta la mano
+============================================================ -->
+@if (modalFieraLevantaAbierto()) {
+  <div class="modal-overlay">
+    <div class="modal-card modal-interrupcion">
+      <div class="interrupcion-badge">FIERA LEVANTA LA MANO</div>
+      <img src="assets/fieraLogo.png" alt="FIERA" class="interrupcion-avatar" />
+      <h2 class="modal-title">FIERA quiere hacerte una pregunta</h2>
+      <p class="modal-subtitle">¿Aceptas la pregunta de FIERA?</p>
+      <p class="interrupcion-nota">El tiempo sigue corriendo.</p>
+      <div class="modal-salir-botones">
+        <button class="btn-secondary" (click)="rechazarPreguntaFiera()">RECHAZAR</button>
+        <button class="btn-primary"   (click)="aceptarPreguntaFiera()">ACEPTAR</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ============================================================
+     MODAL: Pregunta de FIERA
+============================================================ -->
+@if (modalPreguntaFieraAbierto()) {
+  <div class="modal-overlay">
+    <div class="modal-card modal-interrupcion">
+      <div class="interrupcion-badge">FIERA LEVANTA LA MANO</div>
+      <img src="assets/fieraLogo.png" alt="FIERA" class="interrupcion-avatar" />
+      <p class="interrupcion-pregunta">{{ preguntaFieraTexto() }}</p>
+      <p class="interrupcion-nota">El tiempo sigue corriendo. Responde con brevedad.</p>
+      <div class="form-group">
+        <input #respuestaInput
+               type="text"
+               placeholder="Escribe tu respuesta..."
+               (keydown.enter)="enviarRespuestaAFiera(respuestaInput.value, respuestaInput)" />
+      </div>
+      <button class="btn-primary btn-full"
+              (click)="enviarRespuestaAFiera(respuestaInput.value, respuestaInput)">
+        RESPONDER Y CONTINUAR
+      </button>
+    </div>
+  </div>
+}
+
+<!-- ============================================================
+     MODAL: Tú levantas la mano
+============================================================ -->
+@if (modalTuPreguntaAbierto()) {
+  <div class="modal-overlay">
+    <div class="modal-card modal-interrupcion">
+      <div class="interrupcion-badge tu-badge">TÚ LEVANTAS LA MANO</div>
+      <img src="assets/fieraLogo.png" alt="FIERA" class="interrupcion-avatar" />
+      <h2 class="modal-title">Hazle una pregunta a FIERA</h2>
+      <p class="interrupcion-nota">El tiempo sigue corriendo. FIERA responderá brevemente.</p>
+      <div class="form-group">
+        <input #tuPreguntaInput
+               type="text"
+               placeholder="Escribe tu pregunta..."
+               (keydown.enter)="enviarTuPregunta(tuPreguntaInput.value, tuPreguntaInput)" />
+      </div>
+      <div class="modal-salir-botones">
+        <button class="btn-secondary" (click)="cancelarTuPregunta()">Cancelar</button>
+        <button class="btn-primary"   (click)="enviarTuPregunta(tuPreguntaInput.value, tuPreguntaInput)">PREGUNTAR</button>
+      </div>
+    </div>
+  </div>
+}

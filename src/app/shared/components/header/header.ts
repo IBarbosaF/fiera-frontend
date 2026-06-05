@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 /* ============================================================
@@ -24,6 +24,9 @@ export class Header {
 
   /* Inyección del servicio de autenticación */
   auth = inject(AuthService);
+
+  // En la clase:
+  router = inject(Router);
 
   /* Estado del menú hamburger en móvil */
   menuAbierto = false;
@@ -52,5 +55,6 @@ export class Header {
   cerrarSesion(): void {
     this.menuAbierto = false;
     this.auth.cerrarSesion();
+    this.router.navigate(['/']);
   }
 }
