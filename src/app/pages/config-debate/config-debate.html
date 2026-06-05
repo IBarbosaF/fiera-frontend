@@ -1,1 +1,411 @@
-<p>config-debate works!</p>
+<!-- ============================================================
+     ConfigDebate — Configuración del debate
+
+     Sidebar izquierdo con 5 secciones.
+     El contenido cambia según la sección activa.
+============================================================ -->
+<div class="debate-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="debate-sidebar">
+
+    <button class="sidebar-item"
+            [class.active]="seccionActiva() === 'configuracion'"
+            (click)="navegarA('configuracion')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      <span>Configuración</span>
+    </button>
+
+    <button class="sidebar-item"
+            [class.active]="seccionActiva() === 'tema'"
+            (click)="navegarA('tema')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span>Tema</span>
+    </button>
+
+    <button class="sidebar-item"
+            [class.active]="seccionActiva() === 'fiera'"
+            (click)="navegarA('fiera')">
+      <img src="assets/R_simple.png" alt="FIERA" class="sidebar-logo" />
+      <span>FIERA</span>
+    </button>
+
+    <button class="sidebar-item"
+            [class.active]="seccionActiva() === 'turnos'"
+            (click)="navegarA('turnos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      <span>Turnos</span>
+    </button>
+
+    <button class="sidebar-item"
+            [class.active]="seccionActiva() === 'resumen'"
+            (click)="navegarA('resumen')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Resumen</span>
+    </button>
+
+  </aside>
+
+  <!-- ── PANEL DE CONTENIDO ── -->
+  <main class="debate-panel">
+
+    <!-- ==========================================
+         SECCIÓN: CONFIGURACIÓN
+    ========================================== -->
+    @if (seccionActiva() === 'configuracion') {
+      <div class="seccion">
+        <h2 class="panel-titulo">Configura tu debate</h2>
+
+        <!-- Tiempo de intervenciones -->
+        <div class="config-bloque">
+          <div class="config-bloque-header">
+            <h3 class="config-label">
+              TIEMPO DE INTERVENCIONES
+              <span class="config-tag">personalizable</span>
+            </h3>
+            <button class="btn-info" title="Personaliza el tiempo de cada intervención">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </button>
+          </div>
+
+          <div class="tiempo-lista">
+
+            @for (fila of [
+              { campo: 'intro',      nombre: 'Introducción' },
+              { campo: 'ref1',       nombre: '1ª Refutación' },
+              { campo: 'ref2',       nombre: '2ª Refutación' },
+              { campo: 'conclusion', nombre: 'Conclusión' }
+            ]; track fila.campo) {
+              <div class="tiempo-fila">
+                <span class="tiempo-nombre">{{ fila.nombre }}</span>
+                <div class="tiempo-control">
+                  <button class="btn-tiempo"
+                          (click)="actualizarTiempo(fila.campo, 'restar')">−</button>
+                  <span class="tiempo-valor">
+                    {{ formatearTiempo(getTiempo(fila.campo)) }}
+                  </span>
+                  <button class="btn-tiempo"
+                          (click)="actualizarTiempo(fila.campo, 'sumar')">+</button>
+                </div>
+                <span class="tiempo-unidad">min</span>
+              </div>
+            }
+
+          </div>
+        </div>
+
+        <!-- Nivel de dificultad -->
+        <div class="config-bloque">
+          <h3 class="config-label">NIVEL DE DIFICULTAD DE FIERA</h3>
+          <div class="btn-grupo">
+            @for (op of [
+              { valor: 'basico',   label: 'Básico' },
+              { valor: 'medio',    label: 'Medio' },
+              { valor: 'avanzado', label: 'Avanzado' }
+            ]; track op.valor) {
+              <button class="btn-opcion"
+                      [class.active]="config.dificultad === op.valor"
+                      (click)="setDificultad(op.valor)">
+                {{ op.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Modo de debate -->
+        <div class="config-bloque">
+          <h3 class="config-label">MODO DE DEBATE</h3>
+          <div class="btn-grupo">
+            <button class="btn-opcion"
+                    [class.active]="config.modo === 'completo'"
+                    (click)="setModo('completo')">
+              Debate completo
+            </button>
+            <button class="btn-opcion"
+                    [class.active]="config.modo === 'express'"
+                    (click)="setModo('express')">
+              Debate express
+            </button>
+          </div>
+        </div>
+
+        <!-- Postura -->
+        <div class="config-bloque">
+          <h3 class="config-label">POSTURA</h3>
+          <div class="btn-grupo">
+            @for (op of [
+              { valor: 'favor',     label: 'A favor' },
+              { valor: 'contra',    label: 'En contra' },
+              { valor: 'aleatoria', label: 'Aleatoria' }
+            ]; track op.valor) {
+              <button class="btn-opcion"
+                      [class.active]="config.postura === op.valor"
+                      (click)="setPostura(op.valor)">
+                {{ op.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="panel-footer">
+          <button class="btn-primary" (click)="siguiente()">Siguiente →</button>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         SECCIÓN: TEMA
+    ========================================== -->
+    @if (seccionActiva() === 'tema') {
+      <div class="seccion">
+        <h2 class="panel-titulo">Selección de tema</h2>
+
+        <!-- Pestañas -->
+        <div class="tabs">
+          <button class="tab"
+                  [class.active]="pestanaActiva() === 'banco'"
+                  (click)="pestanaActiva.set('banco')">
+            Banco de temas
+          </button>
+          <button class="tab"
+                  [class.active]="pestanaActiva() === 'manual'"
+                  (click)="pestanaActiva.set('manual')">
+            Ingresar manualmente
+          </button>
+        </div>
+
+        <!-- Banco de temas -->
+        @if (pestanaActiva() === 'banco') {
+          <div>
+            <!-- Buscador -->
+            <div class="buscador-wrapper">
+              <div class="buscador">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text"
+                       placeholder="Buscar tema..."
+                       (input)="buscarTema($any($event.target).value)" />
+              </div>
+              <button class="btn-filtro">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+              </button>
+            </div>
+
+            <!-- Lista de temas -->
+            <div class="temas-lista">
+              @for (tema of temasFiltrados(); track tema.id) {
+                <div class="tema-item"
+                     [class.selected]="temaSeleccionado()?.id === tema.id"
+                     (click)="seleccionarTema(tema)">
+                  <div class="tema-punto"></div>
+                  <div class="tema-contenido">
+                    <p class="tema-pregunta">{{ tema.pregunta }}</p>
+                    <span class="tema-categoria">{{ tema.categoria }}</span>
+                  </div>
+                </div>
+              }
+              @empty {
+                <p class="temas-vacio">No se encontraron temas.</p>
+              }
+            </div>
+
+            <div class="tema-footer">
+              <button class="btn-secondary icono-left" (click)="temaAleatorio()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+                Tema aleatorio
+              </button>
+              <button class="btn-primary"
+                      [disabled]="!temaSeleccionado()"
+                      (click)="siguiente()">
+                CONTINUAR
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Ingresar manualmente -->
+        @if (pestanaActiva() === 'manual') {
+          <div>
+            <div class="form-group">
+              <label>Tema del debate</label>
+              <input type="text"
+                     placeholder="Ej: El cambio climático es la mayor amenaza del siglo XXI"
+                     [value]="temaManual()"
+                     (input)="temaManual.set($any($event.target).value); actualizarTemaManual()" />
+              <p class="campo-ayuda">El contexto general sobre el que se debatirá.</p>
+            </div>
+            <div class="form-group">
+              <label>Pregunta de debate</label>
+              <input type="text"
+                     placeholder="Ej: ¿Debe ser obligatoria la reducción de emisiones?"
+                     [value]="preguntaManual()"
+                     (input)="preguntaManual.set($any($event.target).value); actualizarTemaManual()" />
+              <p class="campo-ayuda">La pregunta concreta que guiará los argumentos.</p>
+            </div>
+            <div class="tema-footer">
+              <button class="btn-primary"
+                      [disabled]="!temaManual() || !preguntaManual()"
+                      (click)="siguiente()">
+                CONTINUAR
+              </button>
+            </div>
+          </div>
+        }
+
+      </div>
+    }
+
+    <!-- ==========================================
+         SECCIÓN: FIERA
+    ========================================== -->
+    @if (seccionActiva() === 'fiera') {
+      <div class="seccion">
+        <h2 class="panel-titulo">Elige la personalidad de FIERA</h2>
+        <p class="panel-subtitulo">Esto definirá el estilo de argumentación y tono del avatar.</p>
+
+        <div class="personalidad-grid">
+          @for (p of [
+            { valor: 'agresiva',  nombre: 'Agresiva',  desc: 'Directa, desafiante y confrontativa.' },
+            { valor: 'elegante',  nombre: 'Elegante',  desc: 'Refinada, persuasiva y sofisticada.' },
+            { valor: 'sarcastica',nombre: 'Sarcástica',desc: 'Irónica, punzante y provocadora.' }
+          ]; track p.valor) {
+            <div class="personalidad-card"
+                 [class.selected]="config.personalidad === p.valor"
+                 (click)="setPersonalidad(p.valor)">
+              <div class="personalidad-check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <img src="assets/fieraLogo.png" [alt]="p.nombre" class="personalidad-img" />
+              <div class="personalidad-info">
+                <h3 class="personalidad-nombre">{{ p.nombre }}</h3>
+                <p class="personalidad-desc">{{ p.desc }}</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="panel-footer">
+          <button class="btn-primary"
+                  [disabled]="!config.personalidad"
+                  (click)="siguiente()">
+            CONTINUAR
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         SECCIÓN: TURNOS
+    ========================================== -->
+    @if (seccionActiva() === 'turnos') {
+      <div class="seccion">
+        <h2 class="panel-titulo">Elige quién participa en cada turno</h2>
+        <p class="panel-subtitulo">Selecciona los turnos que realizará tu equipo y los que hará FIERA.</p>
+
+        <div class="turnos-lista">
+          @for (fila of [
+            { campo: 'intro',      nombre: 'Introducción' },
+            { campo: 'ref1',       nombre: '1ª Refutación' },
+            { campo: 'ref2',       nombre: '2ª Refutación' },
+            { campo: 'conclusion', nombre: 'Conclusión' }
+          ]; track fila.campo) {
+            <div class="turno-fila">
+              <span class="turno-nombre">{{ fila.nombre }}</span>
+              <div class="turno-opciones">
+                <button class="btn-turno"
+                        [class.active]="getTurno(fila.campo) === 'equipo'"
+                        (click)="setTurno(fila.campo, 'equipo')">
+                  Mi equipo
+                </button>
+                <button class="btn-turno"
+                        [class.active]="getTurno(fila.campo) === 'fiera'"
+                        (click)="setTurno(fila.campo, 'fiera')">
+                  FIERA
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="turno-nota">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p>En el modo express, solo se ejecutarán los turnos seleccionados en orden.</p>
+        </div>
+
+        <div class="panel-footer">
+          <button class="btn-primary" (click)="siguiente()">CONTINUAR</button>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         SECCIÓN: RESUMEN
+    ========================================== -->
+    @if (seccionActiva() === 'resumen') {
+      <div class="seccion">
+        <h2 class="panel-titulo">Resumen de tu debate</h2>
+
+        <div class="resumen-card">
+
+          <div class="resumen-fila">
+            <span class="resumen-label">Tema</span>
+            <span class="resumen-valor">{{ config.tema?.pregunta || '—' }}</span>
+          </div>
+          <div class="resumen-separador"></div>
+
+          <div class="resumen-fila">
+            <span class="resumen-label">Postura</span>
+            <span class="resumen-valor">{{ textoPostura() }}</span>
+          </div>
+          <div class="resumen-separador"></div>
+
+          <div class="resumen-fila resumen-fila-top">
+            <span class="resumen-label">Tiempo por turno</span>
+            <div class="resumen-tiempos">
+              @for (fila of [
+                { campo: 'intro',      nombre: 'Introducción' },
+                { campo: 'ref1',       nombre: '1ª Refutación' },
+                { campo: 'ref2',       nombre: '2ª Refutación' },
+                { campo: 'conclusion', nombre: 'Conclusión' }
+              ]; track fila.campo) {
+                <div class="resumen-tiempo-fila">
+                  <span class="resumen-tiempo-nombre">{{ fila.nombre }}</span>
+                  <span class="resumen-tiempo-valor">
+                    {{ formatearTiempo(getTiempo(fila.campo)) }}  min
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="resumen-separador"></div>
+
+          <div class="resumen-fila">
+            <span class="resumen-label">Nivel de dificultad</span>
+            <span class="resumen-valor">{{ textoDificultad() }}</span>
+          </div>
+          <div class="resumen-separador"></div>
+
+          <div class="resumen-fila">
+            <span class="resumen-label">Personalidad de FIERA</span>
+            <span class="resumen-valor">{{ textoPersonalidad() }}</span>
+          </div>
+          <div class="resumen-separador"></div>
+
+          <div class="resumen-fila">
+            <span class="resumen-label">Modo</span>
+            <span class="resumen-valor">{{ textoModo() }}</span>
+          </div>
+
+        </div>
+
+        <div class="panel-footer resumen-footer">
+          <button class="btn-secondary" (click)="volver()">VOLVER</button>
+          <button class="btn-primary icono-right" (click)="iniciarDebate()">
+            INICIAR DEBATE
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+        </div>
+      </div>
+    }
+
+  </main>
+</div>
