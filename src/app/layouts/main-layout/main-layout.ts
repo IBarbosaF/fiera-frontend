@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Particles } from '../../shared/components/particles/particles';
 import { Header } from '../../shared/components/header/header';
+import { AuthService } from '../../core/services/auth.service';
 
 /* ============================================================
    MainLayout — Layout para páginas con sesión activa
@@ -18,4 +19,6 @@ import { Header } from '../../shared/components/header/header';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })
-export class MainLayout {}
+export class MainLayout {
+  auth = inject(AuthService);
+}

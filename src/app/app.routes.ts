@@ -1,30 +1,24 @@
 import { Routes } from '@angular/router';
-import { AuthLayout } from './layouts/auth-layout/auth-layout';
 import { MainLayout } from './layouts/main-layout/main-layout';
 
 /* ============================================================
    Rutas de la aplicación
 
-   AuthLayout  → páginas sin sesión (home)
-   MainLayout  → páginas con sesión (config, debate, resultados)
+   Todas las páginas usan MainLayout.
+   MainLayout muestra el header solo cuando hay sesión activa
+   controlado por AuthService.estaLogueado()
 ============================================================ */
 
 export const routes: Routes = [
   {
     path     : '',
-    component: AuthLayout,
-    children : [
-      {
-        path     : '',
-        loadComponent: () =>
-          import('./pages/home/home').then(m => m.Home)
-      }
-    ]
-  },
-  {
-    path     : '',
     component: MainLayout,
     children : [
+      {
+        path        : '',
+        loadComponent: () =>
+          import('./pages/home/home').then(m => m.Home)
+      },
       {
         path        : 'configurar',
         loadComponent: () =>

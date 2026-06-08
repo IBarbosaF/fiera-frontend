@@ -8,9 +8,12 @@
 .hero-section {
   position   : relative;
   z-index    : 1;
-  min-height : 100vh;
   display    : flex;
   align-items: center;
+  height  : 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  padding-bottom: 70px; /* Para evitar que el contenido quede oculto detrás del bottom nav en móvil */
 }
 
 .hero-inner {
@@ -34,16 +37,22 @@
 .hero-copy {
   display       : flex;
   flex-direction: column;
-  gap           : 10px;
+  gap           : 4px;
 }
 
-.hero-logo        { margin-bottom: 4px; }
+.hero-logo {
+  margin-bottom: 0px;
+}
 
 .hero-logo-img {
-  width     : 56px;
-  height    : 56px;
+  width     : 88px;
+  height    : 88px;
   object-fit: contain;
   filter    : drop-shadow(0 0 12px rgba(21, 111, 231, 0.4));
+  display   : block;
+  position  : relative;
+  left      : -24px; /* ajusta hasta alinear con la F */
+  top       : 24px; /* ajusta este valor hasta donde quieras */
 }
 
 .title {
@@ -63,6 +72,23 @@
   letter-spacing: 3px;
   color         : var(--texto-muted);
   text-transform: uppercase;
+  /* sin border ni background */
+}
+
+.subtitle-linea {
+  width     : 160px;
+  height    : 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(21, 111, 231, 0.4) 20%,
+    var(--azul-principal) 50%,
+    rgba(21, 111, 231, 0.4) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 12px rgba(21, 111, 231, 0.8),
+              0 0 0px rgba(21, 111, 231, 0.4);
+  margin-top: 6px;
 }
 
 .description {
@@ -103,13 +129,77 @@
   aspect-ratio : 1;
   border-radius: 50%;
   border       : 2px solid var(--azul-principal);
-  top          : 8%;
+  top          : 32%;
   left         : 50%;
   transform    : translateX(-50%);
   box-shadow   :
     0 0 30px rgba(21,111,231,0.5),
     inset 0 0 30px rgba(21,111,231,0.1);
   animation    : pulse-ring 3s ease-in-out infinite;
+}
+
+/* ── Frase acento azul ── */
+.description-accent {
+  color      : var(--azul-principal);
+  font-weight: 600;
+}
+
+/* ── Botón Iniciar sesión outline ── */
+.btn-secondary-outline {
+  font-family  : 'Inter', sans-serif;
+  font-size    : 14px;
+  font-weight  : 500;
+  color        : var(--azul-principal);
+  background   : transparent;
+  border       : 1.5px solid var(--azul-principal);
+  border-radius: var(--radio-btn);
+  padding      : 14px 40px;
+  cursor       : pointer;
+  transition   : background 0.2s;
+  width        : min(300px, 85vw);
+  text-align   : center;
+}
+
+.btn-secondary-outline:hover {
+  background: rgba(21, 111, 231, 0.1);
+}
+
+/* ── Bottom nav home ── */
+.bottom-nav-home {
+  position       : fixed;
+  bottom         : 0;
+  left           : 0;
+  right          : 0;
+  z-index        : 100;
+  background     : rgba(8, 14, 26, 0.95);
+  border-top     : 1px solid rgba(255, 255, 255, 0.06);
+  display        : flex;
+  justify-content: space-around;
+  align-items    : center;
+  padding        : 12px 0 20px;
+  backdrop-filter: blur(8px);
+}
+
+.bottom-nav-item {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  gap           : 6px;
+  color         : var(--azul-principal);
+  font-size     : 10px;
+  font-weight   : 500;
+  text-align    : center;
+  flex          : 1;
+  cursor        : pointer;
+  transition    : opacity 0.2s;
+}
+
+.bottom-nav-item:hover { opacity: 0.7; }
+.bottom-nav-item svg   { width: 22px; height: 22px; }
+
+/* Desktop: ocultar bottom nav */
+@media (min-width: 769px) {
+  .bottom-nav-home { display: none; }
 }
 
 @keyframes pulse-ring {
@@ -159,7 +249,17 @@
     z-index    : 3;
   }
 
-  .hero-logo { display: none; }
+  .hero-logo {
+    display  : block;
+    width    : 100%;
+    text-align: left; /* ← alinea a la izquierda */
+  }
+
+  .hero-logo-img {
+    position: relative;
+    left    : 32px;
+    top     : 24px;
+  }
 
   .description { max-width: 100%; }
 

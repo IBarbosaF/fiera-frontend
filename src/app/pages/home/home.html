@@ -13,18 +13,15 @@
     <!-- ── Columna izquierda: texto y CTAs ── -->
     <div class="hero-left">
       <div class="hero-copy">
-
-        <!-- Logo sobre el título: solo sin sesión -->
-        @if (!auth.estaLogueado()) {
-          <div class="hero-logo">
-            <img src="assets/R_simple.png" alt="Retorika" class="hero-logo-img" />
-          </div>
-        }
-
+        <div class="hero-logo">
+          <img src="assets/r_azul.png" alt="Retorika" class="hero-logo-img" />
+        </div>
         <h1 class="title">FIERA <span class="title-accent">V2</span></h1>
         <p class="subtitle">ENTRENA. DEBATE. IMPACTA.</p>
+        <div class="subtitle-linea"></div>
         <p class="description">
-          Tu oponente ideal para mejorar tu argumentación y oratoria.
+          Compite contra la IA en formato
+          <span class="description-accent">"Debate académico"</span>
         </p>
       </div>
 
@@ -69,6 +66,8 @@
 
   </div>
 </main>
+
+
 
 <!-- ============================================================
      MODAL: Inicio de sesión

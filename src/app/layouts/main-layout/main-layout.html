@@ -3,9 +3,14 @@
      Header + partículas + contenido de la página
 ============================================================ -->
 <app-particles />
-<app-header />
 
-<!-- El contenido de cada página se renderiza aquí -->
-<main class="main-content">
+<!-- Header: solo visible con sesión activa -->
+@if (auth.estaLogueado()) {
+  <app-header />
+}
+
+<main class="main-content"
+    [class.sin-header]="!auth.estaLogueado()"
+    [style.overflow]="auth.estaLogueado() ? 'hidden' : 'auto'">
   <router-outlet />
 </main>
