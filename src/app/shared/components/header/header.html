@@ -5,9 +5,18 @@
 ============================================================ -->
 <nav class="bottom-nav-main">
   <div class="nav-items-wrapper">
-
+    <!-- Icono Debates académicos -->
     <a routerLink="/configurar" class="nav-item-main"
        routerLinkActive="nav-item-activo">
+
+         <!-- Icono de info -->
+        <div class="nav-info-wrapper"
+          (click)="$event.stopPropagation(); $event.preventDefault()">
+          <span class="nav-info-icon">i</span>
+          <div class="nav-tooltip">Configura debates personalizados eligiendo tema, postura, duración, dificultad y turnos.
+            Entrena como en una competición real de debate académico.</div>
+        </div>
+
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
         <path d="M6 12v5c3 3 9 3 12 0v-5"/>
@@ -15,40 +24,70 @@
       <span>Debates<br/>académicos</span>
     </a>
 
+    <!-- Icono IA avanzada -->
     <a routerLink="/ia" class="nav-item-main"
       routerLinkActive="nav-item-activo">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Hemisferio izquierdo -->
-  <path d="M12 4C10 4 8 5 7 6.5C5.5 7 4 8.5 4 10.5C4 12 4.5 13 5.5 13.5C5 14 4.5 15 5 16C5.5 17 6.5 17.5 7.5 17.5C8 18.5 9 19.5 10.5 19.5C11 19.5 11.5 19.5 12 19.3"/>
-  <!-- Hemisferio derecho -->
-  <path d="M12 4C14 4 16 5 17 6.5C18.5 7 20 8.5 20 10.5C20 12 19.5 13 18.5 13.5C19 14 19.5 15 19 16C18.5 17 17.5 17.5 16.5 17.5C16 18.5 15 19.5 13.5 19.5C13 19.5 12.5 19.5 12 19.3"/>
-  <!-- Línea central -->
-  <line x1="12" y1="4" x2="12" y2="19.3"/>
-  <!-- Nodos circuito izquierdo -->
-  <circle cx="8.5" cy="9"  r="0.8" fill="currentColor"/>
-  <circle cx="7.5" cy="13" r="0.8" fill="currentColor"/>
-  <circle cx="9.5" cy="16" r="0.8" fill="currentColor"/>
-  <!-- Nodos circuito derecho -->
-  <circle cx="15.5" cy="9"  r="0.8" fill="currentColor"/>
-  <circle cx="16.5" cy="13" r="0.8" fill="currentColor"/>
-  <circle cx="14.5" cy="16" r="0.8" fill="currentColor"/>
-  <!-- Líneas de circuito -->
-  <path d="M8.5 9 L10 11 L8.5 13"/>
-  <path d="M15.5 9 L14 11 L15.5 13"/>
-</svg>
+
+        <!-- Icono de info -->
+        <div class="nav-info-wrapper"
+          (click)="$event.stopPropagation(); $event.preventDefault()">
+          <span class="nav-info-icon">i</span>
+          <div class="nav-tooltip">FIERA utiliza inteligencia artificial para actuar como un auténtico rival de debate.
+            Puede argumentar, refutar, formular preguntas e incluso adaptar su estilo a distintas personalidades.</div>
+        </div>
+
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Hemisferio izquierdo -->
+        <path d="M12 4C10 4 8 5 7 6.5C5.5 7 4 8.5 4 10.5C4 12 4.5 13 5.5 13.5C5 14 4.5 15 5 16C5.5 17 6.5 17.5 7.5 17.5C8 18.5 9 19.5 10.5 19.5C11 19.5 11.5 19.5 12 19.3"/>
+        <!-- Hemisferio derecho -->
+        <path d="M12 4C14 4 16 5 17 6.5C18.5 7 20 8.5 20 10.5C20 12 19.5 13 18.5 13.5C19 14 19.5 15 19 16C18.5 17 17.5 17.5 16.5 17.5C16 18.5 15 19.5 13.5 19.5C13 19.5 12.5 19.5 12 19.3"/>
+        <!-- Línea central -->
+        <line x1="12" y1="4" x2="12" y2="19.3"/>
+        <!-- Nodos circuito izquierdo -->
+        <circle cx="8.5" cy="9"  r="0.8" fill="currentColor"/>
+        <circle cx="7.5" cy="13" r="0.8" fill="currentColor"/>
+        <circle cx="9.5" cy="16" r="0.8" fill="currentColor"/>
+        <!-- Nodos circuito derecho -->
+        <circle cx="15.5" cy="9"  r="0.8" fill="currentColor"/>
+        <circle cx="16.5" cy="13" r="0.8" fill="currentColor"/>
+        <circle cx="14.5" cy="16" r="0.8" fill="currentColor"/>
+        <!-- Líneas de circuito -->
+        <path d="M8.5 9 L10 11 L8.5 13"/>
+        <path d="M15.5 9 L14 11 L15.5 13"/>
+      </svg>
       <span>IA<br/>avanzada</span>
     </a>
 
+    <!-- Icono Feedback inteligente -->
     <a routerLink="/feedback" class="nav-item-main"
        routerLinkActive="nav-item-activo">
+
+      <!-- Icono de info -->
+      <div class="nav-info-wrapper"
+        (click)="$event.stopPropagation(); $event.preventDefault()">
+        <span class="nav-info-icon">i</span>
+        <div class="nav-tooltip">Al finalizar cada debate recibirás una evaluación detallada de tu desempeño, con puntuaciones,
+          fortalezas y recomendaciones específicas para mejorar.</div>
+      </div>
+
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
       <span>Feedback<br/>inteligente</span>
     </a>
 
+    <!-- Icono Progreso -->
     <a routerLink="/progreso" class="nav-item-main"
        routerLinkActive="nav-item-activo">
+
+      <!-- Icono de info -->
+      <div class="nav-info-wrapper"
+        (click)="$event.stopPropagation(); $event.preventDefault()">
+        <span class="nav-info-icon">i</span>
+        <div class="nav-tooltip">Sigue tu evolución a lo largo del tiempo. Consulta estadísticas,
+          resultados, logros, ranking y métricas para medir tu mejora sesión tras sesión.</div>
+      </div>
+
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>

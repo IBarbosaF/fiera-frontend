@@ -1,0 +1,372 @@
+<!-- ============================================================
+     Registro — Formulario de registro en 4 pasos
+============================================================ -->
+<div class="registro-layout">
+
+  <!-- ── PANEL IZQUIERDO (decorativo) ── -->
+  <div class="registro-deco">
+    <a routerLink="/" class="deco-logo-link">
+      <img src="assets/r_azul.png" alt="Logo Retorika" class="deco-logo" />
+    </a>
+    <div class="deco-texto">
+      <h2>Entrena tu debate con FIERA</h2>
+      <p>Configura tu perfil y empieza a practicar contra FIERA, tu rival de debate inteligente.</p>
+    </div>
+    <div class="deco-fiera-wrapper">
+      <div class="deco-glow-ring"></div>
+      <img src="assets/fieraLogo.png" alt="FIERA" class="deco-fiera" />
+    </div>
+  </div>
+
+  <!-- ── PANEL DERECHO (formulario) ── -->
+  <div class="registro-contenido">
+
+    <!-- Stepper -->
+    <div class="stepper">
+      @for (paso of [1,2,3,4]; track paso) {
+        <div class="stepper-paso"
+             [class.activo]="pasoActual() === paso"
+             [class.completado]="pasoActual() > paso"
+             (click)="irAPaso(paso)">
+          <div class="stepper-circulo">
+            @if (pasoActual() > paso) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            } @else {
+              {{ paso }}
+            }
+          </div>
+          @if (paso < 4) {
+            <div class="stepper-linea" [class.completada]="pasoActual() > paso"></div>
+          }
+        </div>
+      }
+      <span class="stepper-label">{{ pasoActual() }} / 4</span>
+    </div>
+
+    <!-- ==========================================
+         PASO 1 — Datos básicos
+    ========================================== -->
+    @if (pasoActual() === 1) {
+      <div class="paso">
+        <div class="paso-header">
+          <h1 class="paso-titulo">Datos básicos</h1>
+          <p class="paso-subtitulo">Completa tu información para crear tu cuenta en FIERA.</p>
+        </div>
+
+        <div class="form-campos">
+
+          <div class="form-group">
+            <label class="form-label">NOMBRE</label>
+            <div class="form-input-wrapper">
+              <svg class="form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text"
+                     class="form-input"
+                     placeholder="Escribe tu nombre"
+                     [value]="nombre()"
+                     (input)="nombre.set($any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">APELLIDOS</label>
+            <div class="form-input-wrapper">
+              <svg class="form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text"
+                     class="form-input"
+                     placeholder="Escribe tus apellidos"
+                     [value]="apellidos()"
+                     (input)="apellidos.set($any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">NOMBRE DE USUARIO</label>
+            <div class="form-input-wrapper">
+              <svg class="form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+              <input type="text"
+                     class="form-input"
+                     placeholder="Elige tu nombre de usuario"
+                     [value]="usuario()"
+                     (input)="usuario.set($any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">CORREO ELECTRÓNICO</label>
+            <div class="form-input-wrapper">
+              <svg class="form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input type="email"
+                     class="form-input"
+                     placeholder="ejemplo@correo.com"
+                     [value]="email()"
+                     (input)="email.set($any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">CONTRASEÑA</label>
+            <div class="form-input-wrapper">
+              <svg class="form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password"
+                     class="form-input"
+                     placeholder="Mínimo 6 caracteres"
+                     [value]="password()"
+                     (input)="password.set($any($event.target).value)" />
+            </div>
+          </div>
+
+        </div>
+
+        @if (errorPaso1()) {
+          <p class="form-error">{{ errorPaso1() }}</p>
+        }
+
+        <div class="info-privacidad">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div>
+            <p class="info-titulo">Tu información está protegida</p>
+            <p class="info-desc">Nunca compartiremos tus datos con terceros.</p>
+          </div>
+        </div>
+
+        <button class="btn-continuar" (click)="siguiente()">
+          CONTINUAR
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+
+        <p class="login-link">¿Ya tienes cuenta? <a routerLink="/">Iniciar sesión</a></p>
+
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 2 — Experiencia en debate
+    ========================================== -->
+    @if (pasoActual() === 2) {
+      <div class="paso">
+        <div class="paso-header">
+          <h1 class="paso-titulo">Experiencia en debate</h1>
+          <p class="paso-subtitulo">Esto nos ayudará a adaptar el nivel de dificultad de tus entrenamientos.</p>
+        </div>
+
+        <div class="experiencia-lista">
+
+          @for (op of [
+            { valor: 'ninguna',  label: 'Ninguna',          desc: 'Estoy empezando en el debate.',    icono: 'planta'  },
+            { valor: 'menos1',   label: 'Menos de 1 año',   desc: 'Tengo poca experiencia.',          icono: 'reloj'   },
+            { valor: '1a3',      label: 'Entre 1 y 3 años', desc: 'Tengo experiencia moderada.',      icono: 'grafica' },
+            { valor: 'mas3',     label: 'Más de 3 años',    desc: 'Tengo mucha experiencia.',         icono: 'trofeo'  }
+          ]; track op.valor) {
+            <div class="experiencia-opcion"
+                 [class.selected]="experiencia() === op.valor"
+                 (click)="experiencia.set($any(op.valor))">
+              <div class="exp-radio">
+                @if (experiencia() === op.valor) {
+                  <div class="exp-radio-inner"></div>
+                }
+              </div>
+              <div class="exp-texto">
+                <p class="exp-label">{{ op.label }}</p>
+                <p class="exp-desc">{{ op.desc }}</p>
+              </div>
+              <div class="exp-icono">
+                @if (op.icono === 'planta') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 7 7 4 3 6c4 0 7 3 9 6"/><path d="M12 12c0-5 5-8 9-6-4 0-7 3-9 6"/></svg>
+                }
+                @if (op.icono === 'reloj') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                }
+                @if (op.icono === 'grafica') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                }
+                @if (op.icono === 'trofeo') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M7 4H4a2 2 0 0 0-2 2v1a5 5 0 0 0 10 0V6a2 2 0 0 0-2-2H7z"/><path d="M17 4h3a2 2 0 0 1 2 2v1a5 5 0 0 1-10 0V6a2 2 0 0 1 2-2h3z"/></svg>
+                }
+              </div>
+            </div>
+          }
+
+        </div>
+
+        @if (error()) {
+          <p class="form-error">{{ error() }}</p>
+        }
+
+        <div class="info-privacidad">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6"  y1="20" x2="6"  y2="14"/>
+          </svg>
+          <div>
+            <p class="info-titulo">Adaptaremos FIERA a tu nivel</p>
+            <p class="info-desc">Tu experiencia nos permite ofrecerte mejores debates.</p>
+          </div>
+        </div>
+
+        <button class="btn-continuar" (click)="siguiente()">
+          CONTINUAR
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 3 — Club
+    ========================================== -->
+    @if (pasoActual() === 3) {
+      <div class="paso">
+        <div class="paso-header">
+          <h1 class="paso-titulo">¿A qué club perteneces?</h1>
+          <p class="paso-subtitulo">Selecciona tu institución para acceder a rankings y estadísticas personalizadas.</p>
+        </div>
+
+        <!-- Buscador -->
+        <div class="form-input-wrapper">
+          <svg class="form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text"
+                 class="form-input"
+                 placeholder="Buscar club o institución..."
+                 (input)="buscarClub($any($event.target).value)" />
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros-club">
+          @for (f of [
+            { valor: 'colegio',       label: 'Colegio'       },
+            { valor: 'universidad',   label: 'Universidad'   },
+            { valor: 'colegio_mayor', label: 'Colegio Mayor' },
+            { valor: 'otro',          label: 'Otro'          }
+          ]; track f.valor) {
+            <button class="filtro-btn"
+                    [class.active]="filtroclubs() === f.valor"
+                    (click)="setFiltroClub(filtroclubs() === $any(f.valor) ? null : $any(f.valor))">
+              {{ f.label }}
+            </button>
+          }
+        </div>
+
+        <!-- Lista de clubs -->
+        <div class="clubs-lista">
+          <p class="clubs-sugerencias-label">Sugerencias</p>
+
+          @for (club of clubsFiltrados(); track club.id) {
+            <div class="club-item"
+                 [class.selected]="clubSeleccionado()?.id === club.id"
+                 (click)="seleccionarClub(club)">
+              <div class="club-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <div class="club-info">
+                <p class="club-nombre">{{ club.nombre }}</p>
+                <p class="club-tipo">{{ tipoClubLabel(club.tipo) }}</p>
+              </div>
+              <svg class="club-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          }
+
+          @empty {
+            <p class="clubs-vacio">No se encontraron clubs.</p>
+          }
+
+        </div>
+
+        <!-- Solicitar alta -->
+        <div class="club-nuevo">
+          <div class="club-nuevo-icono">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          </div>
+          <div class="club-nuevo-info">
+            <p class="club-nombre">Solicitar alta de nuevo club</p>
+            <p class="club-tipo">Escribe el nombre de tu club o institución</p>
+          </div>
+          <svg class="club-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        @if (error()) {
+          <p class="form-error">{{ error() }}</p>
+        }
+
+        <button class="btn-continuar" (click)="siguiente()">
+          CONTINUAR
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 4 — Posición
+    ========================================== -->
+    @if (pasoActual() === 4) {
+      <div class="paso">
+        <div class="paso-header">
+          <h1 class="paso-titulo">¿Qué posición sueles desempeñar?</h1>
+          <p class="paso-subtitulo">Selecciona todas las posiciones que sueles hacer.</p>
+        </div>
+
+        <div class="posiciones-lista">
+
+          @for (op of [
+            { valor: 'introductor', nombre: 'Introductor',       desc: 'Presenta la línea argumental del equipo y el marco del debate.' },
+            { valor: 'refutador1',  nombre: 'Primer refutador',  desc: 'Responde a los argumentos rivales y desarrolla nuevas líneas.' },
+            { valor: 'refutador2',  nombre: 'Segundo refutador', desc: 'Profundiza en la refutación y fortalece la posición del equipo.' },
+            { valor: 'conclusor',   nombre: 'Conclusor',         desc: 'Resume el debate y demuestra por qué tu equipo debe ganar.' },
+            { valor: 'noclear',     nombre: 'No lo tengo claro', desc: 'Aún estoy descubriendo mi rol en el debate.' }
+          ]; track op.valor) {
+            <div class="posicion-item"
+                 [class.selected]="tienePosicion($any(op.valor))"
+                 (click)="togglePosicion($any(op.valor))">
+              <div class="posicion-icono">
+                @if (op.valor === 'introductor') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                }
+                @if (op.valor === 'refutador1') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14.5c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.83 8 21v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+                }
+                @if (op.valor === 'refutador2') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                }
+                @if (op.valor === 'conclusor') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                }
+                @if (op.valor === 'noclear') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                }
+              </div>
+              <div class="posicion-info">
+                <p class="posicion-nombre">{{ op.nombre }}</p>
+                <p class="posicion-desc">{{ op.desc }}</p>
+              </div>
+              <div class="posicion-check" [class.marcado]="tienePosicion($any(op.valor))">
+                @if (tienePosicion($any(op.valor))) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                }
+              </div>
+            </div>
+          }
+
+        </div>
+
+        @if (error()) {
+          <p class="form-error">{{ error() }}</p>
+        }
+
+        <div class="info-privacidad">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>
+            <p class="info-titulo">Utilizaremos esta información</p>
+            <p class="info-desc">para proponerte entrenamientos específicos.</p>
+          </div>
+        </div>
+
+        <button class="btn-continuar btn-finalizar" (click)="finalizar()">
+          COMENZAR EN FIERA 🚀
+        </button>
+
+      </div>
+    }
+
+  </div>
+</div>

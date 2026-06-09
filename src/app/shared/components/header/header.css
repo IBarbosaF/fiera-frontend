@@ -89,6 +89,69 @@
   color: #ff4d6d;
 }
 
+/* ── Info icon + tooltip ── */
+.nav-info-wrapper {
+  position: relative;
+  display : flex;
+}
+
+.nav-info-icon {
+  width          : 14px;
+  height         : 14px;
+  border-radius  : 50%;
+  border         : 1px solid rgba(21, 111, 231, 0.5);
+  color          : rgba(21, 111, 231, 0.6);
+  font-size      : 9px;
+  font-weight    : 700;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  cursor         : pointer;
+  font-style     : normal;
+  transition     : border-color 0.2s, color 0.2s;
+  line-height    : 1;
+}
+
+.nav-info-icon:hover {
+  border-color: var(--azul-principal);
+  color       : var(--azul-principal);
+}
+
+/* Bocadillo: oculto por defecto */
+.nav-tooltip {
+  display      : none;
+  position     : absolute;
+  bottom       : 20px;
+  left         : 50%;
+  transform    : translateX(-50%);
+  background   : var(--fondo-modal);
+  border       : 1px solid rgba(21, 111, 231, 0.25);
+  border-radius: 8px;
+  padding      : 8px 12px;
+  font-size    : 11px;
+  color        : var(--texto-muted);
+  white-space  : nowrap;
+  z-index      : 200;
+  /* Flechita abajo */
+  box-shadow   : 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.nav-tooltip::after {
+  content      : '';
+  position     : absolute;
+  top          : 100%;
+  left         : 50%;
+  transform    : translateX(-50%);
+  border       : 6px solid transparent;
+  border-top-color: rgba(21, 111, 231, 0.25);
+}
+
+/* Mostrar al hacer hover en la i */
+.nav-info-icon:hover + .nav-tooltip,
+.nav-info-wrapper:hover .nav-tooltip {
+  display: block;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .nav-item-main + .nav-item-main {

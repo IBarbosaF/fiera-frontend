@@ -20,6 +20,11 @@ export const routes: Routes = [
           import('./pages/home/home').then(m => m.Home)
       },
       {
+        path        : 'registro',
+        loadComponent: () =>
+          import('./pages/registro/registro').then(m => m.Registro)
+      },
+      {
         path        : 'configurar',
         loadComponent: () =>
           import('./pages/config-debate/config-debate').then(m => m.ConfigDebate)

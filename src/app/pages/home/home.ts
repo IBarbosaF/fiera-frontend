@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 /* ============================================================
@@ -25,23 +25,18 @@ export class Home {
   /* Inyección del servicio de autenticación */
   auth = inject(AuthService);
 
+  /* Router para navegación */
+  router = inject(Router);
+
   /* ── Estado de los modales ── */
   modalLoginAbierto    = signal(false);
-  modalRegistroAbierto = signal(false);
 
   /* ── Errores de formulario ── */
   errorLogin    = signal('');
-  errorRegistro = signal('');
 
   /* ── Campos del formulario de login ── */
   loginEmail    = signal('');
   loginPassword = signal('');
-
-  /* ── Campos del formulario de registro ── */
-  regNombre    = signal('');
-  regApellidos = signal('');
-  regEmail     = signal('');
-  regPassword  = signal('');
 
   /* ----------------------------------------------------------
      Apertura y cierre de modales
@@ -59,24 +54,16 @@ export class Home {
   }
 
   abrirRegistro(): void {
-    this.errorRegistro.set('');
-    this.modalRegistroAbierto.set(true);
-  }
-
-  cerrarRegistro(): void {
-    this.modalRegistroAbierto.set(false);
-    this.errorRegistro.set('');
-    this.limpiarFormRegistro();
+    this.router.navigate(['/registro']);  // reemplaza el contenido anterior
   }
 
   /* Navegar entre modales */
   irARegistro(): void {
     this.cerrarLogin();
-    this.abrirRegistro();
+    this.router.navigate(['/registro']);  // reemplaza el contenido anterior
   }
 
   irALogin(): void {
-    this.cerrarRegistro();
     this.abrirLogin();
   }
 
@@ -101,44 +88,13 @@ export class Home {
   }
 
   /* ----------------------------------------------------------
-     registrar()
-     Registra nuevo usuario con AuthService
-     TODO: conectar con backend cuando esté disponible
-  ---------------------------------------------------------- */
-  registrar(): void {
-    this.errorRegistro.set('');
-    const resultado = this.auth.registrar({
-      nombre   : this.regNombre(),
-      apellidos: this.regApellidos(),
-      email    : this.regEmail(),
-      password : this.regPassword()
-    });
-
-    if (!resultado.ok) {
-      this.errorRegistro.set(resultado.error || '');
-      return;
-    }
-
-    this.cerrarRegistro();
-  }
-
-  /* ----------------------------------------------------------
      cerrarAlClickarFuera()
      Cierra el modal al hacer click en el overlay
   ---------------------------------------------------------- */
-  cerrarAlClickarFuera(event: MouseEvent, modal: 'login' | 'registro'): void {
+  cerrarAlClickarFuera(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
-      modal === 'login' ? this.cerrarLogin() : this.cerrarRegistro();
+      this.cerrarLogin();
     }
   }
 
-  /* ----------------------------------------------------------
-     Helpers privados
-  ---------------------------------------------------------- */
-  private limpiarFormRegistro(): void {
-    this.regNombre.set('');
-    this.regApellidos.set('');
-    this.regEmail.set('');
-    this.regPassword.set('');
-  }
 }

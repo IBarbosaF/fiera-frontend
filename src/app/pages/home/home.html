@@ -74,7 +74,7 @@
 ============================================================ -->
 @if (modalLoginAbierto()) {
   <div class="modal-overlay"
-       (click)="cerrarAlClickarFuera($event, 'login')">
+       (click)="cerrarAlClickarFuera($event)">
     <div class="modal-card">
       <button class="modal-close"
               (click)="cerrarLogin()"
@@ -111,69 +111,6 @@
       <p class="modal-footer-text">
         ¿No tienes cuenta?
         <a (click)="irARegistro()">Regístrate aquí</a>
-      </p>
-    </div>
-  </div>
-}
-
-<!-- ============================================================
-     MODAL: Registro
-============================================================ -->
-@if (modalRegistroAbierto()) {
-  <div class="modal-overlay"
-       (click)="cerrarAlClickarFuera($event, 'registro')">
-    <div class="modal-card">
-      <button class="modal-close"
-              (click)="cerrarRegistro()"
-              aria-label="Cerrar">&times;</button>
-      <h2 class="modal-title">Regístrate</h2>
-      <p class="modal-subtitle">Sé una fiera. Empieza hoy.</p>
-
-      <div class="form-group">
-        <label>Nombre</label>
-        <input type="text"
-               placeholder="Tu nombre"
-               [value]="regNombre()"
-               (input)="regNombre.set($any($event.target).value)"
-               autocomplete="given-name" />
-      </div>
-      <div class="form-group">
-        <label>Apellidos</label>
-        <input type="text"
-               placeholder="Tus apellidos"
-               [value]="regApellidos()"
-               (input)="regApellidos.set($any($event.target).value)"
-               autocomplete="family-name" />
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email"
-               placeholder="tu@email.com"
-               [value]="regEmail()"
-               (input)="regEmail.set($any($event.target).value)"
-               autocomplete="email" />
-      </div>
-      <div class="form-group">
-        <label>Contraseña</label>
-        <input type="password"
-               placeholder="Mínimo 6 caracteres"
-               [value]="regPassword()"
-               (input)="regPassword.set($any($event.target).value)"
-               (keydown.enter)="registrar()"
-               autocomplete="new-password" />
-      </div>
-
-      @if (errorRegistro()) {
-        <p class="form-error">{{ errorRegistro() }}</p>
-      }
-
-      <button class="btn-primary btn-full" (click)="registrar()">
-        CREAR CUENTA
-      </button>
-
-      <p class="modal-footer-text">
-        ¿Ya tienes cuenta?
-        <a (click)="irALogin()">Inicia sesión</a>
       </p>
     </div>
   </div>
