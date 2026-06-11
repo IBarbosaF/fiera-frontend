@@ -1,45 +1,33 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
-/* ============================================================
-   HomeComponent — Página principal
-
-   Dos estados según AuthService.estaLogueado():
-   - Sin sesión : logo + título + botones login/registro + leona
-   - Con sesión : título + botón COMENZAR DEBATE + leona
-
-   Los modales de login y registro se gestionan aquí mismo
-   ya que solo se usan en esta página.
-============================================================ */
-
 @Component({
-  selector    : 'app-home',
-  standalone  : true,
-  imports     : [RouterLink],
-  templateUrl : './home.html',
-  styleUrl    : './home.css'
+  selector        : 'app-home',
+  standalone      : true,
+  imports         : [RouterLink],
+  templateUrl     : './home.html',
+  styleUrl        : './home.css',
+  changeDetection : ChangeDetectionStrategy.OnPush
 })
 export class Home {
 
-  /* Inyección del servicio de autenticación */
-  auth = inject(AuthService);
-
-  /* Router para navegación */
+  auth   = inject(AuthService);
   router = inject(Router);
 
-  /* ── Estado de los modales ── */
-  modalLoginAbierto    = signal(false);
+  /* ── Modales ── */
+  modalLoginAbierto = signal(false);
 
-  /* ── Errores de formulario ── */
-  errorLogin    = signal('');
+  /* ── Errores ── */
+  errorLogin = signal('');
 
-  /* ── Campos del formulario de login ── */
-  loginEmail    = signal('');
-  loginPassword = signal('');
+  /* ── Ojo contraseña ── */
+  verPassword   = false;
+  emailValue    = '';
+  passwordValue = '';
 
   /* ----------------------------------------------------------
-     Apertura y cierre de modales
+     Modales
   ---------------------------------------------------------- */
   abrirLogin(): void {
     this.errorLogin.set('');
@@ -49,35 +37,31 @@ export class Home {
   cerrarLogin(): void {
     this.modalLoginAbierto.set(false);
     this.errorLogin.set('');
-    this.loginEmail.set('');
-    this.loginPassword.set('');
+    this.emailValue    = '';
+    this.passwordValue = '';
+    this.verPassword   = false;
   }
 
   abrirRegistro(): void {
-    this.router.navigate(['/registro']);  // reemplaza el contenido anterior
+    this.router.navigate(['/registro']);
   }
 
-  /* Navegar entre modales */
   irARegistro(): void {
     this.cerrarLogin();
-    this.router.navigate(['/registro']);  // reemplaza el contenido anterior
+    this.router.navigate(['/registro']);
   }
 
-  irALogin(): void {
-    this.abrirLogin();
+  toggleVerPassword(): void {
+    this.verPassword = !this.verPassword;
   }
 
   /* ----------------------------------------------------------
      login()
-     Valida credenciales con AuthService
      TODO: conectar con backend cuando esté disponible
   ---------------------------------------------------------- */
-  login(): void {
+  login(email: string, password: string): void {
     this.errorLogin.set('');
-    const resultado = this.auth.login(
-      this.loginEmail(),
-      this.loginPassword()
-    );
+    const resultado = this.auth.login(email, password);
 
     if (!resultado.ok) {
       this.errorLogin.set(resultado.error || '');
@@ -89,12 +73,10 @@ export class Home {
 
   /* ----------------------------------------------------------
      cerrarAlClickarFuera()
-     Cierra el modal al hacer click en el overlay
   ---------------------------------------------------------- */
   cerrarAlClickarFuera(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
       this.cerrarLogin();
     }
   }
-
 }

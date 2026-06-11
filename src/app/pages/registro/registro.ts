@@ -45,6 +45,7 @@ export class Registro {
 
   authService = inject(AuthService);
   router      = inject(Router);
+  mostrarPassword = signal(false);
 
   /* Paso activo (1–4) */
   pasoActual = signal(1);

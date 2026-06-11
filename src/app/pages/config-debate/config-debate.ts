@@ -1,69 +1,159 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { DebateService, TemaApi } from '../../core/services/debate.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Particles } from '../../shared/components/particles/particles';
 
 /* ============================================================
-   ConfigDebateComponent — Configuración del debate
+   ConfigDebateComponent — Configuración del debate (v2)
 
-   Gestiona 5 secciones mediante un sidebar de navegación:
-   1. Configuración  → tiempos, dificultad, modo, postura
-   2. Tema           → banco de temas o entrada manual
-   3. FIERA          → personalidad del avatar
-   4. Turnos         → asignación de turnos por intervención
-   5. Resumen        → revisión final + iniciar debate
+   Wizard de 7 pasos lineales:
+   1. Invitar compañero   → código simulado + lista de invitados
+   2. Configurar FIERA    → personalidad + nivel de dificultad
+   3. Elegir tema         → categorías → temas | entrada manual
+   4. Postura             → favor / contra / aleatoria
+   5. Configurar debate   → modo + tabla de turnos con tiempos
+   6. Participantes       → asignar turno a yo / fiera / compañero
+   7. Resumen             → revisión final + iniciar debate
 
-   El estado se centraliza en DebateService para que
-   persista entre secciones y esté disponible en debate.ts
+   Layout desktop: panel izquierdo decorativo + panel derecho con formulario
+   Layout móvil  : una sola columna (card centrada)
 ============================================================ */
 
-/* Tipo para las secciones del sidebar */
-export type SeccionDebate = 'configuracion' | 'tema' | 'fiera' | 'turnos' | 'resumen';
+export type PasoDebate = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+/* Participante asignable a cada sub-turno */
+export type Participante = 'yo' | 'fiera' | 'companero';
+
+/* Sub-turno del paso 5 y 6 */
+export interface SubTurnoConfig {
+  id      : string;
+  nombre  : string;
+  postura : 'favor' | 'contra';
+  minutos : number;
+  activo  : boolean;
+  asignado: Participante;
+}
+
+/* Compañero invitado (simulado) */
+export interface Companero {
+  iniciales: string;
+  nombre   : string;
+  estado   : 'pendiente' | 'unido';
+}
+
+/* Categorías del banco de temas */
+export interface CategoriaItem {
+  nombre: string;
+  icono : string;
+  color : string;
+  bg    : string;
+}
+
+const CATEGORIAS: CategoriaItem[] = [
+  { nombre: 'Educación',     icono: 'ti-school',       color: '#156fe7', bg: 'rgba(21,111,231,0.12)'  },
+  { nombre: 'Tecnología',    icono: 'ti-cpu',           color: '#03d26e', bg: 'rgba(3,210,110,0.12)'   },
+  { nombre: 'Ética',         icono: 'ti-scale',         color: '#ff3a72', bg: 'rgba(255,58,114,0.12)'  },
+  { nombre: 'Sociedad',      icono: 'ti-users',         color: '#f0a742', bg: 'rgba(240,167,66,0.12)'  },
+  { nombre: 'Economía',      icono: 'ti-trending-up',   color: '#156fe7', bg: 'rgba(21,111,231,0.12)'  },
+  { nombre: 'Medioambiente', icono: 'ti-leaf',          color: '#03d26e', bg: 'rgba(3,210,110,0.12)'   },
+];
+
+/* Sub-turnos base — se usan en pasos 5 y 6 */
+const SUBTURNOS_BASE: SubTurnoConfig[] = [
+  { id: 'intro-f',  nombre: 'Introducción',  postura: 'favor',  minutos: 3, activo: true, asignado: 'yo'       },
+  { id: 'intro-c',  nombre: 'Introducción',  postura: 'contra', minutos: 3, activo: true, asignado: 'fiera'    },
+  { id: 'ref1-f',   nombre: '1ª Refutación', postura: 'favor',  minutos: 4, activo: true, asignado: 'yo'       },
+  { id: 'ref1-c',   nombre: '1ª Refutación', postura: 'contra', minutos: 4, activo: true, asignado: 'fiera'    },
+  { id: 'ref2-f',   nombre: '2ª Refutación', postura: 'favor',  minutos: 5, activo: true, asignado: 'yo'       },
+  { id: 'ref2-c',   nombre: '2ª Refutación', postura: 'contra', minutos: 5, activo: true, asignado: 'companero'},
+  { id: 'conc-c',   nombre: 'Conclusión',    postura: 'contra', minutos: 3, activo: true, asignado: 'fiera'    },
+  { id: 'conc-f',   nombre: 'Conclusión',    postura: 'favor',  minutos: 3, activo: true, asignado: 'yo'       },
+];
 
 @Component({
-  selector         : 'app-config-debate',
-  standalone       : true,
-  imports          : [],
-  templateUrl      : './config-debate.html',
-  styleUrl         : './config-debate.css',
-  changeDetection  : ChangeDetectionStrategy.OnPush
+  selector        : 'app-config-debate',
+  standalone      : true,
+  imports         : [RouterLink, Particles],
+  templateUrl     : './config-debate.html',
+  styleUrl        : './config-debate.css',
+  changeDetection : ChangeDetectionStrategy.OnPush
 })
 export class ConfigDebate implements OnInit {
 
-  /* Servicios inyectados */
+  /* ── Servicios ── */
   debateService = inject(DebateService);
+  authService   = inject(AuthService);
   router        = inject(Router);
 
-  /* Sección activa del sidebar */
-  seccionActiva = signal<SeccionDebate>('configuracion');
+  /* ── Paso activo ── */
+  pasoActivo = signal<PasoDebate>(1);
 
-  /* Temas disponibles */
-  temas            = signal<TemaApi[]>([]);
-  temasFiltrados   = signal<TemaApi[]>([]);
-  temaSeleccionado = signal<TemaApi | null>(null);
-  cargandoTemas    = signal(false);
-  errorTemas       = signal(false);
+  /* ── Info panel izquierdo (desktop) — cambia por paso ── */
+  infoPaso = computed(() => {
+    const pasos: Record<number, { titulo: string; desc: string }> = {
+      1: { titulo: 'Entrena con compañeros',       desc: 'Invita a tu equipo y practicad juntos contra FIERA.' },
+      2: { titulo: 'Elige a tu rival',              desc: 'Define la personalidad y dificultad de FIERA para este entrenamiento.' },
+      3: { titulo: 'El tema lo es todo',            desc: 'Un buen debate empieza con un buen tema. Elige el tuyo.' },
+      4: { titulo: 'Define tu postura',             desc: 'Defiende tu posición con argumentos sólidos y evidencia.' },
+      5: { titulo: 'Estructura el debate',          desc: 'Configura los turnos y el tiempo de cada intervención.' },
+      6: { titulo: 'Asigna los participantes',      desc: 'Decide quién debate en cada turno: tú, FIERA o un compañero.' },
+      7: { titulo: 'Todo listo para debatir',       desc: 'Revisa tu configuración y empieza cuando estés preparado.' },
+    };
+    return pasos[this.pasoActivo()];
+  });
 
-  /* Pestaña activa en sección Tema */
-  pestanaActiva = signal<'banco' | 'manual'>('banco');
-
-  /* Campos de tema manual */
-  temaManual     = signal('');
-  enunciadoManual = signal('');
-
-  /* ── Getters del config para el template ── */
-  get config() { return this.debateService.config(); }
-
-  /* ----------------------------------------------------------
-     ngOnInit — Cargar temas del backend
-  ---------------------------------------------------------- */
-  ngOnInit(): void {
-    this.cargarTemas();
+  /* ── Cerrar sesión ── */
+  cerrarSesion(): void {
+    this.authService.cerrarSesion();
+    this.router.navigate(['/']);
   }
 
-  /* ----------------------------------------------------------
-     cargarTemas()
-     Obtiene los temas del backend y los almacena en signals
-  ---------------------------------------------------------- */
+  /* ────────────────────────────────────────────
+     PASO 1 — Invitar compañero
+  ──────────────────────────────────────────── */
+  tabInvitar     = signal<'codigo' | 'enlace'>('codigo');
+  codigoSesion   = signal('FIERA-7XJ4');
+  companeros     = signal<Companero[]>([
+    { iniciales: 'ML', nombre: 'María López',  estado: 'pendiente' },
+    { iniciales: 'CR', nombre: 'Carlos Ruiz',  estado: 'pendiente' },
+  ]);
+
+  copiarCodigo(): void {
+    navigator.clipboard?.writeText(this.codigoSesion()).catch(() => {});
+  }
+
+  /* ────────────────────────────────────────────
+     PASO 2 — Configurar FIERA
+  ──────────────────────────────────────────── */
+  setPersonalidad(valor: string): void {
+    this.debateService.actualizarConfig({
+      personalidad: valor as 'agresiva' | 'elegante' | 'sarcastica'
+    });
+  }
+
+  setDificultad(valor: string): void {
+    this.debateService.actualizarConfig({
+      dificultad: valor as 'basico' | 'medio' | 'avanzado'
+    });
+  }
+
+  /* ────────────────────────────────────────────
+     PASO 3 — Elegir tema
+  ──────────────────────────────────────────── */
+  temas             = signal<TemaApi[]>([]);
+  cargandoTemas     = signal(false);
+  errorTemas        = signal(false);
+  pestanaActiva     = signal<'banco' | 'manual'>('banco');
+  categorias        = CATEGORIAS;
+  categoriaActiva   = signal<CategoriaItem | null>(null);
+  temasFiltrados    = signal<TemaApi[]>([]);
+  temaSeleccionado  = signal<TemaApi | null>(null);
+
+  /* Campos manual */
+  temaManual      = signal('');
+  enunciadoManual = signal('');
+
   cargarTemas(): void {
     this.cargandoTemas.set(true);
     this.errorTemas.set(false);
@@ -71,7 +161,6 @@ export class ConfigDebate implements OnInit {
     this.debateService.getTemas().subscribe({
       next: (temas) => {
         this.temas.set(temas);
-        this.temasFiltrados.set(temas);
         this.cargandoTemas.set(false);
       },
       error: () => {
@@ -81,67 +170,18 @@ export class ConfigDebate implements OnInit {
     });
   }
 
-  /* ----------------------------------------------------------
-     navegarA(seccion)
-     Cambia la sección activa del sidebar
-  ---------------------------------------------------------- */
-  navegarA(seccion: SeccionDebate): void {
-    if (seccion === 'resumen') this.prepararResumen();
-    this.seccionActiva.set(seccion);
-  }
-
-  siguiente(): void {
-    const orden: SeccionDebate[] = ['configuracion', 'tema', 'fiera', 'turnos', 'resumen'];
-    const actual = orden.indexOf(this.seccionActiva());
-    if (actual < orden.length - 1) this.navegarA(orden[actual + 1]);
-  }
-
-  volver(): void {
-    const orden: SeccionDebate[] = ['configuracion', 'tema', 'fiera', 'turnos', 'resumen'];
-    const actual = orden.indexOf(this.seccionActiva());
-    if (actual > 0) this.navegarA(orden[actual - 1]);
-  }
-
-  /* ----------------------------------------------------------
-     Sección CONFIGURACIÓN
-  ---------------------------------------------------------- */
-  actualizarTiempo(campo: string, accion: 'sumar' | 'restar'): void {
-    const tiempos = { ...this.config.tiempos };
-    const key = campo as keyof typeof tiempos;
-    if (accion === 'sumar'  && tiempos[key] < 15) tiempos[key]++;
-    if (accion === 'restar' && tiempos[key] > 1)  tiempos[key]--;
-    this.debateService.actualizarConfig({ tiempos });
-  }
-
-  setDificultad(valor: string): void {
-    this.debateService.actualizarConfig({
-      dificultad: valor as 'basico' | 'medio' | 'avanzado'
-    });
-  }
-
-  setModo(valor: string): void {
-    this.debateService.actualizarConfig({
-      modo: valor as 'completo' | 'express'
-    });
-  }
-
-  setPostura(valor: string): void {
-    this.debateService.actualizarConfig({
-      postura: valor as 'favor' | 'contra' | 'aleatoria'
-    });
-  }
-
-  /* ----------------------------------------------------------
-     Sección TEMA
-  ---------------------------------------------------------- */
-  buscarTema(texto: string): void {
-    const q = texto.toLowerCase().trim();
-    this.temasFiltrados.set(
-      q ? this.temas().filter(t =>
-        t.enunciado.toLowerCase().includes(q) ||
-        t.categoria.toLowerCase().includes(q)
-      ) : this.temas()
+  seleccionarCategoria(cat: CategoriaItem): void {
+    this.categoriaActiva.set(cat);
+    const filtrados = this.temas().filter(
+      t => t.categoria.toLowerCase() === cat.nombre.toLowerCase()
     );
+    this.temasFiltrados.set(filtrados);
+    this.temaSeleccionado.set(null);
+  }
+
+  volverCategorias(): void {
+    this.categoriaActiva.set(null);
+    this.temaSeleccionado.set(null);
   }
 
   seleccionarTema(tema: TemaApi): void {
@@ -152,10 +192,26 @@ export class ConfigDebate implements OnInit {
   }
 
   temaAleatorio(): void {
-    const lista = this.temas();
+    const lista = this.temasFiltrados();
     if (!lista.length) return;
     const aleatorio = lista[Math.floor(Math.random() * lista.length)];
     this.seleccionarTema(aleatorio);
+  }
+
+  temaAleatorioGlobal(): void {
+    const lista = this.temas();
+    if (!lista.length) return;
+    const aleatorio = lista[Math.floor(Math.random() * lista.length)];
+    this.categoriaActiva.set(null);
+    this.seleccionarTema(aleatorio);
+    /* Mostrar en qué categoría quedó para que el usuario sepa */
+    const cat = this.categorias.find(
+      c => c.nombre.toLowerCase() === aleatorio.categoria.toLowerCase()
+    ) ?? null;
+    this.categoriaActiva.set(cat);
+    this.temasFiltrados.set(this.temas().filter(
+      t => t.categoria.toLowerCase() === aleatorio.categoria.toLowerCase()
+    ));
   }
 
   actualizarTemaManual(): void {
@@ -170,61 +226,80 @@ export class ConfigDebate implements OnInit {
     }
   }
 
-  /* ----------------------------------------------------------
-     Sección FIERA
-  ---------------------------------------------------------- */
-  setPersonalidad(valor: string): void {
+  contarTemasPorCategoria(cat: string): number {
+    return this.temas().filter(
+      t => t.categoria.toLowerCase() === cat.toLowerCase()
+    ).length;
+  }
+
+  /* ────────────────────────────────────────────
+     PASO 4 — Postura
+  ──────────────────────────────────────────── */
+  setPostura(valor: string): void {
     this.debateService.actualizarConfig({
-      personalidad: valor as 'agresiva' | 'elegante' | 'sarcastica'
+      postura: valor as 'favor' | 'contra' | 'aleatoria'
     });
   }
 
-  /* ----------------------------------------------------------
-     Sección TURNOS
-  ---------------------------------------------------------- */
-  setTurno(campo: string, valor: 'equipo' | 'fiera'): void {
-    const turnos = { ...this.config.turnos };
-    (turnos as any)[campo] = valor;
-    this.debateService.actualizarConfig({ turnos });
+  /* ────────────────────────────────────────────
+     PASO 5 — Configurar debate (modo + turnos)
+  ──────────────────────────────────────────── */
+  subturnos = signal<SubTurnoConfig[]>(
+    SUBTURNOS_BASE.map(t => ({ ...t }))
+  );
+
+  setModo(valor: string): void {
+    this.debateService.actualizarConfig({
+      modo: valor as 'completo' | 'express'
+    });
   }
 
-  /* ----------------------------------------------------------
-     Sección RESUMEN
-  ---------------------------------------------------------- */
-  prepararResumen(): void {
-    /* El resumen lee directamente del DebateService */
+  toggleSubturno(id: string): void {
+    this.subturnos.update(lista =>
+      lista.map(t => t.id === id ? { ...t, activo: !t.activo } : t)
+    );
   }
 
-  /* ----------------------------------------------------------
-     iniciarDebate()
-     Guarda la config y navega a la pantalla del debate
-     TODO: enviar config al backend cuando esté disponible
-  ---------------------------------------------------------- */
-  iniciarDebate(): void {
-    this.debateService.guardarConfig();
-    this.router.navigate(['/debate']);
+  cambiarTiempo(id: string, delta: number): void {
+    this.subturnos.update(lista =>
+      lista.map(t => t.id === id
+        ? { ...t, minutos: Math.min(15, Math.max(1, t.minutos + delta)) }
+        : t
+      )
+    );
   }
 
-  /* ----------------------------------------------------------
-     Helpers para el template
-  ---------------------------------------------------------- */
-  formatearTiempo(minutos: number): string {
-    return `${String(minutos).padStart(2, '0')}:00`;
+  tiempoTotal = computed(() =>
+    this.subturnos()
+      .filter(t => t.activo)
+      .reduce((acc, t) => acc + t.minutos, 0)
+  );
+
+  /* ────────────────────────────────────────────
+     PASO 6 — Participantes
+  ──────────────────────────────────────────── */
+  setAsignado(id: string, valor: Participante): void {
+    this.subturnos.update(lista =>
+      lista.map(t => t.id === id ? { ...t, asignado: valor } : t)
+    );
   }
 
+  /* ────────────────────────────────────────────
+     PASO 7 — Resumen
+  ──────────────────────────────────────────── */
   textoPostura(): string {
     const map = { favor: 'A favor', contra: 'En contra', aleatoria: 'Aleatoria' };
-    return map[this.config.postura];
+    return map[this.config.postura] ?? '—';
   }
 
   textoDificultad(): string {
     const map = { basico: 'Básico', medio: 'Medio', avanzado: 'Avanzado' };
-    return map[this.config.dificultad];
+    return map[this.config.dificultad] ?? '—';
   }
 
   textoModo(): string {
     const map = { completo: 'Debate completo', express: 'Debate express' };
-    return map[this.config.modo];
+    return map[this.config.modo] ?? '—';
   }
 
   textoPersonalidad(): string {
@@ -232,15 +307,50 @@ export class ConfigDebate implements OnInit {
     return this.config.personalidad ? map[this.config.personalidad] : '—';
   }
 
-  /* ----------------------------------------------------------
-   Helpers para acceder a tipos dinámicos desde el template
-   Evitan los castings 'as keyof' en el HTML
-  ---------------------------------------------------------- */
-  getTiempo(campo: string): number {
-    return this.config.tiempos[campo as keyof typeof this.config.tiempos];
+  textoParticipantes(): string {
+    const asignados = new Set(this.subturnos().filter(t => t.activo).map(t => t.asignado));
+    const partes: string[] = [];
+    if (asignados.has('yo'))        partes.push('Yo');
+    if (asignados.has('fiera'))     partes.push('FIERA');
+    if (asignados.has('companero')) partes.push('1 compañero');
+    return partes.join(', ');
   }
 
-  getTurno(campo: string): string {
-    return this.config.turnos[campo as keyof typeof this.config.turnos];
+  /* ────────────────────────────────────────────
+     Navegación entre pasos
+  ──────────────────────────────────────────── */
+  ir(paso: number): void {
+    if (paso >= 1 && paso <= 7) {
+      this.pasoActivo.set(paso as PasoDebate);
+    }
+  }
+
+  siguiente(): void {
+    this.ir(this.pasoActivo() + 1);
+  }
+
+  volver(): void {
+    this.ir(this.pasoActivo() - 1);
+  }
+
+  /* ────────────────────────────────────────────
+     Iniciar debate
+  ──────────────────────────────────────────── */
+  iniciarDebate(): void {
+    this.debateService.guardarConfig();
+    this.router.navigate(['/debate']);
+  }
+
+  /* ────────────────────────────────────────────
+     Helpers
+  ──────────────────────────────────────────── */
+  get config() { return this.debateService.config(); }
+
+  formatearTiempo(minutos: number): string {
+    return `${String(minutos).padStart(2, '0')}:00`;
+  }
+
+  ngOnInit(): void {
+    this.cargarTemas();
   }
 }

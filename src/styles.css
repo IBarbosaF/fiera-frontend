@@ -331,6 +331,33 @@ body.con-sesion .cta-logueado-desktop { display: block; }
   animation    : pulse-ring 3s ease-in-out infinite;
 }
 
+/* ── Input con ojo de contraseña ── */
+.input-password-wrapper {
+  position: relative;
+  display : flex;
+  align-items: center;
+}
+
+.input-password-wrapper input {
+  width         : 100%;
+  padding-right : 44px; /* espacio para el ojo */
+}
+
+.btn-ojo {
+  position  : absolute;
+  right     : 12px;
+  background: none;
+  border    : none;
+  color     : var(--texto-muted);
+  cursor    : pointer;
+  padding   : 0;
+  display   : flex;
+  transition: color 0.2s;
+}
+
+.btn-ojo svg   { width: 18px; height: 18px; }
+.btn-ojo:hover { color: var(--blanco); }
+
 @keyframes pulse-ring {
   0%,100% { box-shadow: 0 0 30px rgba(21,111,231,0.5), inset 0 0 30px rgba(21,111,231,0.1); }
   50%     { box-shadow: 0 0 60px rgba(21,111,231,0.85), inset 0 0 50px rgba(21,111,231,0.25); }

@@ -73,12 +73,9 @@
      MODAL: Inicio de sesión
 ============================================================ -->
 @if (modalLoginAbierto()) {
-  <div class="modal-overlay"
-       (click)="cerrarAlClickarFuera($event)">
+  <div class="modal-overlay" (click)="cerrarAlClickarFuera($event)">
     <div class="modal-card">
-      <button class="modal-close"
-              (click)="cerrarLogin()"
-              aria-label="Cerrar">&times;</button>
+      <button class="modal-close" (click)="cerrarLogin()">&times;</button>
       <h2 class="modal-title">Iniciar sesión</h2>
       <p class="modal-subtitle">Bienvenido de nuevo, fiera.</p>
 
@@ -86,25 +83,41 @@
         <label>Email</label>
         <input type="email"
                placeholder="tu@email.com"
-               [value]="loginEmail()"
-               (input)="loginEmail.set($any($event.target).value)"
+               (input)="emailValue = $any($event.target).value"
                autocomplete="email" />
       </div>
+
       <div class="form-group">
         <label>Contraseña</label>
-        <input type="password"
-               placeholder="••••••••"
-               [value]="loginPassword()"
-               (input)="loginPassword.set($any($event.target).value)"
-               (keydown.enter)="login()"
-               autocomplete="current-password" />
+        <div class="input-password-wrapper">
+          <input [type]="verPassword ? 'text' : 'password'"
+                 placeholder="••••••••"
+                 (input)="passwordValue = $any($event.target).value"
+                 (keydown.enter)="login(emailValue, passwordValue)"
+                 autocomplete="current-password" />
+          <button class="btn-ojo" type="button" (click)="toggleVerPassword()">
+            @if (verPassword) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            }
+          </button>
+        </div>
       </div>
 
       @if (errorLogin()) {
         <p class="form-error">{{ errorLogin() }}</p>
       }
 
-      <button class="btn-primary btn-full" (click)="login()">
+      <button class="btn-primary btn-full"
+              (click)="login(emailValue, passwordValue)">
         ENTRAR
       </button>
 

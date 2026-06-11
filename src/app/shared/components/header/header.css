@@ -130,7 +130,8 @@
   padding      : 8px 12px;
   font-size    : 11px;
   color        : var(--texto-muted);
-  white-space  : nowrap;
+  white-space  : normal;
+  width        : 200px;
   z-index      : 200;
   /* Flechita abajo */
   box-shadow   : 0 4px 16px rgba(0,0,0,0.4);
@@ -153,6 +154,28 @@
 }
 
 /* Responsive */
+
+@media (max-width: 768px) {
+
+  .bottom-nav-main {
+    padding-bottom: 8px; /* reduce el padding inferior */
+  }
+
+  .nav-tooltip {
+    width    : 160px;
+    font-size: 10px;
+    bottom   : 24px;
+    /* Evitar que se salga por los lados */
+    left     : auto;
+    right    : auto;
+    transform: none;
+    position : fixed;
+    bottom   : 90px;
+    left     : 50%;
+    transform: translateX(-50%);
+  }
+}
+
 @media (max-width: 480px) {
   .nav-item-main + .nav-item-main {
     padding-left: 14px;

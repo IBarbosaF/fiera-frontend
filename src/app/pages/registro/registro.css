@@ -117,6 +117,18 @@
   position       : relative;
 }
 
+.stepper-logo {
+  display    : none;
+  flex-shrink: 0;
+  margin-right: 0;
+  margin-left : -16px;
+}
+
+.stepper-logo img {
+  height: 42px;
+  width : auto;
+}
+
 .stepper-label {
   position   : absolute;
   right      : 0;
@@ -300,6 +312,11 @@
 .info-desc {
   font-size: 0.82rem;
   color    : #8a9ab8;
+}
+
+.btn-ojo {
+  position: relative;
+  right    : auto;
 }
 
 /* ── Botón continuar ── */
@@ -675,6 +692,15 @@
 
   .registro-contenido {
     padding: 32px 24px;
+  }
+
+  .stepper-logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .stepper-label {
+    display: none;
   }
 }
 
