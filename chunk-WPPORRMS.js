@@ -1,0 +1,1 @@
+import{Ra as o,Sa as i,eb as n,za as a}from"./chunk-FWFBBMSK.js";var p=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=a({type:t,selectors:[["app-debate-rapido"]],decls:2,vars:0,template:function(e,r){e&1&&(o(0,"p"),n(1,"debate-rapido works!"),i())},encapsulation:2})};export{p as DebateRapido};
