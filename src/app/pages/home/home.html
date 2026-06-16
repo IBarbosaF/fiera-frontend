@@ -36,15 +36,6 @@
           </a>
         </div>
       }
-
-      <!-- CTA con sesión (desktop) -->
-      @if (auth.estaLogueado()) {
-        <div class="cta-logueado-desktop">
-          <a routerLink="/configurar" class="btn-primary">
-            COMENZAR DEBATE
-          </a>
-        </div>
-      }
     </div>
 
     <!-- ── Leona con anillo neón ── -->
@@ -54,16 +45,6 @@
            alt="FIERA - Tu oponente de debate"
            class="leona-img" />
     </div>
-
-    <!-- CTA con sesión (móvil, debajo de la leona) -->
-    @if (auth.estaLogueado()) {
-      <div class="cta-logueado-mobile">
-        <a routerLink="/configurar" class="btn-primary">
-          COMENZAR DEBATE
-        </a>
-      </div>
-    }
-
   </div>
 </main>
 

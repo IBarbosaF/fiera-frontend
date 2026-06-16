@@ -1,0 +1,77 @@
+<!-- ============================================================
+     Clubs Hub — Menú de entrada al módulo de clubs
+============================================================ -->
+<div class="hub-layout">
+
+  <!-- ── PANEL IZQUIERDO (decorativo) ── -->
+  <div class="registro-deco">
+    <a routerLink="/" class="deco-logo-link">
+      <img src="assets/r_azul.png" alt="Logo Retorika" class="deco-logo" />
+    </a>
+    <div class="deco-texto">
+      <h2>Clubs de debate</h2>
+      <p>Encuentra tu club, únete a uno existente o crea el tuyo propio en FIERA.</p>
+    </div>
+    <div class="deco-fiera-wrapper">
+      <div class="deco-glow-ring"></div>
+      <img src="assets/fieraLogo.png" alt="FIERA" class="deco-fiera" />
+    </div>
+  </div>
+
+  <!-- ── PANEL DERECHO ── -->
+  <div class="hub-contenido">
+    <div class="hub-inner">
+
+      <div class="hub-header">
+        <h1 class="hub-titulo">¿Qué quieres hacer?</h1>
+        <p class="hub-subtitulo">Selecciona una opción para continuar.</p>
+      </div>
+
+      <div class="hub-opciones">
+
+        <!-- Opción 1: Crear club -->
+        <div class="hub-card" (click)="irACrear()">
+          <div class="hub-card-icono">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <div class="hub-card-texto">
+            <p class="hub-card-titulo">Crear club</p>
+            <p class="hub-card-desc">Registra tu institución en FIERA y gestiona tu equipo de debate.</p>
+          </div>
+          <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- Opción 2: Explorar clubs -->
+        <div class="hub-card" (click)="irAExplorar()">
+          <div class="hub-card-icono">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div class="hub-card-texto">
+            <p class="hub-card-titulo">Explorar clubs</p>
+            <p class="hub-card-desc">Busca clubs e instituciones y solicita unirte a uno.</p>
+          </div>
+          <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- Opción 3: Mi club -->
+        <div class="hub-card" (click)="irAMiClub()">
+          <div class="hub-card-icono">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="hub-card-texto">
+            <p class="hub-card-titulo">Tu club</p>
+            <p class="hub-card-desc">Gestiona los miembros, administradores y actividad de tu club.</p>
+          </div>
+          <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+      </div>
+
+      <p class="hub-footer-link">
+        <a routerLink="/">← Volver al inicio</a>
+      </p>
+
+    </div>
+  </div>
+
+</div>

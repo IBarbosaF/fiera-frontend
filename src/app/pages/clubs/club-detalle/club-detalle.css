@@ -1,0 +1,755 @@
+/* ============================================================
+   Club Detalle — Perfil + Gestión con tabs
+============================================================ */
+
+* { box-sizing: border-box; }
+
+/* ── Layout raíz ── */
+.detalle-layout {
+  display       : flex;
+  flex-direction: column;
+  height        : 100vh;
+  overflow      : hidden;
+  background    : var(--fondo-app, #080e1a);
+  font-family   : 'Inter', sans-serif;
+}
+
+/* ── Header ── */
+.detalle-header {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  padding        : 16px 28px;
+  border-bottom  : 1px solid rgba(255,255,255,0.06);
+  background     : #080e1a;
+  flex-shrink    : 0;
+  z-index        : 10;
+}
+
+.btn-volver {
+  width          : 36px;
+  height         : 36px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  background     : rgba(255,255,255,0.06);
+  border         : 1px solid rgba(255,255,255,0.1);
+  border-radius  : 8px;
+  color          : #ffffff;
+  cursor         : pointer;
+  transition     : background 0.2s ease;
+  flex-shrink    : 0;
+}
+
+.btn-volver:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.btn-volver svg {
+  width : 18px;
+  height: 18px;
+}
+
+.header-titulo {
+  font-size  : 1rem;
+  font-weight: 700;
+  color      : #ffffff;
+  flex       : 1;
+  text-align : center;
+  padding    : 0 16px;
+  white-space: nowrap;
+  overflow   : hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-editar {
+  width          : 36px;
+  height         : 36px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  background     : rgba(255,255,255,0.06);
+  border         : 1px solid rgba(255,255,255,0.1);
+  border-radius  : 8px;
+  color          : #8a9ab8;
+  cursor         : pointer;
+  transition     : all 0.2s ease;
+  flex-shrink    : 0;
+}
+
+.btn-editar:hover {
+  background: rgba(21,111,231,0.15);
+  border-color: rgba(21,111,231,0.4);
+  color      : #156fe7;
+}
+
+.btn-editar svg {
+  width : 16px;
+  height: 16px;
+}
+
+/* ── Contenido principal (dos columnas) ── */
+.detalle-contenido {
+  display   : flex;
+  flex      : 1;
+  overflow  : hidden;
+  min-height: 0;
+}
+
+/* ══ PANEL IZQUIERDO (40%) ══ */
+.detalle-panel-izq {
+  width          : 40%;
+  max-width      : 460px;
+  flex-shrink    : 0;
+  display        : flex;
+  flex-direction : column;
+  background     : linear-gradient(160deg, #0d1a33 0%, #080e1a 70%);
+  border-right   : 1px solid rgba(21,111,231,0.12);
+  overflow-y     : auto;
+  position       : relative;
+}
+
+.detalle-panel-izq::before {
+  content       : '';
+  position      : absolute;
+  top           : -80px;
+  right         : -80px;
+  width         : 300px;
+  height        : 300px;
+  background    : radial-gradient(circle, rgba(21,111,231,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Perfil del club ── */
+.club-perfil {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  padding       : 32px 28px 24px;
+  text-align    : center;
+  border-bottom : 1px solid rgba(255,255,255,0.06);
+}
+
+/* Avatar grande */
+.club-avatar-grande {
+  width          : 80px;
+  height         : 80px;
+  border-radius  : 18px;
+  background     : rgba(21,111,231,0.15);
+  border         : 2px solid rgba(21,111,231,0.3);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  margin-bottom  : 16px;
+  overflow       : hidden;
+  flex-shrink    : 0;
+}
+
+.club-avatar-grande img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: cover;
+}
+
+.club-avatar-grande span {
+  font-size  : 1.2rem;
+  font-weight: 700;
+  color      : #156fe7;
+  letter-spacing: 0.05em;
+}
+
+.club-perfil-info {
+  margin-bottom: 12px;
+}
+
+.club-perfil-nombre {
+  font-size    : 1.1rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 4px;
+  line-height  : 1.3;
+}
+
+.club-perfil-siglas {
+  font-size  : 0.82rem;
+  color      : #8a9ab8;
+}
+
+/* Badges */
+.club-badges {
+  display  : flex;
+  flex-wrap: wrap;
+  gap      : 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.badge {
+  display    : flex;
+  align-items: center;
+  gap        : 5px;
+  font-size  : 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding    : 4px 10px;
+}
+
+.badge svg {
+  width : 13px;
+  height: 13px;
+}
+
+.badge-tipo {
+  background: rgba(21,111,231,0.12);
+  color     : #156fe7;
+}
+
+.badge-ubicacion {
+  background: rgba(255,255,255,0.06);
+  color     : #8a9ab8;
+}
+
+/* Stats fila */
+.club-stats-fila {
+  display    : flex;
+  align-items: center;
+  gap        : 16px;
+  width      : 100%;
+}
+
+.club-stat-item {
+  flex      : 1;
+  text-align: center;
+}
+
+.stat-num {
+  font-size    : 1.2rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 2px;
+}
+
+.stat-lbl {
+  font-size: 0.72rem;
+  color    : #8a9ab8;
+}
+
+.stat-div {
+  width     : 1px;
+  height    : 32px;
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+/* ── Tabs ── */
+.tabs-wrapper {
+  display    : flex;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  flex           : 1;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 6px;
+  background     : transparent;
+  border         : none;
+  border-bottom  : 2px solid transparent;
+  color          : #8a9ab8;
+  font-size      : 0.82rem;
+  font-weight    : 600;
+  padding        : 14px 8px;
+  cursor         : pointer;
+  font-family    : inherit;
+  transition     : all 0.2s ease;
+  margin-bottom  : -1px;
+}
+
+.tab-btn:hover {
+  color: #ffffff;
+}
+
+.tab-btn.activo {
+  color       : #156fe7;
+  border-bottom-color: #156fe7;
+}
+
+.tab-badge {
+  font-size    : 0.7rem;
+  font-weight  : 700;
+  background   : rgba(21,111,231,0.15);
+  color        : #156fe7;
+  border-radius: 10px;
+  padding      : 1px 6px;
+  min-width    : 18px;
+  text-align   : center;
+}
+
+.tab-badge.pendiente {
+  background: rgba(255,58,114,0.15);
+  color     : #ff3a72;
+}
+
+/* ── Botón gestionar ── */
+.btn-gestionar {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  margin         : 20px 28px;
+  background     : #156fe7;
+  color          : #ffffff;
+  border         : none;
+  border-radius  : 10px;
+  padding        : 14px;
+  font-size      : 0.88rem;
+  font-weight    : 700;
+  letter-spacing : 0.05em;
+  cursor         : pointer;
+  font-family    : inherit;
+  transition     : background 0.2s ease;
+}
+
+.btn-gestionar:hover {
+  background: #105cb1;
+}
+
+.btn-gestionar svg {
+  width : 14px;
+  height: 14px;
+}
+
+/* ══ PANEL DERECHO (60%) ══ */
+.detalle-panel-der {
+  flex      : 1;
+  overflow-y: auto;
+  padding   : 28px;
+  min-width : 0;
+}
+
+/* ── Tab contenido ── */
+.tab-contenido {
+  display       : flex;
+  flex-direction: column;
+  gap           : 24px;
+}
+
+/* ── Tab Información ── */
+.info-seccion {
+  display       : flex;
+  flex-direction: column;
+  gap           : 12px;
+}
+
+.info-seccion-titulo {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  color         : #8a9ab8;
+  letter-spacing: 0.08em;
+}
+
+.info-descripcion {
+  font-size  : 0.9rem;
+  color      : #c8d4e8;
+  line-height: 1.6;
+}
+
+.info-filas {
+  display       : flex;
+  flex-direction: column;
+  background    : #0d1a33;
+  border        : 1px solid #1e2d47;
+  border-radius : 12px;
+  overflow      : hidden;
+}
+
+.info-fila {
+  display        : flex;
+  justify-content: space-between;
+  align-items    : center;
+  padding        : 12px 18px;
+  border-bottom  : 1px solid rgba(30,45,71,0.6);
+}
+
+.info-fila:last-child {
+  border-bottom: none;
+}
+
+.info-fila-label {
+  font-size: 0.82rem;
+  color    : #8a9ab8;
+}
+
+.info-fila-valor {
+  font-size  : 0.88rem;
+  font-weight: 600;
+  color      : #ffffff;
+  text-align : right;
+}
+
+/* Avatares fila */
+.avatares-fila {
+  display    : flex;
+  align-items: center;
+  gap        : -8px;
+}
+
+.avatar-mini {
+  width          : 36px;
+  height         : 36px;
+  border-radius  : 50%;
+  background     : rgba(21,111,231,0.15);
+  border         : 2px solid #080e1a;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 0.7rem;
+  font-weight    : 700;
+  color          : #156fe7;
+  margin-left    : -8px;
+  flex-shrink    : 0;
+}
+
+.avatar-mini:first-child {
+  margin-left: 0;
+}
+
+.avatar-mas {
+  background: rgba(255,255,255,0.06);
+  color     : #8a9ab8;
+  font-size : 0.68rem;
+}
+
+/* ── Tab Miembros ── */
+.miembros-filtros {
+  display    : flex;
+  gap        : 16px;
+  padding-bottom: 16px;
+  border-bottom : 1px solid rgba(255,255,255,0.06);
+}
+
+.miembros-filtro {
+  display    : flex;
+  align-items: center;
+  gap        : 6px;
+  font-size  : 0.82rem;
+  font-weight: 600;
+  color      : #8a9ab8;
+  cursor     : pointer;
+  transition : color 0.2s ease;
+}
+
+.miembros-filtro.activo {
+  color: #ffffff;
+}
+
+/* Buscador */
+.buscador-wrapper {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 0 14px;
+  transition   : border-color 0.2s ease;
+}
+
+.buscador-wrapper:focus-within {
+  border-color: #156fe7;
+}
+
+.buscador-icon {
+  width     : 16px;
+  height    : 16px;
+  color     : #8a9ab8;
+  flex-shrink: 0;
+}
+
+.buscador-input {
+  flex      : 1;
+  background: transparent;
+  border    : none;
+  outline   : none;
+  color     : #ffffff;
+  font-size : 0.88rem;
+  padding   : 11px 0;
+  font-family: inherit;
+}
+
+.buscador-input::placeholder {
+  color: #3a4d6b;
+}
+
+/* Sección label */
+.lista-seccion-label {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  color         : #8a9ab8;
+  letter-spacing: 0.08em;
+  margin-top    : 8px;
+}
+
+/* Lista miembros */
+.miembros-lista {
+  display       : flex;
+  flex-direction: column;
+  background    : #0d1a33;
+  border        : 1px solid #1e2d47;
+  border-radius : 12px;
+  overflow      : hidden;
+}
+
+.miembro-fila {
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+  padding      : 14px 16px;
+  border-bottom: 1px solid rgba(30,45,71,0.6);
+  transition   : background 0.15s ease;
+}
+
+.miembro-fila:last-child {
+  border-bottom: none;
+}
+
+.miembro-fila:hover {
+  background: rgba(21,111,231,0.04);
+}
+
+/* Avatar miembro */
+.miembro-avatar {
+  width          : 38px;
+  height         : 38px;
+  border-radius  : 50%;
+  background     : rgba(21,111,231,0.15);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 0.75rem;
+  font-weight    : 700;
+  color          : #156fe7;
+  flex-shrink    : 0;
+}
+
+.miembro-info {
+  flex    : 1;
+  min-width: 0;
+}
+
+.miembro-nombre {
+  font-size    : 0.9rem;
+  font-weight  : 600;
+  color        : #ffffff;
+  margin-bottom: 2px;
+}
+
+.miembro-rol {
+  font-size: 0.75rem;
+  color    : #8a9ab8;
+}
+
+.pendiente-texto {
+  color: #ff3a72;
+}
+
+/* Acciones */
+.miembro-acciones {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  flex-shrink: 0;
+}
+
+.btn-hacer-admin {
+  background   : rgba(21,111,231,0.12);
+  border       : 1px solid rgba(21,111,231,0.25);
+  border-radius: 6px;
+  color        : #156fe7;
+  font-size    : 0.75rem;
+  font-weight  : 600;
+  padding      : 5px 12px;
+  cursor       : pointer;
+  font-family  : inherit;
+  transition   : all 0.2s ease;
+  white-space  : nowrap;
+}
+
+.btn-hacer-admin:hover {
+  background  : rgba(21,111,231,0.2);
+  border-color: #156fe7;
+}
+
+.btn-aceptar {
+  background   : rgba(3,210,110,0.12);
+  border       : 1px solid rgba(3,210,110,0.25);
+  border-radius: 6px;
+  color        : #03d26e;
+  font-size    : 0.75rem;
+  font-weight  : 600;
+  padding      : 5px 12px;
+  cursor       : pointer;
+  font-family  : inherit;
+  transition   : all 0.2s ease;
+  white-space  : nowrap;
+}
+
+.btn-aceptar:hover {
+  background  : rgba(3,210,110,0.2);
+  border-color: #03d26e;
+}
+
+.btn-rechazar {
+  width          : 28px;
+  height         : 28px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  background     : rgba(255,58,114,0.1);
+  border         : 1px solid rgba(255,58,114,0.2);
+  border-radius  : 6px;
+  color          : #ff3a72;
+  cursor         : pointer;
+  transition     : all 0.2s ease;
+}
+
+.btn-rechazar:hover {
+  background  : rgba(255,58,114,0.2);
+  border-color: #ff3a72;
+}
+
+.btn-rechazar svg {
+  width : 13px;
+  height: 13px;
+}
+
+.btn-menu {
+  width          : 28px;
+  height         : 28px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  background     : transparent;
+  border         : 1px solid transparent;
+  border-radius  : 6px;
+  color          : #8a9ab8;
+  cursor         : pointer;
+  transition     : all 0.2s ease;
+}
+
+.btn-menu:hover {
+  background  : rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.1);
+  color       : #ffffff;
+}
+
+.btn-menu svg {
+  width : 15px;
+  height: 15px;
+}
+
+/* Botón añadir admin */
+.btn-añadir-admin {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  width          : 100%;
+  background     : transparent;
+  border         : 1px dashed rgba(21,111,231,0.3);
+  border-radius  : 10px;
+  color          : #156fe7;
+  font-size      : 0.875rem;
+  font-weight    : 600;
+  padding        : 14px;
+  cursor         : pointer;
+  font-family    : inherit;
+  transition     : all 0.2s ease;
+  margin-top     : 8px;
+}
+
+.btn-añadir-admin:hover {
+  background  : rgba(21,111,231,0.06);
+  border-color: rgba(21,111,231,0.6);
+}
+
+.btn-añadir-admin svg {
+  width : 16px;
+  height: 16px;
+}
+
+/* ── Tab Actividad vacía ── */
+.actividad-vacia {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  padding        : 80px 24px;
+  text-align     : center;
+  gap            : 12px;
+}
+
+.actividad-vacia-icono {
+  width          : 56px;
+  height         : 56px;
+  border-radius  : 14px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  margin-bottom  : 8px;
+}
+
+.actividad-vacia-icono svg {
+  width : 26px;
+  height: 26px;
+  color : #156fe7;
+}
+
+.actividad-vacia-titulo {
+  font-size  : 1rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+.actividad-vacia-desc {
+  font-size: 0.85rem;
+  color    : #8a9ab8;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+/* ── Club no encontrado ── */
+.club-no-encontrado {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  height         : 100%;
+  gap            : 16px;
+  color          : #8a9ab8;
+}
+
+.club-no-encontrado button {
+  background   : #156fe7;
+  border       : none;
+  border-radius: 8px;
+  color        : #ffffff;
+  padding      : 10px 20px;
+  cursor       : pointer;
+  font-family  : inherit;
+  font-weight  : 600;
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .detalle-panel-izq {
+    display: none;
+  }
+
+  .detalle-panel-der {
+    padding: 16px;
+  }
+}

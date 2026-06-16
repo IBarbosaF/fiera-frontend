@@ -1,0 +1,807 @@
+/* ============================================================
+   Crear Club — Estilos del wizard de 7 pasos
+============================================================ */
+
+/* ── Layout principal ── */
+.crear-club-layout {
+  display     : flex;
+  height      : 100vh;
+  overflow    : hidden;
+  background  : var(--fondo-app, #080e1a);
+}
+
+.contenido-inner {
+  width     : 100%;
+  max-width : 480px;
+}
+
+/* ── Panel izquierdo decorativo — 40% ── */
+.registro-deco {
+  width           : 40%;
+  min-width       : unset;
+  max-width       : 460px;
+  flex-shrink     : 0;
+  display         : flex;
+  flex-direction  : column;
+  justify-content : space-between;
+  align-items     : center;
+  padding         : 48px 40px 0;
+  background      : linear-gradient(160deg, #0d1a33 0%, #080e1a 70%);
+  border-right    : 1px solid rgba(21, 111, 231, 0.12);
+  position        : relative;
+  overflow        : hidden;
+  text-align      : center;
+}
+
+.registro-deco::before {
+  content   : '';
+  position  : absolute;
+  top       : -120px;
+  right     : -120px;
+  width     : 400px;
+  height    : 400px;
+  background: radial-gradient(circle, rgba(21,111,231,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.deco-logo-link {
+  align-self: flex-start;
+}
+
+.deco-logo {
+  height: 40px;
+  width : auto;
+}
+
+.deco-texto {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  padding        : 32px 0 24px;
+}
+
+.deco-texto h2 {
+  font-size    : 1.5rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  line-height  : 1.25;
+  margin-bottom: 10px;
+}
+
+.deco-texto p {
+  font-size  : 0.9rem;
+  color      : #8a9ab8;
+  line-height: 1.6;
+}
+
+/* ── Wrapper leona + aura ── */
+.deco-fiera-wrapper {
+  position  : relative;
+  width     : 260px;
+  align-self: center;
+}
+
+.deco-glow-ring {
+  position     : absolute;
+  width        : 82%;
+  aspect-ratio : 1;
+  border-radius: 50%;
+  border       : 2px solid #156fe7;
+  top          : 54%;
+  left         : 54%;
+  transform    : translate(-50%, -50%);
+  box-shadow   :
+    0 0 30px rgba(21,111,231,0.5),
+    inset 0 0 30px rgba(21,111,231,0.1);
+  animation    : pulse-ring 3s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1;   transform: translate(-50%, -50%) scale(1);    }
+  50%       { opacity: 0.6; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+.deco-fiera {
+  width     : 280px;
+  object-fit: contain;
+  filter    : drop-shadow(0 0 40px rgba(21,111,231,0.3));
+  display   : block;
+  position  : relative;
+  z-index   : 1;
+}
+
+/* ── Panel derecho — 60% ── */
+.registro-contenido {
+  flex           : 1;
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content : flex-start;
+  padding        : 48px 48px;
+  overflow-y     : auto;
+  min-width      : 0;
+}
+
+/* ── Stepper (7 pasos — líneas más cortas) ── */
+.stepper {
+  display       : flex;
+  align-items   : center;
+  gap           : 0;
+  margin-bottom : 40px;
+  width         : 100%;
+  position      : relative;
+}
+
+.stepper-label {
+  position   : absolute;
+  right      : 0;
+  font-size  : 0.85rem;
+  color      : #8a9ab8;
+  font-weight: 600;
+}
+
+.stepper-paso {
+  display    : flex;
+  align-items: center;
+  cursor     : pointer;
+}
+
+.stepper-circulo {
+  width          : 28px;
+  height         : 28px;
+  border-radius  : 50%;
+  border         : 2px solid #1e2d47;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 0.75rem;
+  font-weight    : 600;
+  color          : #8a9ab8;
+  background     : #0d1a33;
+  transition     : all 0.2s ease;
+  flex-shrink    : 0;
+}
+
+.stepper-paso.activo .stepper-circulo {
+  border-color : #156fe7;
+  background   : #156fe7;
+  color        : #ffffff;
+  box-shadow   : 0 0 16px rgba(21,111,231,0.4);
+}
+
+.stepper-paso.completado .stepper-circulo {
+  border-color: #156fe7;
+  background  : rgba(21,111,231,0.15);
+  color       : #156fe7;
+}
+
+.stepper-paso.completado .stepper-circulo svg {
+  width : 12px;
+  height: 12px;
+  stroke: #156fe7;
+}
+
+.stepper-linea {
+  width      : 28px;
+  height     : 2px;
+  background : #1e2d47;
+  transition : background 0.3s ease;
+}
+
+.stepper-linea.completada {
+  background: #156fe7;
+}
+
+/* ── Paso contenedor ── */
+.paso {
+  width      : 100%;
+}
+
+.paso-header {
+  margin-bottom: 32px;
+}
+
+.paso-titulo {
+  font-size    : 1.75rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  line-height  : 1.2;
+  margin-bottom: 8px;
+}
+
+.paso-subtitulo {
+  font-size  : 0.95rem;
+  color      : #8a9ab8;
+  line-height: 1.5;
+}
+
+/* ── Etiqueta de sección ── */
+.seccion-label {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  color         : #8a9ab8;
+  letter-spacing: 0.08em;
+  margin-bottom : 16px;
+}
+
+/* ── Campos de formulario ── */
+.form-campos {
+  display       : flex;
+  flex-direction: column;
+  gap           : 16px;
+  margin-bottom : 24px;
+}
+
+.form-group {
+  display       : flex;
+  flex-direction: column;
+  gap           : 6px;
+}
+
+.form-label {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  color         : #8a9ab8;
+  letter-spacing: 0.08em;
+}
+
+.label-opcional {
+  font-weight   : 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color         : #3a4d6b;
+}
+
+.form-input-wrapper {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 0 16px;
+  transition   : border-color 0.2s ease;
+}
+
+.form-input-wrapper:focus-within {
+  border-color: #156fe7;
+}
+
+.form-icon {
+  width    : 18px;
+  height   : 18px;
+  color    : #8a9ab8;
+  flex-shrink: 0;
+}
+
+.form-input {
+  flex      : 1;
+  background: transparent;
+  border    : none;
+  outline   : none;
+  color     : #ffffff;
+  font-size : 0.95rem;
+  padding   : 14px 0;
+  font-family: inherit;
+}
+
+.form-input::placeholder {
+  color: #3a4d6b;
+}
+
+.form-input:focus {
+  outline    : none;
+  box-shadow : none;
+}
+
+/* ── Select ── */
+.form-select-wrapper {
+  position: relative;
+}
+
+.form-select {
+  appearance : none;
+  cursor     : pointer;
+  padding-right: 8px;
+}
+
+.form-select option {
+  background: #0d1a33;
+  color     : #ffffff;
+}
+
+.select-chevron {
+  width     : 16px;
+  height    : 16px;
+  color     : #8a9ab8;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* ── Contador de caracteres ── */
+.input-counter {
+  font-size  : 0.75rem;
+  color      : #3a4d6b;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Error ── */
+.form-error {
+  color        : #ef4444;
+  font-size    : 0.85rem;
+  margin-bottom: 16px;
+}
+
+/* ── Info / nota ── */
+.info-privacidad {
+  display      : flex;
+  align-items  : flex-start;
+  gap          : 12px;
+  background   : rgba(21,111,231,0.08);
+  border       : 1px solid rgba(21,111,231,0.2);
+  border-radius: 10px;
+  padding      : 14px 16px;
+  margin-bottom: 24px;
+}
+
+.info-privacidad svg {
+  width     : 20px;
+  height    : 20px;
+  color     : #156fe7;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-titulo {
+  font-size    : 0.9rem;
+  font-weight  : 600;
+  color        : #ffffff;
+  margin-bottom: 2px;
+}
+
+.info-desc {
+  font-size: 0.82rem;
+  color    : #8a9ab8;
+}
+
+/* ── Botones ── */
+.btn-group {
+  display: flex;
+  gap    : 10px;
+}
+
+.btn-atras {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  background     : transparent;
+  color          : #8a9ab8;
+  border         : 1px solid #1e2d47;
+  border-radius  : 10px;
+  padding        : 16px 20px;
+  font-size      : 0.85rem;
+  font-weight    : 700;
+  letter-spacing : 0.05em;
+  cursor         : pointer;
+  transition     : border-color 0.2s ease, color 0.2s ease;
+  font-family    : inherit;
+  white-space    : nowrap;
+}
+
+.btn-atras svg {
+  width : 14px;
+  height: 14px;
+}
+
+.btn-atras:hover {
+  border-color: rgba(21,111,231,0.4);
+  color       : #ffffff;
+}
+
+.btn-continuar {
+  width          : 100%;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 10px;
+  background     : #156fe7;
+  color          : #ffffff;
+  border         : none;
+  border-radius  : 10px;
+  padding        : 16px;
+  font-size      : 0.95rem;
+  font-weight    : 700;
+  letter-spacing : 0.05em;
+  cursor         : pointer;
+  transition     : background 0.2s ease, transform 0.1s ease;
+  margin-bottom  : 16px;
+  font-family    : inherit;
+}
+
+.btn-continuar-flex {
+  flex         : 1;
+  margin-bottom: 0;
+}
+
+.btn-continuar:hover {
+  background: #105cb1;
+}
+
+.btn-continuar:active {
+  transform: scale(0.98);
+}
+
+.btn-continuar svg {
+  width : 16px;
+  height: 16px;
+}
+
+.btn-finalizar {
+  background: #156fe7;
+}
+
+.login-link {
+  text-align: center;
+  font-size : 0.88rem;
+  color     : #8a9ab8;
+  margin-top: 4px;
+}
+
+.login-link a {
+  color          : #156fe7;
+  text-decoration: none;
+  font-weight    : 600;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* ── Paso 3 — Uploader de imagen ── */
+.imagen-uploader {
+  display        : flex;
+  justify-content: center;
+  margin-bottom  : 24px;
+}
+
+.imagen-drop-zone {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  gap            : 10px;
+  width          : 200px;
+  height         : 200px;
+  border-radius  : 16px;
+  border         : 2px dashed #1e2d47;
+  background     : #0d1a33;
+  cursor         : pointer;
+  transition     : border-color 0.2s ease, background 0.2s ease;
+}
+
+.imagen-drop-zone:hover {
+  border-color: rgba(21,111,231,0.5);
+  background  : rgba(21,111,231,0.05);
+}
+
+.imagen-drop-icono {
+  width          : 48px;
+  height         : 48px;
+  border-radius  : 12px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+}
+
+.imagen-drop-icono svg {
+  width : 24px;
+  height: 24px;
+  color : #156fe7;
+}
+
+.imagen-drop-titulo {
+  font-size  : 0.95rem;
+  font-weight: 600;
+  color      : #156fe7;
+}
+
+.imagen-drop-formato {
+  font-size: 0.78rem;
+  color    : #8a9ab8;
+}
+
+.input-file-hidden {
+  display: none;
+}
+
+.imagen-preview-wrapper {
+  position: relative;
+  width   : 200px;
+  height  : 200px;
+}
+
+.imagen-preview {
+  width        : 200px;
+  height       : 200px;
+  border-radius: 16px;
+  object-fit   : cover;
+  border       : 2px solid rgba(21,111,231,0.4);
+}
+
+.btn-eliminar-imagen {
+  position       : absolute;
+  top            : -10px;
+  right          : -10px;
+  width          : 28px;
+  height         : 28px;
+  border-radius  : 50%;
+  background     : #0f1930;
+  border         : 1px solid #1e2d47;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  cursor         : pointer;
+  transition     : background 0.2s ease;
+}
+
+.btn-eliminar-imagen:hover {
+  background: #1e2d47;
+}
+
+.btn-eliminar-imagen svg {
+  width : 14px;
+  height: 14px;
+  color : #8a9ab8;
+}
+
+/* ── Paso 5 — Tamaño ── */
+.tamano-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+  margin-bottom : 24px;
+}
+
+.tamano-opcion {
+  display      : flex;
+  align-items  : center;
+  gap          : 14px;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 14px 16px;
+  cursor       : pointer;
+  transition   : border-color 0.2s ease, background 0.2s ease;
+}
+
+.tamano-opcion:hover {
+  border-color: rgba(21,111,231,0.4);
+}
+
+.tamano-opcion.selected {
+  border-color: #156fe7;
+  background  : rgba(21,111,231,0.08);
+}
+
+.tamano-icono {
+  width          : 36px;
+  height         : 36px;
+  border-radius  : 8px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.tamano-icono svg {
+  width : 18px;
+  height: 18px;
+  color : #156fe7;
+}
+
+.tamano-label {
+  font-size  : 0.95rem;
+  font-weight: 600;
+  color      : #ffffff;
+  flex       : 1;
+}
+
+/* ── Paso 7 — Resumen ── */
+.resumen-card {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 14px;
+  overflow     : hidden;
+  margin-bottom: 24px;
+}
+
+.resumen-header {
+  display    : flex;
+  align-items: center;
+  gap        : 16px;
+  padding    : 20px;
+  border-bottom: 1px solid #1e2d47;
+}
+
+.resumen-logo {
+  width        : 52px;
+  height       : 52px;
+  border-radius: 10px;
+  object-fit   : cover;
+  flex-shrink  : 0;
+}
+
+.resumen-logo-placeholder {
+  width          : 52px;
+  height         : 52px;
+  border-radius  : 10px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.resumen-logo-placeholder svg {
+  width : 24px;
+  height: 24px;
+  color : #156fe7;
+}
+
+.resumen-nombre {
+  font-size    : 1rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 2px;
+}
+
+.resumen-siglas {
+  font-size  : 0.82rem;
+  color      : #8a9ab8;
+}
+
+.resumen-filas {
+  padding: 8px 0;
+}
+
+.resumen-fila {
+  display        : flex;
+  justify-content: space-between;
+  align-items    : center;
+  padding        : 12px 20px;
+  border-bottom  : 1px solid rgba(30,45,71,0.6);
+}
+
+.resumen-fila:last-child {
+  border-bottom: none;
+}
+
+.resumen-fila-label {
+  font-size  : 0.82rem;
+  color      : #8a9ab8;
+}
+
+.resumen-fila-valor {
+  font-size  : 0.88rem;
+  font-weight: 600;
+  color      : #ffffff;
+  text-align : right;
+}
+
+/* ── Experiencia lista (reutilizada en pasos 2 y 6) ── */
+.experiencia-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+  margin-bottom : 24px;
+}
+
+.experiencia-opcion {
+  display      : flex;
+  align-items  : center;
+  gap          : 14px;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 16px;
+  cursor       : pointer;
+  transition   : border-color 0.2s ease, background 0.2s ease;
+}
+
+.experiencia-opcion:hover {
+  border-color: rgba(21,111,231,0.4);
+}
+
+.experiencia-opcion.selected {
+  border-color: #156fe7;
+  background  : rgba(21,111,231,0.08);
+}
+
+.exp-radio {
+  width          : 20px;
+  height         : 20px;
+  border-radius  : 50%;
+  border         : 2px solid #1e2d47;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+  transition     : border-color 0.2s ease;
+}
+
+.experiencia-opcion.selected .exp-radio {
+  border-color: #156fe7;
+}
+
+.exp-radio-inner {
+  width        : 10px;
+  height       : 10px;
+  border-radius: 50%;
+  background   : #156fe7;
+}
+
+.exp-texto {
+  flex: 1;
+}
+
+.exp-label {
+  font-size    : 0.95rem;
+  font-weight  : 600;
+  color        : #ffffff;
+  margin-bottom: 2px;
+}
+
+.exp-desc {
+  font-size: 0.82rem;
+  color    : #8a9ab8;
+}
+
+.exp-icono {
+  width          : 36px;
+  height         : 36px;
+  border-radius  : 8px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.exp-icono svg {
+  width : 18px;
+  height: 18px;
+  color : #156fe7;
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .registro-deco {
+    display: none;
+  }
+
+  .registro-contenido {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .registro-contenido {
+    padding: 24px 16px;
+  }
+
+  .paso-titulo {
+    font-size: 1.4rem;
+  }
+
+  .stepper-linea {
+    width: 18px;
+  }
+
+  .btn-atras span {
+    display: none;
+  }
+}

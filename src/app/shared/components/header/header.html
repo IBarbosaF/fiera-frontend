@@ -1,110 +1,243 @@
 <!-- ============================================================
-     Header — Barra de navegación inferior
-     Solo visible con sesión activa
-     5 items centrados: 4 nav + cerrar sesión
+     Header — Barra de navegación global
+
+     DESKTOP (≥ 769px): bottom bar transparente centrado, 6 ítems.
+     MOBILE  (≤ 768px): bottom bar oscuro con ítem central elevado.
+
+     Ambos se muestran solo cuando hay sesión activa.
+     El componente padre (MainLayout) gestiona el @if de sesión.
 ============================================================ -->
-<nav class="bottom-nav-main">
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  DESKTOP NAV — visible solo en pantallas ≥ 769px        ║
+     ║  6 ítems: Debates · Clubs · IA · Feedback · Progreso    ║
+     ║           · Cerrar sesión                               ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<nav class="bottom-nav-main bottom-nav-desktop">
   <div class="nav-items-wrapper">
-    <!-- Icono Debates académicos -->
+
+    <!-- ── 1. Debates académicos ── -->
     <a routerLink="/configurar" class="nav-item-main"
        routerLinkActive="nav-item-activo">
 
-         <!-- Icono de info -->
-        <div class="nav-info-wrapper"
-          (click)="$event.stopPropagation(); $event.preventDefault()">
-          <span class="nav-info-icon">i</span>
-          <div class="nav-tooltip">Configura debates personalizados eligiendo tema, postura, duración, dificultad y turnos.
-            Entrena como en una competición real de debate académico.</div>
+      <div class="nav-info-wrapper"
+           (click)="$event.stopPropagation(); $event.preventDefault()">
+        <span class="nav-info-icon">i</span>
+        <div class="nav-tooltip">
+          Configura debates personalizados eligiendo tema, postura, duración,
+          dificultad y turnos. Entrena como en una competición real de debate académico.
         </div>
+      </div>
 
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
         <path d="M6 12v5c3 3 9 3 12 0v-5"/>
       </svg>
       <span>Debates<br/>académicos</span>
     </a>
 
-    <!-- Icono IA avanzada -->
-    <a routerLink="/ia" class="nav-item-main"
-      routerLinkActive="nav-item-activo">
-
-        <!-- Icono de info -->
-        <div class="nav-info-wrapper"
-          (click)="$event.stopPropagation(); $event.preventDefault()">
-          <span class="nav-info-icon">i</span>
-          <div class="nav-tooltip">FIERA utiliza inteligencia artificial para actuar como un auténtico rival de debate.
-            Puede argumentar, refutar, formular preguntas e incluso adaptar su estilo a distintas personalidades.</div>
+    <!-- ── 2. Clubs ── -->
+    <a class="nav-item-main" (click)="irAClubs()">
+      <div class="nav-info-wrapper"
+           (click)="$event.stopPropagation(); $event.preventDefault()">
+        <span class="nav-info-icon">i</span>
+        <div class="nav-tooltip">
+          Únete o crea un club de debate. Comparte entrenamientos con tu equipo,
+          consulta los miembros y gestiona la actividad de tu club.
         </div>
+      </div>
 
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Hemisferio izquierdo -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <span>Clubs</span>
+    </a>
+
+    <!-- ── 3. IA avanzada ── -->
+    <a routerLink="/ia" class="nav-item-main"
+       routerLinkActive="nav-item-activo">
+
+      <div class="nav-info-wrapper"
+           (click)="$event.stopPropagation(); $event.preventDefault()">
+        <span class="nav-info-icon">i</span>
+        <div class="nav-tooltip">
+          FIERA utiliza inteligencia artificial para actuar como un auténtico rival de debate.
+          Puede argumentar, refutar, formular preguntas e incluso adaptar su estilo
+          a distintas personalidades.
+        </div>
+      </div>
+
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 4C10 4 8 5 7 6.5C5.5 7 4 8.5 4 10.5C4 12 4.5 13 5.5 13.5C5 14 4.5 15 5 16C5.5 17 6.5 17.5 7.5 17.5C8 18.5 9 19.5 10.5 19.5C11 19.5 11.5 19.5 12 19.3"/>
-        <!-- Hemisferio derecho -->
         <path d="M12 4C14 4 16 5 17 6.5C18.5 7 20 8.5 20 10.5C20 12 19.5 13 18.5 13.5C19 14 19.5 15 19 16C18.5 17 17.5 17.5 16.5 17.5C16 18.5 15 19.5 13.5 19.5C13 19.5 12.5 19.5 12 19.3"/>
-        <!-- Línea central -->
         <line x1="12" y1="4" x2="12" y2="19.3"/>
-        <!-- Nodos circuito izquierdo -->
-        <circle cx="8.5" cy="9"  r="0.8" fill="currentColor"/>
-        <circle cx="7.5" cy="13" r="0.8" fill="currentColor"/>
-        <circle cx="9.5" cy="16" r="0.8" fill="currentColor"/>
-        <!-- Nodos circuito derecho -->
+        <circle cx="8.5"  cy="9"  r="0.8" fill="currentColor"/>
+        <circle cx="7.5"  cy="13" r="0.8" fill="currentColor"/>
+        <circle cx="9.5"  cy="16" r="0.8" fill="currentColor"/>
         <circle cx="15.5" cy="9"  r="0.8" fill="currentColor"/>
         <circle cx="16.5" cy="13" r="0.8" fill="currentColor"/>
         <circle cx="14.5" cy="16" r="0.8" fill="currentColor"/>
-        <!-- Líneas de circuito -->
         <path d="M8.5 9 L10 11 L8.5 13"/>
         <path d="M15.5 9 L14 11 L15.5 13"/>
       </svg>
       <span>IA<br/>avanzada</span>
     </a>
 
-    <!-- Icono Feedback inteligente -->
+    <!-- ── 4. Feedback inteligente ── -->
     <a routerLink="/feedback" class="nav-item-main"
        routerLinkActive="nav-item-activo">
 
-      <!-- Icono de info -->
       <div class="nav-info-wrapper"
-        (click)="$event.stopPropagation(); $event.preventDefault()">
+           (click)="$event.stopPropagation(); $event.preventDefault()">
         <span class="nav-info-icon">i</span>
-        <div class="nav-tooltip">Al finalizar cada debate recibirás una evaluación detallada de tu desempeño, con puntuaciones,
-          fortalezas y recomendaciones específicas para mejorar.</div>
+        <div class="nav-tooltip">
+          Al finalizar cada debate recibirás una evaluación detallada de tu desempeño,
+          con puntuaciones, fortalezas y recomendaciones específicas para mejorar.
+        </div>
       </div>
 
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
       <span>Feedback<br/>inteligente</span>
     </a>
 
-    <!-- Icono Progreso -->
+    <!-- ── 5. Tu progreso ── -->
     <a routerLink="/progreso" class="nav-item-main"
        routerLinkActive="nav-item-activo">
 
-      <!-- Icono de info -->
       <div class="nav-info-wrapper"
-        (click)="$event.stopPropagation(); $event.preventDefault()">
+           (click)="$event.stopPropagation(); $event.preventDefault()">
         <span class="nav-info-icon">i</span>
-        <div class="nav-tooltip">Sigue tu evolución a lo largo del tiempo. Consulta estadísticas,
-          resultados, logros, ranking y métricas para medir tu mejora sesión tras sesión.</div>
+        <div class="nav-tooltip">
+          Sigue tu evolución a lo largo del tiempo. Consulta estadísticas, resultados,
+          logros, ranking y métricas para medir tu mejora sesión tras sesión.
+        </div>
       </div>
 
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
+        <line x1="6"  y1="20" x2="6"  y2="14"/>
       </svg>
       <span>Tu<br/>progreso</span>
     </a>
 
+    <!-- ── 6. Cerrar sesión ── -->
     <button class="nav-item-main nav-item-salir"
             (click)="cerrarSesion()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
         <polyline points="16 17 21 12 16 7"/>
         <line x1="21" y1="12" x2="9" y2="12"/>
       </svg>
       <span>Cerrar<br/>sesión</span>
     </button>
+
+  </div>
+</nav>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MOBILE NAV — visible solo en pantallas ≤ 768px         ║
+     ║  5 ítems: Club · Progreso · Debate (elevado) · Perfil   ║
+     ║           · Inicio / Cerrar sesión (contextual)         ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<nav class="bottom-nav-mobile">
+  <div class="mobile-nav-items">
+
+    <!-- ── 1. Club ── -->
+    <a class="mobile-nav-item" (click)="irAClubs()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <span>Club</span>
+    </a>
+
+    <!-- ── 2. Progreso ── -->
+    <a routerLink="/progreso" class="mobile-nav-item"
+       routerLinkActive="mobile-nav-activo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6"  y1="20" x2="6"  y2="14"/>
+      </svg>
+      <span>Progreso</span>
+    </a>
+
+    <!-- ── 3. Debate — ítem central elevado ──────────────────
+         El círculo azul flota sobre el borde superior del nav
+         mediante position: absolute + bottom elevado.
+         El espacio que ocupa en el flujo se mantiene con
+         el wrapper de altura fija (.mobile-nav-debate-wrapper).
+    ─────────────────────────────────────────────────────── -->
+    <div class="mobile-nav-debate-wrapper">
+      <a routerLink="/configurar" class="mobile-nav-debate"
+         routerLinkActive="mobile-nav-debate-activo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </a>
+      <span class="mobile-nav-debate-label">Debate</span>
+    </div>
+
+    <!-- ── 4. Perfil ── -->
+    <a routerLink="/perfil" class="mobile-nav-item"
+       routerLinkActive="mobile-nav-activo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Perfil</span>
+    </a>
+
+    <!-- ── 5. Inicio / Cerrar sesión — contextual ────────────
+         estaEnHome() === true  → muestra "Cerrar sesión" (rojo)
+         estaEnHome() === false → muestra "Inicio" (azul)
+         Solo uno de los dos bloques se renderiza a la vez.
+    ─────────────────────────────────────────────────────── -->
+    @if (estaEnHome()) {
+      <!-- En home: cerrar sesión -->
+      <button class="mobile-nav-item mobile-nav-salir"
+              (click)="cerrarSesion()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Cerrar sesión</span>
+      </button>
+    } @else {
+      <!-- Fuera de home: volver al inicio -->
+      <button class="mobile-nav-item"
+              (click)="irAInicio()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Inicio</span>
+      </button>
+    }
 
   </div>
 </nav>

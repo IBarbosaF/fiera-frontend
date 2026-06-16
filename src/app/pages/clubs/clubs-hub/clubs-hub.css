@@ -1,0 +1,258 @@
+/* ============================================================
+   Clubs Hub — Menú de entrada al módulo de clubs
+============================================================ */
+
+* { box-sizing: border-box; }
+
+/* ── Layout principal ── */
+.hub-layout {
+  display    : flex;
+  height     : 100vh;
+  overflow   : hidden;
+  background : var(--fondo-app, #080e1a);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Panel izquierdo — reutiliza estilos de crear-club ── */
+.registro-deco {
+  width          : 40%;
+  max-width      : 460px;
+  flex-shrink    : 0;
+  display        : flex;
+  flex-direction : column;
+  justify-content: space-between;
+  align-items    : center;
+  padding        : 48px 40px 0;
+  background     : linear-gradient(160deg, #0d1a33 0%, #080e1a 70%);
+  border-right   : 1px solid rgba(21,111,231,0.12);
+  position       : relative;
+  overflow       : hidden;
+  text-align     : center;
+}
+
+.registro-deco::before {
+  content       : '';
+  position      : absolute;
+  top           : -120px;
+  right         : -120px;
+  width         : 400px;
+  height        : 400px;
+  background    : radial-gradient(circle, rgba(21,111,231,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.deco-logo-link {
+  align-self: flex-start;
+}
+
+.deco-logo {
+  height: 40px;
+  width : auto;
+}
+
+.deco-texto {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  padding       : 32px 0 24px;
+}
+
+.deco-texto h2 {
+  font-size    : 1.5rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  line-height  : 1.25;
+  margin-bottom: 10px;
+}
+
+.deco-texto p {
+  font-size  : 0.9rem;
+  color      : #8a9ab8;
+  line-height: 1.6;
+}
+
+.deco-fiera-wrapper {
+  position  : relative;
+  width     : 260px;
+  align-self: center;
+}
+
+.deco-glow-ring {
+  position     : absolute;
+  width        : 82%;
+  aspect-ratio : 1;
+  border-radius: 50%;
+  border       : 2px solid #156fe7;
+  top          : 54%;
+  left         : 54%;
+  transform    : translate(-50%, -50%);
+  box-shadow   :
+    0 0 30px rgba(21,111,231,0.5),
+    inset 0 0 30px rgba(21,111,231,0.1);
+  animation    : pulse-ring 3s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1;   transform: translate(-50%, -50%) scale(1);    }
+  50%       { opacity: 0.6; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+.deco-fiera {
+  width     : 280px;
+  object-fit: contain;
+  filter    : drop-shadow(0 0 40px rgba(21,111,231,0.3));
+  display   : block;
+  position  : relative;
+  z-index   : 1;
+}
+
+/* ── Panel derecho ── */
+.hub-contenido {
+  flex           : 1;
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  padding        : 48px 40px;
+  overflow-y     : auto;
+  min-width      : 0;
+}
+
+.hub-inner {
+  width    : 100%;
+  max-width: 480px;
+}
+
+/* ── Header ── */
+.hub-header {
+  margin-bottom: 36px;
+}
+
+.hub-titulo {
+  font-size    : 1.75rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  line-height  : 1.2;
+  margin-bottom: 8px;
+}
+
+.hub-subtitulo {
+  font-size  : 0.95rem;
+  color      : #8a9ab8;
+  line-height: 1.5;
+}
+
+/* ── Cards de opciones ── */
+.hub-opciones {
+  display       : flex;
+  flex-direction: column;
+  gap           : 12px;
+  margin-bottom : 32px;
+}
+
+.hub-card {
+  display      : flex;
+  align-items  : center;
+  gap          : 16px;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 14px;
+  padding      : 20px;
+  cursor       : pointer;
+  transition   : border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.hub-card:hover {
+  border-color: rgba(21,111,231,0.5);
+  background  : rgba(21,111,231,0.05);
+  transform   : translateX(4px);
+}
+
+.hub-card-icono {
+  width          : 48px;
+  height         : 48px;
+  border-radius  : 12px;
+  background     : rgba(21,111,231,0.12);
+  border         : 1px solid rgba(21,111,231,0.2);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+  transition     : background 0.2s ease;
+}
+
+.hub-card:hover .hub-card-icono {
+  background: rgba(21,111,231,0.2);
+}
+
+.hub-card-icono svg {
+  width : 22px;
+  height: 22px;
+  color : #156fe7;
+}
+
+.hub-card-texto {
+  flex: 1;
+}
+
+.hub-card-titulo {
+  font-size    : 1rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 4px;
+}
+
+.hub-card-desc {
+  font-size  : 0.82rem;
+  color      : #8a9ab8;
+  line-height: 1.4;
+}
+
+.hub-card-flecha {
+  width     : 18px;
+  height    : 18px;
+  color     : #3a4d6b;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.hub-card:hover .hub-card-flecha {
+  color: #156fe7;
+}
+
+/* ── Footer link ── */
+.hub-footer-link {
+  text-align: center;
+  font-size : 0.88rem;
+}
+
+.hub-footer-link a {
+  color          : #8a9ab8;
+  text-decoration: none;
+  transition     : color 0.2s ease;
+}
+
+.hub-footer-link a:hover {
+  color: #ffffff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .registro-deco {
+    display: none;
+  }
+
+  .hub-contenido {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hub-contenido {
+    padding: 24px 16px;
+  }
+
+  .hub-titulo {
+    font-size: 1.4rem;
+  }
+}

@@ -1,4 +1,20 @@
-.bottom-nav-main {
+/* ============================================================
+   header.css — Estilos de la barra de navegación global
+
+   Estructura:
+   1. DESKTOP NAV  — bottom bar transparente centrado (≥ 769px)
+   2. MOBILE NAV   — bottom bar oscuro con ítem elevado (≤ 768px)
+   3. MEDIA QUERIES — visibilidad y ajustes responsive
+============================================================ */
+
+
+/* ────────────────────────────────────────────────────────────
+   1. DESKTOP NAV
+   Bottom bar transparente, centrado horizontalmente.
+   6 ítems con icono SVG, texto y tooltip de info.
+──────────────────────────────────────────────────────────── */
+
+.bottom-nav-desktop {
   position       : fixed;
   bottom         : 0;
   left           : 0;
@@ -22,14 +38,14 @@
   padding        : 0;
 }
 
-/* Separador entre items */
+/* Separador visual entre ítems */
 .nav-item-main + .nav-item-main {
-  border-left: 1px solid rgba(21, 111, 231, 0.25);
+  border-left : 1px solid rgba(21, 111, 231, 0.25);
   padding-left: 24px;
   margin-left : 24px;
 }
 
-/* Item individual */
+/* Ítem individual del desktop */
 .nav-item-main {
   display        : flex;
   flex-direction : column;
@@ -49,7 +65,7 @@
   min-width      : 56px;
 }
 
-/* Iconos: azul eléctrico con glow como el aura */
+/* Iconos SVG: azul eléctrico con glow */
 .nav-item-main svg {
   width : 32px;
   height: 32px;
@@ -65,7 +81,7 @@
   color: var(--blanco);
 }
 
-/* Item activo */
+/* Estado activo — ruta coincide con routerLinkActive */
 .nav-item-activo {
   color: var(--blanco) !important;
 }
@@ -74,7 +90,7 @@
   filter: drop-shadow(0 0 12px rgba(21, 111, 231, 1)) !important;
 }
 
-/* Cerrar sesión: icono rojizo */
+/* Variante cerrar sesión — icono y texto en rojo */
 .nav-item-salir svg {
   color : rgba(255, 77, 109, 0.7);
   filter: drop-shadow(0 0 6px rgba(255, 77, 109, 0.4));
@@ -89,12 +105,14 @@
   color: #ff4d6d;
 }
 
-/* ── Info icon + tooltip ── */
+/* ── Tooltip de info (icono "i" sobre cada ítem) ── */
+
 .nav-info-wrapper {
   position: relative;
   display : flex;
 }
 
+/* Círculo con la "i" */
 .nav-info-icon {
   width          : 14px;
   height         : 14px;
@@ -117,7 +135,7 @@
   color       : var(--azul-principal);
 }
 
-/* Bocadillo: oculto por defecto */
+/* Bocadillo — oculto por defecto, visible en hover */
 .nav-tooltip {
   display      : none;
   position     : absolute;
@@ -133,54 +151,192 @@
   white-space  : normal;
   width        : 200px;
   z-index      : 200;
-  /* Flechita abajo */
-  box-shadow   : 0 4px 16px rgba(0,0,0,0.4);
+  box-shadow   : 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
+/* Flecha inferior del bocadillo */
 .nav-tooltip::after {
-  content      : '';
-  position     : absolute;
-  top          : 100%;
-  left         : 50%;
-  transform    : translateX(-50%);
-  border       : 6px solid transparent;
+  content         : '';
+  position        : absolute;
+  top             : 100%;
+  left            : 50%;
+  transform       : translateX(-50%);
+  border          : 6px solid transparent;
   border-top-color: rgba(21, 111, 231, 0.25);
 }
 
-/* Mostrar al hacer hover en la i */
 .nav-info-icon:hover + .nav-tooltip,
 .nav-info-wrapper:hover .nav-tooltip {
   display: block;
 }
 
-/* Responsive */
 
+/* ────────────────────────────────────────────────────────────
+   2. MOBILE NAV
+   Bottom bar oscuro con borde superior sutil.
+   5 ítems: Club · Progreso · Debate (elevado) · Perfil
+            · Inicio / Cerrar sesión
+──────────────────────────────────────────────────────────── */
+
+.bottom-nav-mobile {
+  position  : fixed;
+  bottom    : 0;
+  left      : 0;
+  right     : 0;
+  z-index   : 100;
+  background: #0d1a33;
+  border-top: 1px solid rgba(21, 111, 231, 0.18);
+  /* Espacio extra abajo para safe-area en iOS */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Contenedor de los 5 ítems en fila */
+.mobile-nav-items {
+  display        : flex;
+  align-items    : flex-end;
+  justify-content: space-around;
+  padding        : 10px 8px 14px;
+  position       : relative;
+}
+
+/* Ítem estándar mobile — icono + label */
+.mobile-nav-item {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  gap            : 4px;
+  flex           : 1;
+  color          : rgba(21, 111, 231, 0.5);
+  font-size      : 10px;
+  font-weight    : 500;
+  font-family    : 'Inter', sans-serif;
+  text-decoration: none;
+  cursor         : pointer;
+  background     : none;
+  border         : none;
+  padding        : 0;
+  transition     : color 0.2s;
+}
+
+.mobile-nav-item svg {
+  width : 22px;
+  height: 22px;
+}
+
+.mobile-nav-item:hover {
+  color: var(--azul-principal);
+}
+
+/* Estado activo — azul sólido */
+.mobile-nav-activo {
+  color: var(--azul-principal) !important;
+}
+
+/* Variante cerrar sesión — rojo */
+.mobile-nav-salir {
+  color: #ff4d6d !important;
+}
+
+.mobile-nav-salir:hover {
+  color: #ff4d6d !important;
+}
+
+/* ── Debate — ítem central elevado ────────────────────────
+   El wrapper ocupa el espacio en el flujo normal.
+   El enlace (círculo azul) flota hacia arriba con
+   position: absolute y bottom elevado, sobresaliendo
+   por encima del borde superior del nav.
+   El doble ring se consigue con box-shadow en capas.
+──────────────────────────────────────────────────────────── */
+
+.mobile-nav-debate-wrapper {
+  flex           : 1;
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  gap            : 4px;
+  position       : relative;
+  /* Altura mínima para que el círculo elevado no colapse el layout */
+  padding-top    : 20px;
+}
+
+/* Círculo azul elevado */
+.mobile-nav-debate {
+  position       : absolute;
+  bottom         : 18px;
+  width          : 56px;
+  height         : 56px;
+  border-radius  : 50%;
+  background     : var(--azul-principal);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  text-decoration: none;
+  /* Ring exterior: capa de fondo oscuro + capa de glow azul */
+  box-shadow     :
+    0 0 0 4px #0d1a33,
+    0 0 0 5px rgba(21, 111, 231, 0.3);
+  transition     : background 0.2s, box-shadow 0.2s;
+}
+
+.mobile-nav-debate svg {
+  width : 24px;
+  height: 24px;
+  color : #ffffff;
+}
+
+.mobile-nav-debate:hover {
+  background: var(--azul-oscuro);
+  box-shadow :
+    0 0 0 4px #0d1a33,
+    0 0 0 5px rgba(21, 111, 231, 0.6);
+}
+
+/* Estado activo del botón Debate */
+.mobile-nav-debate-activo {
+  box-shadow:
+    0 0 0 4px #0d1a33,
+    0 0 0 6px rgba(21, 111, 231, 0.7) !important;
+}
+
+/* Label "Debate" bajo el círculo */
+.mobile-nav-debate-label {
+  font-size  : 10px;
+  font-weight: 600;
+  color      : var(--azul-principal);
+  font-family: 'Inter', sans-serif;
+  /* Se posiciona después del espacio que ocupa el wrapper */
+  margin-top : 42px;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   3. MEDIA QUERIES
+   Controlan qué nav se muestra según el ancho de pantalla.
+──────────────────────────────────────────────────────────── */
+
+/* Desktop: muestra desktop, oculta mobile */
+@media (min-width: 769px) {
+  .bottom-nav-desktop { display: block; }
+  .bottom-nav-mobile  { display: none;  }
+}
+
+/* Mobile: oculta desktop, muestra mobile */
 @media (max-width: 768px) {
+  .bottom-nav-desktop { display: none;  }
+  .bottom-nav-mobile  { display: block; }
 
-  .bottom-nav-main {
-    padding-bottom: 8px; /* reduce el padding inferior */
-  }
-
+  /* Ajuste del tooltip del desktop por si se reutiliza en breakpoints intermedios */
   .nav-tooltip {
     width    : 160px;
     font-size: 10px;
-    bottom   : 24px;
-    /* Evitar que se salga por los lados */
-    left     : auto;
-    right    : auto;
-    transform: none;
-    position : fixed;
-    bottom   : 90px;
-    left     : 50%;
-    transform: translateX(-50%);
   }
 }
 
-@media (max-width: 480px) {
-  .nav-item-main + .nav-item-main {
-    padding-left: 14px;
-    margin-left : 14px;
-  }
-  .nav-item-main { font-size: 9px; min-width: 44px; }
-  .nav-item-main svg { width: 20px; height: 20px; }
+/* Pantallas muy pequeñas (≤ 360px) */
+@media (max-width: 360px) {
+  .mobile-nav-item  { font-size: 9px; }
+  .mobile-nav-item svg { width: 20px; height: 20px; }
+  .mobile-nav-debate   { width: 50px; height: 50px; }
+  .mobile-nav-debate svg { width: 20px; height: 20px; }
 }

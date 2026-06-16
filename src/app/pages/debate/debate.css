@@ -35,15 +35,13 @@
   justify-content: center;
   width          : 40px;
   height         : 40px;
-  border         : 2px solid var(--azul-principal);
-  border-radius  : 50%;
-  overflow       : hidden;
+  overflow       : visible;
   margin-bottom  : 28px;
   transition     : box-shadow 0.2s;
 }
 
-.sidebar-logo-link:hover { box-shadow: 0 0 10px rgba(21,111,231,0.5); }
-.sidebar-logo-img        { width: 22px; height: 22px; object-fit: contain; }
+.sidebar-logo-link:hover { box-shadow: none; opacity: 0.8; }
+.sidebar-logo-img        { width: 72px; height: 72px; object-fit: contain; }
 
 /* Grupo de acciones */
 .sidebar-acciones {

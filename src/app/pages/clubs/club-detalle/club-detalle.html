@@ -1,0 +1,152 @@
+<!-- ============================================================
+     Club Detalle
+============================================================ -->
+<div class="detalle-layout">
+
+  <!-- Cargando -->
+  @if (cargando()) {
+    <div class="club-no-encontrado">
+      <p>Cargando club...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @else if (error()) {
+    <div class="club-no-encontrado">
+      <p>No se pudo cargar el club.</p>
+      <button (click)="volver()">Volver a clubs</button>
+    </div>
+  }
+
+  <!-- Club cargado -->
+  @else if (club(); as c) {
+
+    <!-- ── HEADER ── -->
+    <header class="detalle-header">
+      <button class="btn-volver" (click)="volver()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h1 class="header-titulo">{{ c.nombre }}</h1>
+      <div></div>
+    </header>
+
+    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <div class="detalle-contenido">
+
+      <!-- ══ PANEL IZQUIERDO (40%) ══ -->
+      <aside class="detalle-panel-izq">
+
+        <!-- Perfil del club -->
+        <div class="club-perfil">
+
+          <!-- Avatar grande -->
+          <div class="club-avatar-grande">
+            <span>{{ c.siglas }}</span>
+          </div>
+
+          <!-- Nombre -->
+          <div class="club-perfil-info">
+            <h2 class="club-perfil-nombre">{{ c.nombre }}</h2>
+            <p class="club-perfil-siglas">{{ c.siglas }}</p>
+          </div>
+
+          <!-- Institución -->
+          <div class="club-badges">
+            <span class="badge badge-tipo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              {{ c.institucion }}
+            </span>
+          </div>
+
+          <!-- Stats -->
+          <div class="club-stats-fila">
+            <div class="club-stat-item">
+              <p class="stat-num">{{ c.usuarios.length }}</p>
+              <p class="stat-lbl">Miembros</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-wrapper">
+          <button class="tab-btn"
+                  [class.activo]="tabActivo() === 'informacion'"
+                  (click)="tabActivo.set('informacion')">
+            Información
+          </button>
+          <button class="tab-btn"
+                  [class.activo]="tabActivo() === 'miembros'"
+                  (click)="tabActivo.set('miembros')">
+            Miembros
+            <span class="tab-badge">{{ c.usuarios.length }}</span>
+          </button>
+        </div>
+
+      </aside>
+
+      <!-- ══ PANEL DERECHO (60%) ══ -->
+      <main class="detalle-panel-der">
+
+        <!-- TAB: INFORMACIÓN -->
+        @if (tabActivo() === 'informacion') {
+          <div class="tab-contenido">
+            <div class="info-seccion">
+              <p class="info-seccion-titulo">DETALLES</p>
+              <div class="info-filas">
+                <div class="info-fila">
+                  <span class="info-fila-label">Nombre</span>
+                  <span class="info-fila-valor">{{ c.nombre }}</span>
+                </div>
+                <div class="info-fila">
+                  <span class="info-fila-label">Siglas</span>
+                  <span class="info-fila-valor">{{ c.siglas }}</span>
+                </div>
+                <div class="info-fila">
+                  <span class="info-fila-label">Institución</span>
+                  <span class="info-fila-valor">{{ c.institucion }}</span>
+                </div>
+                <div class="info-fila">
+                  <span class="info-fila-label">Miembros</span>
+                  <span class="info-fila-valor">{{ c.usuarios.length }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- TAB: MIEMBROS -->
+        @if (tabActivo() === 'miembros') {
+          <div class="tab-contenido">
+            @if (c.usuarios.length === 0) {
+              <div class="actividad-vacia">
+                <p class="actividad-vacia-titulo">Sin miembros registrados</p>
+              </div>
+            } @else {
+              <div class="miembros-lista">
+                @for (u of c.usuarios; track u.id) {
+                  <div class="miembro-fila">
+                    <div class="miembro-avatar">{{ iniciales(u.nombre) }}</div>
+                    <div class="miembro-info">
+                      <p class="miembro-nombre">{{ u.nombre }}</p>
+                      <p class="miembro-rol">{{ u.username }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+
+      </main>
+
+    </div>
+
+  } @else {
+    <div class="club-no-encontrado">
+      <p>Club no encontrado.</p>
+      <button (click)="volver()">Volver a clubs</button>
+    </div>
+  }
+
+</div>

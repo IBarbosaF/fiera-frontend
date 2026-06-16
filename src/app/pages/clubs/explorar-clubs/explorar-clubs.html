@@ -1,0 +1,128 @@
+<!-- ============================================================
+     Explorar Clubs
+============================================================ -->
+<div class="explorar-layout">
+
+  <!-- ── HEADER ── -->
+  <header class="explorar-header">
+    <a routerLink="/" class="header-logo">
+      <img src="assets/r_azul.png" alt="Logo Retorika" />
+    </a>
+    <h1 class="header-titulo">Explorar clubs</h1>
+    <button class="btn-crear-club" (click)="irACrear()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Crear club
+    </button>
+  </header>
+
+  <!-- ── CONTENIDO PRINCIPAL ── -->
+  <div class="explorar-contenido">
+
+    <!-- ══ PANEL IZQUIERDO (40%) ══ -->
+    <aside class="explorar-panel-izq">
+
+      <!-- Buscador -->
+      <div class="buscador-wrapper">
+        <svg class="buscador-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          type="text"
+          class="buscador-input"
+          placeholder="Buscar club o institución..."
+          [value]="busqueda()"
+          (input)="busqueda.set($any($event.target).value)" />
+        @if (busqueda()) {
+          <button class="buscador-clear" (click)="busqueda.set('')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        }
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-wrapper">
+        <div class="stat-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <div>
+            <p class="stat-numero">{{ totalClubs() }}</p>
+            <p class="stat-label">Clubs registrados</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ilustración FIERA -->
+      <div class="panel-fiera-wrapper">
+        <div class="panel-glow-ring"></div>
+        <img src="assets/fieraLogo.png" alt="FIERA" class="panel-fiera-img" />
+      </div>
+
+    </aside>
+
+    <!-- ══ PANEL DERECHO (60%) ══ -->
+    <main class="explorar-panel-der">
+
+      <!-- Cargando -->
+      @if (cargando()) {
+        <div class="lista-vacia">
+          <p class="lista-vacia-titulo">Cargando clubs...</p>
+        </div>
+      }
+
+      <!-- Error -->
+      @else if (error()) {
+        <div class="lista-vacia">
+          <p class="lista-vacia-titulo">No se pudieron cargar los clubs</p>
+          <button class="btn-limpiar" (click)="cargarClubs()">Reintentar</button>
+        </div>
+      }
+
+      <!-- Lista vacía -->
+      @else if (clubsFiltrados().length === 0) {
+        <div class="lista-vacia">
+          <div class="lista-vacia-icono">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <p class="lista-vacia-titulo">No se encontraron clubs</p>
+          <p class="lista-vacia-desc">Prueba con otro término de búsqueda.</p>
+          <button class="btn-limpiar" (click)="busqueda.set('')">
+            Limpiar búsqueda
+          </button>
+        </div>
+      }
+
+      <!-- Lista de clubs -->
+      @else {
+        <div class="clubs-lista">
+          @for (club of clubsFiltrados(); track club.id) {
+            <div class="club-card" (click)="verClub(club.id)">
+
+              <!-- Avatar iniciales -->
+              <div class="club-avatar">
+                <span class="club-avatar-iniciales">{{ iniciales(club) }}</span>
+              </div>
+
+              <!-- Info -->
+              <div class="club-info">
+                <p class="club-nombre">{{ club.nombre }}</p>
+                <div class="club-meta">
+                  <span class="club-ciudad">{{ club.institucion }}</span>
+                </div>
+              </div>
+
+              <!-- Número de miembros -->
+              <div class="club-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>{{ club.usuarios.length }}</span>
+              </div>
+
+              <!-- Flecha -->
+              <svg class="club-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+
+            </div>
+          }
+        </div>
+      }
+
+    </main>
+
+  </div>
+
+</div>

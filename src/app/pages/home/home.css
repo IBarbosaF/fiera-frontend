@@ -106,12 +106,6 @@
   gap           : 16px;
 }
 
-/* CTA con sesión desktop */
-.cta-logueado-desktop { display: block; }
-
-/* CTA con sesión móvil */
-.cta-logueado-mobile  { display: none; }
-
 /* ── Leona con anillo ── */
 .hero-image-wrapper {
   position       : relative;
@@ -287,19 +281,6 @@
     width        : min(300px, 85vw);
     text-align   : center;
     border-radius: var(--radio-btn);
-  }
-
-  .cta-logueado-desktop { display: none; }
-
-  .cta-logueado-mobile {
-    display        : flex;
-    order          : 3;
-    align-items    : center;
-    justify-content: center;
-    width          : 100%;
-    margin-top     : 44px;
-    position       : relative;
-    z-index        : 3;
   }
 }
 
