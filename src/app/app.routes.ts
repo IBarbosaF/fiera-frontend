@@ -1,26 +1,52 @@
 import { Routes } from '@angular/router';
 import { MainLayout } from './layouts/main-layout/main-layout';
 
+/* ============================================================
+   Rutas de la aplicación
+
+   FUERA del MainLayout — páginas con layout propio:
+   · /registro         → Registro (wizard multi-paso)
+   · /configurar       → ConfigDebate (config de partida)
+   · /partida          → PartidaDebate (debate en vivo)
+   · /clubs            → ClubsHub
+   · /clubs/explorar   → ExplorarClubs
+   · /clubs/crear      → CrearClub
+   · /clubs/:id        → ClubDetalle
+
+   DENTRO del MainLayout — páginas con sidebar global:
+   · /                 → Home (dashboard)
+   · /debate           → DebateHub (3 opciones)
+   · /debate/rapido    → DebateRapido
+   · /debate/unirse    → UnirseDebate
+   · /resultados       → Resultados
+
+   NOTA: /configurar y /partida viven fuera del MainLayout
+   para evitar conflicto con las rutas hijas de /debate.
+   El DebateHub enlaza a /configurar y /partida directamente.
+============================================================ */
+
 export const routes: Routes = [
 
-  /* ── Rutas con layout propio (sin MainLayout) ── */
+  /* ── Rutas sin MainLayout — layout propio ─────────────── */
+
   {
     path        : 'registro',
     loadComponent: () =>
       import('./pages/registro/registro').then(m => m.Registro)
   },
   {
-    path        : 'configurar',
+    path        : 'debate-configurar',
     loadComponent: () =>
-      import('./pages/config-debate/config-debate').then(m => m.ConfigDebate)
+      import('./pages/debate/config-debate/config-debate').then(m => m.ConfigDebate)
   },
   {
-    path        : 'debate',
+    path        : 'debate-partida',
     loadComponent: () =>
-      import('./pages/debate/debate').then(m => m.Debate)
+      import('./pages/debate/partida-debate/partida-debate').then(m => m.PartidaDebate)
   },
 
-  /* ── Módulo clubs (sin MainLayout) ── */
+  /* ── Módulo clubs — sin MainLayout ────────────────────── */
+  /* IMPORTANTE: rutas específicas antes del wildcard :id   */
   {
     path        : 'clubs',
     loadComponent: () =>
@@ -42,7 +68,7 @@ export const routes: Routes = [
       import('./pages/clubs/club-detalle/club-detalle').then(m => m.ClubDetalle)
   },
 
-  /* ── Rutas con header global ── */
+  /* ── Rutas con MainLayout — sidebar global ─────────────── */
   {
     path     : '',
     component: MainLayout,
@@ -51,6 +77,21 @@ export const routes: Routes = [
         path        : '',
         loadComponent: () =>
           import('./pages/home/home').then(m => m.Home)
+      },
+      {
+        path        : 'debate',
+        loadComponent: () =>
+          import('./pages/debate/debate-hub/debate-hub').then(m => m.DebateHub)
+      },
+      {
+        path        : 'debate/rapido',
+        loadComponent: () =>
+          import('./pages/debate/debate-rapido/debate-rapido').then(m => m.DebateRapido)
+      },
+      {
+        path        : 'debate/unirse',
+        loadComponent: () =>
+          import('./pages/debate/unirse-debate/unirse-debate').then(m => m.UnirseDebate)
       },
       {
         path        : 'resultados',

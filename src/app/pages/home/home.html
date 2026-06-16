@@ -1,32 +1,22 @@
-<!-- ============================================================
-     Home — Página principal
+@if (!auth.estaLogueado()) {
+  <app-particles />
+  <main class="hero-section">
+    <div class="container hero-inner">
 
-     Sin sesión : logo + FIERA V2 + botones + leona
-     Con sesión : FIERA V2 + botón comenzar + leona
-
-     auth.estaLogueado() controla qué se muestra
-============================================================ -->
-
-<main class="hero-section">
-  <div class="container hero-inner">
-
-    <!-- ── Columna izquierda: texto y CTAs ── -->
-    <div class="hero-left">
-      <div class="hero-copy">
-        <div class="hero-logo">
-          <img src="assets/r_azul.png" alt="Retorika" class="hero-logo-img" />
+      <div class="hero-left">
+        <div class="hero-copy">
+          <div class="hero-logo">
+            <img src="assets/r_azul.png" alt="Retorika" class="hero-logo-img" />
+          </div>
+          <h1 class="title">FIERA <span class="title-accent">V2</span></h1>
+          <p class="subtitle">ENTRENA. DEBATE. IMPACTA.</p>
+          <div class="subtitle-linea"></div>
+          <p class="description">
+            Compite contra la IA en formato
+            <span class="description-accent">"Debate académico"</span>
+          </p>
         </div>
-        <h1 class="title">FIERA <span class="title-accent">V2</span></h1>
-        <p class="subtitle">ENTRENA. DEBATE. IMPACTA.</p>
-        <div class="subtitle-linea"></div>
-        <p class="description">
-          Compite contra la IA en formato
-          <span class="description-accent">"Debate académico"</span>
-        </p>
-      </div>
 
-      <!-- CTAs sin sesión -->
-      @if (!auth.estaLogueado()) {
         <div class="cta-group">
           <button class="btn-primary" (click)="abrirLogin()">
             INICIAR SESIÓN
@@ -35,77 +25,311 @@
             Regístrate, sé una fiera →
           </a>
         </div>
-      }
-    </div>
-
-    <!-- ── Leona con anillo neón ── -->
-    <div class="hero-image-wrapper">
-      <div class="glow-ring"></div>
-      <img src="assets/fieraLogo.png"
-           alt="FIERA - Tu oponente de debate"
-           class="leona-img" />
-    </div>
-  </div>
-</main>
-
-
-
-<!-- ============================================================
-     MODAL: Inicio de sesión
-============================================================ -->
-@if (modalLoginAbierto()) {
-  <div class="modal-overlay" (click)="cerrarAlClickarFuera($event)">
-    <div class="modal-card">
-      <button class="modal-close" (click)="cerrarLogin()">&times;</button>
-      <h2 class="modal-title">Iniciar sesión</h2>
-      <p class="modal-subtitle">Bienvenido de nuevo, fiera.</p>
-
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email"
-               placeholder="tu@email.com"
-               (input)="emailValue = $any($event.target).value"
-               autocomplete="email" />
       </div>
 
-      <div class="form-group">
-        <label>Contraseña</label>
-        <div class="input-password-wrapper">
-          <input [type]="verPassword ? 'text' : 'password'"
-                 placeholder="••••••••"
-                 (input)="passwordValue = $any($event.target).value"
-                 (keydown.enter)="login(emailValue, passwordValue)"
-                 autocomplete="current-password" />
-          <button class="btn-ojo" type="button" (click)="toggleVerPassword()">
-            @if (verPassword) {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            } @else {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-            }
-          </button>
+      <div class="hero-image-wrapper">
+        <div class="glow-ring"></div>
+        <img src="assets/fieraLogo.png"
+             alt="FIERA - Tu oponente de debate"
+             class="leona-img" />
+      </div>
+    </div>
+  </main>
+
+  @if (modalLoginAbierto()) {
+    <div class="modal-overlay" (click)="cerrarAlClickarFuera($event)">
+      <div class="modal-card">
+        <button class="modal-close" (click)="cerrarLogin()">&times;</button>
+        <h2 class="modal-title">Iniciar sesión</h2>
+        <p class="modal-subtitle">Bienvenido de nuevo, fiera.</p>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email"
+                 placeholder="tu@email.com"
+                 (input)="emailValue = $any($event.target).value"
+                 autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label>Contraseña</label>
+          <div class="input-password-wrapper">
+            <input [type]="verPassword ? 'text' : 'password'"
+                   placeholder="••••••••"
+                   (input)="passwordValue = $any($event.target).value"
+                   (keydown.enter)="login(emailValue, passwordValue)"
+                   autocomplete="current-password" />
+            <button class="btn-ojo" type="button" (click)="toggleVerPassword()">
+              @if (verPassword) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        @if (errorLogin()) {
+          <p class="form-error">{{ errorLogin() }}</p>
+        }
+
+        <button class="btn-primary btn-full"
+                (click)="login(emailValue, passwordValue)">
+          ENTRAR
+        </button>
+
+        <p class="modal-footer-text">
+          ¿No tienes cuenta?
+          <a (click)="irARegistro()">Regístrate aquí</a>
+        </p>
+      </div>
+    </div>
+  }
+}
+
+@if (auth.estaLogueado()) {
+<div class="dashboard-root">
+
+  <app-particles />
+
+  <main class="dashboard-main">
+
+    <!-- Leona de fondo -->
+    <div class="dash-fiera-bg">
+      <div class="dash-fiera-ring"></div>
+      <img src="assets/fieraLogo.png" alt="" class="dash-fiera-img" aria-hidden="true" />
+    </div>
+
+    <!-- TOPBAR -->
+    <div class="dash-topbar">
+      <div class="dash-saludo">
+        <h1>Hola, {{ auth.usuario()?.nombre ?? 'fiera' }} 👋</h1>
+        <div class="dash-stats">
+          <span class="stat-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6"  y1="20" x2="6"  y2="14"/>
+            </svg>
+            Nivel <strong class="stat-valor">{{ nivel }}</strong>
+          </span>
+          <span class="stat-sep">|</span>
+          <span class="stat-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <circle cx="12" cy="8" r="6"/>
+              <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+            </svg>
+            <strong>#{{ ranking }}</strong> del ranking
+          </span>
+          <span class="stat-sep">|</span>
+          <span class="stat-item stat-puntos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <strong class="stat-valor">{{ puntos }}</strong> puntos
+          </span>
         </div>
       </div>
 
-      @if (errorLogin()) {
-        <p class="form-error">{{ errorLogin() }}</p>
-      }
+      <div class="dash-topbar-right">
+        <div class="topbar-iconos">
+          <div class="dropdown-anchor topbar-icono-wrap">
+            <button class="topbar-icono" (click)="toggleNotif($event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              @if (tieneNoLeidas) {
+                <span class="notif-badge"></span>
+              }
+            </button>
 
-      <button class="btn-primary btn-full"
-              (click)="login(emailValue, passwordValue)">
-        ENTRAR
-      </button>
+            @if (dropdownNotifAbierto()) {
+              <div class="dropdown-notif">
+                <h4 class="dropdown-notif-titulo">Notificaciones</h4>
+                @for (n of notificaciones; track $index) {
+                  <div class="notif-item" [class.no-leida]="!n.leida">
+                    <p class="notif-texto">{{ n.texto }}</p>
+                    <span class="notif-tiempo">{{ n.tiempo }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
 
-      <p class="modal-footer-text">
-        ¿No tienes cuenta?
-        <a (click)="irARegistro()">Regístrate aquí</a>
-      </p>
+          <button class="topbar-icono">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8"  y1="2" x2="8"  y2="6"/>
+              <line x1="3"  y1="10" x2="21" y2="10"/>
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- 4 CARDS -->
+    <div class="dash-cards-grid">
+      <a class="dash-card card-azul" routerLink="/configurar">
+        <div class="dash-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="dash-card-body">
+          <h3>Crear debate</h3>
+          <p>Configura tu debate desde cero</p>
+        </div>
+        <div class="dash-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+      </a>
+
+      <a class="dash-card card-fucsia">
+        <div class="dash-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <div class="dash-card-body">
+          <h3>Unirse a debate</h3>
+          <p>Introduce un código o acepta una invitación</p>
+        </div>
+        <div class="dash-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+      </a>
+
+      <a class="dash-card card-verde">
+        <div class="dash-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
+        <div class="dash-card-body">
+          <h3>Crear liga</h3>
+          <p>Organiza tu propia liga y compite con otros</p>
+        </div>
+        <div class="dash-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+      </a>
+
+      <a class="dash-card card-dorado">
+        <div class="dash-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="dash-card-body">
+          <h3>Unirme a liga</h3>
+          <p>Únete a una liga existente con un código</p>
+        </div>
+        <div class="dash-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+      </a>
+    </div>
+
+    <!-- FILA INFERIOR -->
+    <div class="dash-fila-inferior">
+      <div class="dash-widget">
+        <div class="dash-widget-header">
+          <h3>Próximos debates</h3>
+          <a class="dash-widget-link">Ver calendario →</a>
+        </div>
+        <div class="debates-lista">
+          @for (d of proximosDebates; track $index) {
+            <div class="debate-item">
+              <div class="debate-fecha">
+                <span class="debate-dia">{{ d.dia }}</span>
+                <span class="debate-mes">{{ d.mes }}</span>
+              </div>
+              <div class="debate-info">
+                <span class="debate-titulo">{{ d.titulo }}</span>
+                <span class="debate-detalle">{{ d.detalle }}</span>
+              </div>
+              <div class="debate-badge" [class.urgente]="d.urgente">{{ d.enDias }}</div>
+              <button class="debate-arrow">›</button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="dash-widget">
+        <div class="dash-widget-header">
+          <h3>Ranking general</h3>
+          <a class="dash-widget-link">Ver ranking completo →</a>
+        </div>
+        <div class="ranking-podio">
+          @for (j of topRanking; track j.posicion) {
+            <div class="ranking-jugador" [class.primero]="j.posicion === 1">
+              <div class="ranking-pos-badge pos-{{ j.posicion }}">{{ j.posicion }}</div>
+              <div class="ranking-avatar">{{ j.avatar }}</div>
+              <span class="ranking-nombre">{{ j.nombre }}</span>
+              <span class="ranking-puntos">{{ j.puntos }} pts</span>
+            </div>
+          }
+        </div>
+        <div class="ranking-tuposicion">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6"  y1="20" x2="6"  y2="14"/>
+          </svg>
+          Tu posición: <strong>#{{ ranking }}</strong>
+          <span class="ranking-tuspuntos">{{ puntos }} puntos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RETO DEL DÍA -->
+    <div class="dash-reto">
+      <div class="reto-icono">⚡</div>
+      <div class="reto-contenido">
+        <div class="reto-header">
+          <span class="reto-label">Reto del día</span>
+          <span class="reto-badge">{{ retoDia.duracion }}</span>
+        </div>
+        <p class="reto-pregunta">{{ retoDia.pregunta }}</p>
+        <button class="btn-primary reto-btn" routerLink="/configurar">
+          Debatir ahora ⚡
+        </button>
+      </div>
+      <div class="reto-deco">🎯</div>
+    </div>
+
+  </main>
+</div>
 }

@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink  } from '@angular/router';
-import { DebateService } from '../../core/services/debate.service';
+import { DebateService } from '../../../core/services/debate.service';
 
 /* ============================================================
    DebateComponent — Pantalla del debate en vivo
@@ -74,14 +74,14 @@ const RESPUESTAS_A_PREGUNTA = [
 const CIRCUNFERENCIA = 534;
 
 @Component({
-  selector        : 'app-debate',
+  selector        : 'app-partida-debate',
   standalone      : true,
   imports         : [RouterLink],
-  templateUrl     : './debate.html',
-  styleUrl        : './debate.css',
+  templateUrl     : './partida-debate.html',
+  styleUrl        : './partida-debate.css',
   changeDetection : ChangeDetectionStrategy.OnPush
 })
-export class Debate implements OnInit, OnDestroy {
+export class PartidaDebate implements OnInit, OnDestroy {
 
   debateService = inject(DebateService);
   router        = inject(Router);

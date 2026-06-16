@@ -1,196 +1,300 @@
 /* ============================================================
-   header.css — Estilos de la barra de navegación global
+   header.css — Estilos de la navegación global
 
    Estructura:
-   1. DESKTOP NAV  — bottom bar transparente centrado (≥ 769px)
-   2. MOBILE NAV   — bottom bar oscuro con ítem elevado (≤ 768px)
-   3. MEDIA QUERIES — visibilidad y ajustes responsive
+   1. SIDEBAR DESKTOP  — fijo izquierdo, 210px (≥ 769px)
+   2. MOBILE NAV       — bottom bar fijo (≤ 768px)
+   3. MODAL PREMIUM    — centrado en pantalla
+   4. MEDIA QUERIES    — switch de visibilidad y ajustes
 ============================================================ */
 
 
 /* ────────────────────────────────────────────────────────────
-   1. DESKTOP NAV
-   Bottom bar transparente, centrado horizontalmente.
-   6 ítems con icono SVG, texto y tooltip de info.
+   1. SIDEBAR DESKTOP
+   Fijo a la izquierda, ocupa el 100vh completo.
+   En desktop no tiene scroll — todo cabe en pantalla.
+   En móvil se transforma en drawer deslizante (ver §4).
 ──────────────────────────────────────────────────────────── */
 
-.bottom-nav-desktop {
-  position       : fixed;
-  bottom         : 0;
-  left           : 0;
-  right          : 0;
-  z-index        : 100;
-  background     : transparent;
-  border-top     : none;
-  padding        : 12px 0 20px;
-  backdrop-filter: none;
+.sidebar {
+  display       : flex;
+  flex-direction: column;
+  width         : 210px;
+  min-width     : 210px;
+  height        : 100vh;
+  background    : linear-gradient(160deg, #0d1a33 0%, #080e1a 100%);
+  border-right  : 1px solid rgba(21, 111, 231, 0.12);
+  overflow      : hidden; /* sin scroll en desktop */
+  /* Posicionamiento: el MainLayout usa flex-row,
+     el sidebar es el primer hijo y ocupa su ancho fijo */
 }
 
-.nav-items-wrapper {
+/* ── Logo — compacto, sin margen excesivo ── */
+.sidebar-logo {
+  padding    : 0;
+  flex-shrink: 0;
+}
+
+.sidebar-logo img {
+  width     : 100px;
+  height    : 100px;
+  object-fit: contain;
+  filter    : drop-shadow(0 0 8px rgba(21, 111, 231, 0.4));
+}
+
+/* ── Nav — ocupa el espacio disponible entre logo y usuario ── */
+.sidebar-nav {
+  display       : flex;
+  flex-direction: column;
+  gap           : 1px;
+  padding       : 4px 10px;
+  flex          : 1;
+  overflow      : hidden; /* sin scroll en desktop */
+}
+
+/* Ítem de navegación individual */
+.sidebar-nav-item {
   display        : flex;
   align-items    : center;
-  justify-content: center;
-  gap            : 0;
-  width          : fit-content;
-  margin         : 0 auto;
-  border         : none;
-  box-shadow     : none;
-  padding        : 0;
-}
-
-/* Separador visual entre ítems */
-.nav-item-main + .nav-item-main {
-  border-left : 1px solid rgba(21, 111, 231, 0.25);
-  padding-left: 24px;
-  margin-left : 24px;
-}
-
-/* Ítem individual del desktop */
-.nav-item-main {
-  display        : flex;
-  flex-direction : column;
-  align-items    : center;
-  gap            : 5px;
-  color          : rgba(255, 255, 255, 0.7);
-  font-size      : 10px;
+  gap            : 10px;
+  padding        : 8px 10px;
+  border-radius  : 8px;
+  color          : var(--texto-muted);
+  font-size      : 0.82rem;
   font-weight    : 500;
-  text-align     : center;
   text-decoration: none;
+  transition     : background 0.2s, color 0.2s;
   cursor         : pointer;
-  background     : none;
-  border         : none;
-  font-family    : 'Inter', sans-serif;
-  transition     : color 0.2s, filter 0.2s;
-  padding        : 0;
-  min-width      : 56px;
+  white-space    : nowrap;
 }
 
-/* Iconos SVG: azul eléctrico con glow */
-.nav-item-main svg {
-  width : 32px;
-  height: 32px;
-  color : var(--azul-principal);
-  filter: drop-shadow(0 0 6px rgba(21, 111, 231, 0.7));
+.sidebar-nav-item svg {
+  width      : 16px;
+  height     : 16px;
+  flex-shrink: 0;
 }
 
-.nav-item-main:hover svg {
-  filter: drop-shadow(0 0 10px rgba(21, 111, 231, 1));
+.sidebar-nav-item:hover {
+  background: rgba(21, 111, 231, 0.08);
+  color     : #ffffff;
 }
 
-.nav-item-main:hover {
-  color: var(--blanco);
+/* Estado activo — aplicado por routerLinkActive="active" */
+.sidebar-nav-item.active {
+  background: rgba(21, 111, 231, 0.15);
+  color     : #ffffff;
+  /* Barra indicadora izquierda */
+  box-shadow: inset 3px 0 0 var(--azul-principal);
 }
 
-/* Estado activo — ruta coincide con routerLinkActive */
-.nav-item-activo {
-  color: var(--blanco) !important;
+.sidebar-nav-item.active svg {
+  color: var(--azul-principal);
 }
 
-.nav-item-activo svg {
-  filter: drop-shadow(0 0 12px rgba(21, 111, 231, 1)) !important;
+/* ── Banner Premium ── */
+.sidebar-premium {
+  padding    : 8px 10px;
+  flex-shrink: 0;
 }
 
-/* Variante cerrar sesión — icono y texto en rojo */
-.nav-item-salir svg {
-  color : rgba(255, 77, 109, 0.7);
-  filter: drop-shadow(0 0 6px rgba(255, 77, 109, 0.4));
+.premium-btn {
+  display      : flex;
+  align-items  : center;
+  gap          : 8px;
+  width        : 100%;
+  background   : linear-gradient(135deg, rgba(21, 111, 231, 0.2) 0%, rgba(16, 92, 177, 0.1) 100%);
+  border       : 1px solid rgba(21, 111, 231, 0.3);
+  border-radius: 10px;
+  padding      : 10px 12px;
+  cursor       : pointer;
+  transition   : border-color 0.2s, background 0.2s;
+  text-align   : left;
 }
 
-.nav-item-salir:hover svg {
-  color : #ff4d6d;
-  filter: drop-shadow(0 0 10px rgba(255, 77, 109, 0.8));
+.premium-btn:hover {
+  border-color: rgba(21, 111, 231, 0.6);
+  background  : rgba(21, 111, 231, 0.15);
 }
 
-.nav-item-salir:hover {
-  color: #ff4d6d;
+.premium-icon  { font-size: 1rem; flex-shrink: 0; }
+
+.premium-label {
+  display       : block;
+  font-size     : 0.68rem;
+  font-weight   : 800;
+  color         : var(--azul-principal);
+  letter-spacing: 0.05em;
 }
 
-/* ── Tooltip de info (icono "i" sobre cada ítem) ── */
-
-.nav-info-wrapper {
-  position: relative;
-  display : flex;
+.premium-desc {
+  display    : block;
+  font-size  : 0.65rem;
+  color      : var(--texto-muted);
+  margin-top : 1px;
+  line-height: 1.3;
 }
 
-/* Círculo con la "i" */
-.nav-info-icon {
-  width          : 14px;
-  height         : 14px;
+/* ── Sección de usuario ── */
+.sidebar-usuario {
+  padding    : 0 10px 12px;
+  flex-shrink: 0;
+  position   : relative;
+}
+
+.usuario-btn {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  width      : 100%;
+  background : transparent;
+  border     : none;
+  border-top : 1px solid rgba(255, 255, 255, 0.05);
+  padding    : 10px 4px;
+  cursor     : pointer;
+  transition : opacity 0.2s;
+  text-align : left;
+}
+
+.usuario-btn:hover { opacity: 0.8; }
+
+/* Avatar con iniciales generadas desde AuthService */
+.usuario-avatar {
+  width          : 32px;
+  height         : 32px;
   border-radius  : 50%;
-  border         : 1px solid rgba(21, 111, 231, 0.5);
-  color          : rgba(21, 111, 231, 0.6);
-  font-size      : 9px;
-  font-weight    : 700;
+  background     : linear-gradient(135deg, var(--azul-principal), var(--azul-oscuro));
   display        : flex;
   align-items    : center;
   justify-content: center;
-  cursor         : pointer;
-  font-style     : normal;
-  transition     : border-color 0.2s, color 0.2s;
-  line-height    : 1;
+  font-size      : 0.72rem;
+  font-weight    : 700;
+  color          : #ffffff;
+  flex-shrink    : 0;
 }
 
-.nav-info-icon:hover {
-  border-color: var(--azul-principal);
-  color       : var(--azul-principal);
+.usuario-info {
+  flex          : 1;
+  display       : flex;
+  flex-direction: column;
+  min-width     : 0; /* permite text-overflow en nombre largo */
 }
 
-/* Bocadillo — oculto por defecto, visible en hover */
-.nav-tooltip {
-  display      : none;
+.usuario-nombre {
+  font-size    : 0.82rem;
+  font-weight  : 600;
+  color        : #ffffff;
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+
+.usuario-nivel {
+  font-size: 0.7rem;
+  color    : var(--azul-principal);
+}
+
+/* Chevron — rota 180° cuando el dropdown está abierto */
+.usuario-chevron {
+  width      : 14px;
+  height     : 14px;
+  color      : var(--texto-muted);
+  flex-shrink: 0;
+  transition : transform 0.2s;
+}
+
+.usuario-chevron.rotado { transform: rotate(180deg); }
+
+/* Dropdown cerrar sesión */
+.dropdown-usuario {
   position     : absolute;
-  bottom       : 20px;
-  left         : 50%;
-  transform    : translateX(-50%);
-  background   : var(--fondo-modal);
-  border       : 1px solid rgba(21, 111, 231, 0.25);
-  border-radius: 8px;
-  padding      : 8px 12px;
-  font-size    : 11px;
-  color        : var(--texto-muted);
-  white-space  : normal;
-  width        : 200px;
+  bottom       : calc(100% - 8px);
+  left         : 10px;
+  right        : 10px;
+  background   : #0d1a33;
+  border       : 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow     : hidden;
   z-index      : 200;
-  box-shadow   : 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow   : 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Flecha inferior del bocadillo */
-.nav-tooltip::after {
-  content         : '';
-  position        : absolute;
-  top             : 100%;
-  left            : 50%;
-  transform       : translateX(-50%);
-  border          : 6px solid transparent;
-  border-top-color: rgba(21, 111, 231, 0.25);
+.dropdown-usuario-item {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  width      : 100%;
+  background : transparent;
+  border     : none;
+  padding    : 12px 16px;
+  font-size  : 0.85rem;
+  font-weight: 500;
+  color      : var(--texto-muted);
+  cursor     : pointer;
+  transition : background 0.2s, color 0.2s;
+  font-family: inherit;
 }
 
-.nav-info-icon:hover + .nav-tooltip,
-.nav-info-wrapper:hover .nav-tooltip {
-  display: block;
+.dropdown-usuario-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color     : #ffffff;
+}
+
+.dropdown-usuario-item.cerrar-sesion:hover {
+  background: rgba(255, 77, 109, 0.1);
+  color     : #ff4d6d;
+}
+
+/* ── Hamburguesa — solo visible en ≤ 768px ── */
+.hamburguesa {
+  display   : none; /* oculto en desktop, visible en mobile via @media */
+  position  : fixed;
+  top       : 12px;
+  left      : 12px;
+  z-index   : 110; /* sobre el sidebar y el overlay */
+  background: rgba(13, 26, 51, 0.9);
+  border    : 1px solid rgba(21, 111, 231, 0.2);
+  border-radius: 8px;
+  color     : var(--texto-muted);
+  cursor    : pointer;
+  padding   : 8px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.hamburguesa:hover {
+  color     : #ffffff;
+  background: rgba(21, 111, 231, 0.15);
+}
+
+/* Overlay oscuro al abrir el sidebar en móvil */
+.sidebar-overlay {
+  display : none; /* activado en móvil vía @media */
+  position: fixed;
+  inset   : 0;
+  background    : rgba(0, 0, 0, 0.6);
+  z-index       : 99;
+  backdrop-filter: blur(2px);
 }
 
 
 /* ────────────────────────────────────────────────────────────
-   2. MOBILE NAV
-   Bottom bar oscuro con borde superior sutil.
-   5 ítems: Club · Progreso · Debate (elevado) · Perfil
-            · Inicio / Cerrar sesión
+   2. MOBILE NAV — BOTTOM BAR
+   Bottom bar oscuro fijo, visible solo en ≤ 768px.
+   5 ítems con ítem Debate elevado en el centro.
 ──────────────────────────────────────────────────────────── */
 
 .bottom-nav-mobile {
-  position  : fixed;
-  bottom    : 0;
-  left      : 0;
-  right     : 0;
-  z-index   : 100;
-  background: #0d1a33;
-  border-top: 1px solid rgba(21, 111, 231, 0.18);
-  /* Espacio extra abajo para safe-area en iOS */
+  position      : fixed;
+  bottom        : 0;
+  left          : 0;
+  right         : 0;
+  z-index       : 100;
+  background    : #0d1a33;
+  border-top    : 1px solid rgba(21, 111, 231, 0.18);
+  /* Espacio extra para safe-area en iOS (notch/home indicator) */
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Contenedor de los 5 ítems en fila */
+/* Fila de 5 ítems alineados abajo para el elevado */
 .mobile-nav-items {
   display        : flex;
   align-items    : flex-end;
@@ -199,7 +303,7 @@
   position       : relative;
 }
 
-/* Ítem estándar mobile — icono + label */
+/* Ítem estándar: icono + label centrados */
 .mobile-nav-item {
   display        : flex;
   flex-direction : column;
@@ -242,11 +346,11 @@
 }
 
 /* ── Debate — ítem central elevado ────────────────────────
-   El wrapper ocupa el espacio en el flujo normal.
-   El enlace (círculo azul) flota hacia arriba con
-   position: absolute y bottom elevado, sobresaliendo
-   por encima del borde superior del nav.
-   El doble ring se consigue con box-shadow en capas.
+   El wrapper mantiene el espacio en el flujo.
+   El enlace (círculo) flota hacia arriba con position:absolute.
+   El doble ring se consigue con box-shadow en capas:
+   · Capa 1: color fondo (#0d1a33) crea la separación
+   · Capa 2: glow azul semitransparente
 ──────────────────────────────────────────────────────────── */
 
 .mobile-nav-debate-wrapper {
@@ -256,11 +360,10 @@
   align-items    : center;
   gap            : 4px;
   position       : relative;
-  /* Altura mínima para que el círculo elevado no colapse el layout */
-  padding-top    : 20px;
+  padding-top    : 20px; /* espacio para el círculo elevado */
 }
 
-/* Círculo azul elevado */
+/* Círculo azul flotante */
 .mobile-nav-debate {
   position       : absolute;
   bottom         : 18px;
@@ -272,7 +375,6 @@
   align-items    : center;
   justify-content: center;
   text-decoration: none;
-  /* Ring exterior: capa de fondo oscuro + capa de glow azul */
   box-shadow     :
     0 0 0 4px #0d1a33,
     0 0 0 5px rgba(21, 111, 231, 0.3);
@@ -292,50 +394,106 @@
     0 0 0 5px rgba(21, 111, 231, 0.6);
 }
 
-/* Estado activo del botón Debate */
+/* Estado activo del botón Debate — glow más intenso */
 .mobile-nav-debate-activo {
   box-shadow:
     0 0 0 4px #0d1a33,
     0 0 0 6px rgba(21, 111, 231, 0.7) !important;
 }
 
-/* Label "Debate" bajo el círculo */
+/* Label bajo el círculo */
 .mobile-nav-debate-label {
   font-size  : 10px;
   font-weight: 600;
   color      : var(--azul-principal);
   font-family: 'Inter', sans-serif;
-  /* Se posiciona después del espacio que ocupa el wrapper */
-  margin-top : 42px;
+  margin-top : 42px; /* empuja el label bajo el círculo elevado */
 }
 
 
 /* ────────────────────────────────────────────────────────────
-   3. MEDIA QUERIES
-   Controlan qué nav se muestra según el ancho de pantalla.
+   3. MODAL PREMIUM
+   Reutiliza las clases globales .modal-overlay y .modal-card
+   definidas en styles.css. Solo se añaden los estilos
+   específicos del contenido del modal Premium.
 ──────────────────────────────────────────────────────────── */
 
-/* Desktop: muestra desktop, oculta mobile */
+.modal-premium {
+  max-width : 380px;
+  text-align: center;
+}
+
+.premium-modal-icono {
+  font-size    : 2.5rem;
+  margin-bottom: 8px;
+}
+
+.premium-modal-lista {
+  list-style    : none;
+  text-align    : left;
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+  margin        : 16px 0 20px;
+  padding       : 0;
+}
+
+.premium-modal-lista li {
+  font-size: 0.88rem;
+  color    : var(--texto-muted);
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   4. MEDIA QUERIES
+   Controlan visibilidad de cada nav y comportamiento
+   del sidebar en modo drawer móvil.
+──────────────────────────────────────────────────────────── */
+
+/* DESKTOP — sidebar visible, bottom bar oculto */
 @media (min-width: 769px) {
-  .bottom-nav-desktop { display: block; }
-  .bottom-nav-mobile  { display: none;  }
+  .sidebar          { display: flex; }
+  .hamburguesa      { display: none; }
+  .sidebar-overlay  { display: none; }
+  .bottom-nav-mobile{ display: none; }
 }
 
-/* Mobile: oculta desktop, muestra mobile */
+/* MOBILE — sidebar como drawer, bottom bar visible */
 @media (max-width: 768px) {
-  .bottom-nav-desktop { display: none;  }
-  .bottom-nav-mobile  { display: block; }
 
-  /* Ajuste del tooltip del desktop por si se reutiliza en breakpoints intermedios */
-  .nav-tooltip {
-    width    : 160px;
-    font-size: 10px;
+  /* Sidebar: oculto por defecto, desliza desde la izquierda */
+  .sidebar {
+    position  : fixed;
+    top       : 0;
+    left      : 0;
+    height    : 100vh;
+    z-index   : 100;
+    transform : translateX(-100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto; /* scroll en móvil si el contenido no cabe */
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #1e2d47 transparent;
   }
+
+  .sidebar::-webkit-scrollbar       { width: 3px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: #1e2d47; border-radius: 2px; }
+
+  /* Clase que activa el slide — añadida/quitada por sidebarAbierto() */
+  .sidebar.abierto { transform: translateX(0); }
+
+  /* Overlay y hamburguesa visibles en móvil */
+  .sidebar-overlay   { display: block; }
+  .hamburguesa       { display: flex; }
+
+  /* Bottom bar visible */
+  .bottom-nav-mobile { display: block; }
 }
 
-/* Pantallas muy pequeñas (≤ 360px) */
+/* Pantallas muy pequeñas — ajuste de tamaños */
 @media (max-width: 360px) {
-  .mobile-nav-item  { font-size: 9px; }
+  .mobile-nav-item     { font-size: 9px; }
   .mobile-nav-item svg { width: 20px; height: 20px; }
   .mobile-nav-debate   { width: 50px; height: 50px; }
   .mobile-nav-debate svg { width: 20px; height: 20px; }

@@ -1,8 +1,8 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DebateService, TemaApi } from '../../core/services/debate.service';
-import { AuthService } from '../../core/services/auth.service';
-import { Particles } from '../../shared/components/particles/particles';
+import { DebateService, TemaApi } from '../../../core/services/debate.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { Particles } from '../../../shared/components/particles/particles';
 
 /* ============================================================
    ConfigDebateComponent — Configuración del debate (v2)

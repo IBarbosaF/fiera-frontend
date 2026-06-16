@@ -1,163 +1,194 @@
 <!-- ============================================================
-     Header — Barra de navegación global
+     Header — Navegación global
 
-     DESKTOP (≥ 769px): bottom bar transparente centrado, 6 ítems.
-     MOBILE  (≤ 768px): bottom bar oscuro con ítem central elevado.
+     DESKTOP (≥ 769px): sidebar fijo izquierdo con logo,
+       9 ítems de nav, banner premium y sección de usuario.
+       Incluye botón hamburguesa y overlay para móvil.
 
-     Ambos se muestran solo cuando hay sesión activa.
-     El componente padre (MainLayout) gestiona el @if de sesión.
+     MOBILE  (≤ 768px): bottom bar fijo con 5 ítems y
+       botón Debate elevado en el centro.
+
+     Solo se renderiza cuando hay sesión activa.
+     El @if(auth.estaLogueado()) vive en MainLayout.
 ============================================================ -->
 
 
 <!-- ╔══════════════════════════════════════════════════════════╗
-     ║  DESKTOP NAV — visible solo en pantallas ≥ 769px        ║
-     ║  6 ítems: Debates · Clubs · IA · Feedback · Progreso    ║
-     ║           · Cerrar sesión                               ║
+     ║  OVERLAY MÓVIL                                          ║
+     ║  Fondo oscuro al abrir el sidebar en móvil.             ║
+     ║  Solo visible en ≤ 768px cuando sidebarAbierto() = true ║
      ╚══════════════════════════════════════════════════════════╝ -->
-<nav class="bottom-nav-main bottom-nav-desktop">
-  <div class="nav-items-wrapper">
-
-    <!-- ── 1. Debates académicos ── -->
-    <a routerLink="/configurar" class="nav-item-main"
-       routerLinkActive="nav-item-activo">
-
-      <div class="nav-info-wrapper"
-           (click)="$event.stopPropagation(); $event.preventDefault()">
-        <span class="nav-info-icon">i</span>
-        <div class="nav-tooltip">
-          Configura debates personalizados eligiendo tema, postura, duración,
-          dificultad y turnos. Entrena como en una competición real de debate académico.
-        </div>
-      </div>
-
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-      </svg>
-      <span>Debates<br/>académicos</span>
-    </a>
-
-    <!-- ── 2. Clubs ── -->
-    <a class="nav-item-main" (click)="irAClubs()">
-      <div class="nav-info-wrapper"
-           (click)="$event.stopPropagation(); $event.preventDefault()">
-        <span class="nav-info-icon">i</span>
-        <div class="nav-tooltip">
-          Únete o crea un club de debate. Comparte entrenamientos con tu equipo,
-          consulta los miembros y gestiona la actividad de tu club.
-        </div>
-      </div>
-
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      <span>Clubs</span>
-    </a>
-
-    <!-- ── 3. IA avanzada ── -->
-    <a routerLink="/ia" class="nav-item-main"
-       routerLinkActive="nav-item-activo">
-
-      <div class="nav-info-wrapper"
-           (click)="$event.stopPropagation(); $event.preventDefault()">
-        <span class="nav-info-icon">i</span>
-        <div class="nav-tooltip">
-          FIERA utiliza inteligencia artificial para actuar como un auténtico rival de debate.
-          Puede argumentar, refutar, formular preguntas e incluso adaptar su estilo
-          a distintas personalidades.
-        </div>
-      </div>
-
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 4C10 4 8 5 7 6.5C5.5 7 4 8.5 4 10.5C4 12 4.5 13 5.5 13.5C5 14 4.5 15 5 16C5.5 17 6.5 17.5 7.5 17.5C8 18.5 9 19.5 10.5 19.5C11 19.5 11.5 19.5 12 19.3"/>
-        <path d="M12 4C14 4 16 5 17 6.5C18.5 7 20 8.5 20 10.5C20 12 19.5 13 18.5 13.5C19 14 19.5 15 19 16C18.5 17 17.5 17.5 16.5 17.5C16 18.5 15 19.5 13.5 19.5C13 19.5 12.5 19.5 12 19.3"/>
-        <line x1="12" y1="4" x2="12" y2="19.3"/>
-        <circle cx="8.5"  cy="9"  r="0.8" fill="currentColor"/>
-        <circle cx="7.5"  cy="13" r="0.8" fill="currentColor"/>
-        <circle cx="9.5"  cy="16" r="0.8" fill="currentColor"/>
-        <circle cx="15.5" cy="9"  r="0.8" fill="currentColor"/>
-        <circle cx="16.5" cy="13" r="0.8" fill="currentColor"/>
-        <circle cx="14.5" cy="16" r="0.8" fill="currentColor"/>
-        <path d="M8.5 9 L10 11 L8.5 13"/>
-        <path d="M15.5 9 L14 11 L15.5 13"/>
-      </svg>
-      <span>IA<br/>avanzada</span>
-    </a>
-
-    <!-- ── 4. Feedback inteligente ── -->
-    <a routerLink="/feedback" class="nav-item-main"
-       routerLinkActive="nav-item-activo">
-
-      <div class="nav-info-wrapper"
-           (click)="$event.stopPropagation(); $event.preventDefault()">
-        <span class="nav-info-icon">i</span>
-        <div class="nav-tooltip">
-          Al finalizar cada debate recibirás una evaluación detallada de tu desempeño,
-          con puntuaciones, fortalezas y recomendaciones específicas para mejorar.
-        </div>
-      </div>
-
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-      <span>Feedback<br/>inteligente</span>
-    </a>
-
-    <!-- ── 5. Tu progreso ── -->
-    <a routerLink="/progreso" class="nav-item-main"
-       routerLinkActive="nav-item-activo">
-
-      <div class="nav-info-wrapper"
-           (click)="$event.stopPropagation(); $event.preventDefault()">
-        <span class="nav-info-icon">i</span>
-        <div class="nav-tooltip">
-          Sigue tu evolución a lo largo del tiempo. Consulta estadísticas, resultados,
-          logros, ranking y métricas para medir tu mejora sesión tras sesión.
-        </div>
-      </div>
-
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"/>
-        <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6"  y1="20" x2="6"  y2="14"/>
-      </svg>
-      <span>Tu<br/>progreso</span>
-    </a>
-
-    <!-- ── 6. Cerrar sesión ── -->
-    <button class="nav-item-main nav-item-salir"
-            (click)="cerrarSesion()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      <span>Cerrar<br/>sesión</span>
-    </button>
-
-  </div>
-</nav>
+@if (sidebarAbierto()) {
+  <div class="sidebar-overlay" (click)="cerrarSidebar()"></div>
+}
 
 
 <!-- ╔══════════════════════════════════════════════════════════╗
-     ║  MOBILE NAV — visible solo en pantallas ≤ 768px         ║
-     ║  5 ítems: Club · Progreso · Debate (elevado) · Perfil   ║
-     ║           · Inicio / Cerrar sesión (contextual)         ║
+     ║  BOTÓN HAMBURGUESA                                      ║
+     ║  Solo visible en ≤ 768px. Abre/cierra el sidebar.       ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<button class="hamburguesa" (click)="toggleSidebar()" aria-label="Abrir menú">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+    <line x1="3"  y1="6"  x2="21" y2="6"/>
+    <line x1="3"  y1="12" x2="21" y2="12"/>
+    <line x1="3"  y1="18" x2="21" y2="18"/>
+  </svg>
+</button>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  SIDEBAR — DESKTOP                                      ║
+     ║  Fijo a la izquierda, 210px, visible en ≥ 769px.        ║
+     ║  En móvil: oculto por defecto, desliza con .abierto     ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<aside class="sidebar" [class.abierto]="sidebarAbierto()">
+
+  <!-- ── Logo ── -->
+  <div class="sidebar-logo">
+    <img src="assets/r_azul.png" alt="Retorika" />
+  </div>
+
+  <!-- ── Nav items ─────────────────────────────────────────
+       @for itera sobre navItems definido en el .ts.
+       routerLinkActive añade la clase 'active' automáticamente.
+       exact: true solo en '/' para evitar que Home quede
+       activo en todas las rutas hijas.
+  ─────────────────────────────────────────────────────── -->
+  <nav class="sidebar-nav">
+    @for (item of navItems; track item.ruta) {
+      <a class="sidebar-nav-item"
+         [routerLink]="item.ruta"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: item.ruta === '/' }"
+         (click)="cerrarSidebar()">
+
+        @if (item.icono === 'home') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        }
+        @if (item.icono === 'debates') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        }
+        @if (item.icono === 'ligas') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        }
+        @if (item.icono === 'ranking') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6"  y1="20" x2="6"  y2="14"/>
+          </svg>
+        }
+        @if (item.icono === 'club') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        }
+        @if (item.icono === 'academia') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        }
+        @if (item.icono === 'perfil') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        }
+        @if (item.icono === 'logros') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        }
+        @if (item.icono === 'ajustes') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        }
+
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <!-- ── Banner Premium ── -->
+  <div class="sidebar-premium">
+    <button class="premium-btn" (click)="abrirPremium($event)">
+      <div class="premium-icon">💎</div>
+      <div class="premium-texto">
+        <span class="premium-label">RETORIKA PREMIUM</span>
+        <span class="premium-desc">Desbloquea todas las funcionalidades</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- ── Sección de usuario ── -->
+  <div class="sidebar-usuario">
+    <button class="usuario-btn" (click)="toggleUsuario($event)">
+      <div class="usuario-avatar">{{ inicialesUsuario() }}</div>
+      <div class="usuario-info">
+        <span class="usuario-nombre">{{ auth.usuario()?.nombre ?? 'Usuario' }}</span>
+        <span class="usuario-nivel">Nivel Intermedio</span>
+      </div>
+      <svg class="usuario-chevron" [class.rotado]="dropdownUsuarioAbierto()"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </button>
+
+    @if (dropdownUsuarioAbierto()) {
+      <div class="dropdown-usuario">
+        <button class="dropdown-usuario-item cerrar-sesion" (click)="cerrarSesion()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Cerrar sesión
+        </button>
+      </div>
+    }
+  </div>
+
+</aside>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  BOTTOM BAR — MOBILE                                    ║
+     ║  Fijo abajo, visible solo en ≤ 768px.                   ║
+     ║  5 ítems: Club · Progreso · Debate · Perfil · Contextual║
      ╚══════════════════════════════════════════════════════════╝ -->
 <nav class="bottom-nav-mobile">
   <div class="mobile-nav-items">
 
     <!-- ── 1. Club ── -->
-    <a class="mobile-nav-item" (click)="irAClubs()">
+    <a routerLink="/clubs" class="mobile-nav-item"
+       routerLinkActive="mobile-nav-activo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -180,12 +211,7 @@
       <span>Progreso</span>
     </a>
 
-    <!-- ── 3. Debate — ítem central elevado ──────────────────
-         El círculo azul flota sobre el borde superior del nav
-         mediante position: absolute + bottom elevado.
-         El espacio que ocupa en el flujo se mantiene con
-         el wrapper de altura fija (.mobile-nav-debate-wrapper).
-    ─────────────────────────────────────────────────────── -->
+    <!-- ── 3. Debate — central elevado ── -->
     <div class="mobile-nav-debate-wrapper">
       <a routerLink="/configurar" class="mobile-nav-debate"
          routerLinkActive="mobile-nav-debate-activo">
@@ -209,15 +235,9 @@
       <span>Perfil</span>
     </a>
 
-    <!-- ── 5. Inicio / Cerrar sesión — contextual ────────────
-         estaEnHome() === true  → muestra "Cerrar sesión" (rojo)
-         estaEnHome() === false → muestra "Inicio" (azul)
-         Solo uno de los dos bloques se renderiza a la vez.
-    ─────────────────────────────────────────────────────── -->
+    <!-- ── 5. Contextual: Cerrar sesión (home) / Inicio (resto) ── -->
     @if (estaEnHome()) {
-      <!-- En home: cerrar sesión -->
-      <button class="mobile-nav-item mobile-nav-salir"
-              (click)="cerrarSesion()">
+      <button class="mobile-nav-item mobile-nav-salir" (click)="cerrarSesion()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -227,9 +247,7 @@
         <span>Cerrar sesión</span>
       </button>
     } @else {
-      <!-- Fuera de home: volver al inicio -->
-      <button class="mobile-nav-item"
-              (click)="irAInicio()">
+      <button class="mobile-nav-item" (click)="irAInicio()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -241,3 +259,27 @@
 
   </div>
 </nav>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MODAL PREMIUM                                          ║
+     ║  Centrado en pantalla. Se cierra con X o overlay click. ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+@if (modalPremiumAbierto()) {
+  <div class="modal-overlay" (click)="cerrarPremiumFuera($event)">
+    <div class="modal-card modal-premium">
+      <button class="modal-close" (click)="cerrarPremium()">&times;</button>
+      <div class="premium-modal-icono">💎</div>
+      <h2 class="modal-title">Retorika Premium</h2>
+      <p class="modal-subtitle">Desbloquea todas las funcionalidades</p>
+      <ul class="premium-modal-lista">
+        <li>🎯 Debates ilimitados</li>
+        <li>🤖 FIERA con IA avanzada</li>
+        <li>📊 Estadísticas detalladas</li>
+        <li>🏆 Acceso a ligas privadas</li>
+        <li>📚 Academia completa</li>
+      </ul>
+      <button class="btn-primary btn-full" disabled>Próximamente</button>
+    </div>
+  </div>
+}

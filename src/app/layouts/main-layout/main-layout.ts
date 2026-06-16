@@ -5,19 +5,39 @@ import { Header } from '../../shared/components/header/header';
 import { AuthService } from '../../core/services/auth.service';
 
 /* ============================================================
-   MainLayout — Layout para páginas con sesión activa
+   MainLayout — Shell global de la aplicación
 
-   Usado en: ConfigDebate, Debate, Resultados
-   Contiene: header + partículas + contenido de la página
-   El header muestra nav completo y opción de cerrar sesión
+   Estructura en desktop (≥ 769px):
+   ┌──────────┬────────────────────────────────┐
+   │ sidebar  │   <router-outlet />            │
+   │ (Header) │   contenido de cada página     │
+   └──────────┴────────────────────────────────┘
+
+   Estructura en mobile (≤ 768px):
+   ┌────────────────────────────────┐
+   │   <router-outlet />            │
+   │   contenido de cada página     │
+   ├────────────────────────────────┤
+   │   bottom bar (en Header)       │
+   └────────────────────────────────┘
+
+   Header gestiona internamente:
+   · Sidebar desktop (210px fijo izquierdo)
+   · Bottom bar mobile (fijo abajo)
+   · Hamburguesa + overlay móvil
+   · Modal Premium
+   · Dropdown de usuario
+
+   El @if(auth.estaLogueado()) controla que Header
+   solo se renderice con sesión activa.
 ============================================================ */
 
 @Component({
-  selector: 'app-main-layout',
-  standalone: true,
-  imports: [RouterOutlet, Particles, Header],
-  templateUrl: './main-layout.html',
-  styleUrl: './main-layout.css'
+  selector    : 'app-main-layout',
+  standalone  : true,
+  imports     : [RouterOutlet, Particles, Header],
+  templateUrl : './main-layout.html',
+  styleUrl    : './main-layout.css'
 })
 export class MainLayout {
   auth = inject(AuthService);

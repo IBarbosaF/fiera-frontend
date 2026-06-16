@@ -1,8 +1,7 @@
-// src/app/pages/clubs/crear-club/crear-club.ts
-
-import { Component, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink }                                     from '@angular/router';
 import { CommonModule }                                           from '@angular/common';
+import { ClubsService } from '../../../core/services/clubs.service';
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 export type TipoInstitucion = 'colegio' | 'colegio_mayor' | 'universidad' | 'asociacion' | 'otro';
@@ -20,7 +19,9 @@ export type FrecuenciaForm  = 'semanal' | 'mensual' | 'puntual' | 'nunca';
 })
 export class CrearClub {
 
-  constructor(private router: Router) {}
+    private router = inject(Router)
+    private clubsService = inject(ClubsService)
+
 
   // ── Stepper ──────────────────────────────────────────────────────────────
   pasoActual = signal<number>(1);
@@ -196,29 +197,30 @@ export class CrearClub {
     this.imagenArchivo.set(null);
   }
 
+  // ── Estado de envío ───────────────────────────────────────────────────────
+    enviando = signal(false);
+
   // ── Finalizar: crear club ─────────────────────────────────────────────────
   crearClub(): void {
-    // TODO: POST /api/clubs con los datos
+    this.enviando.set(true);
+    this.error.set('');
+
     const nuevoClub = {
       nombre     : this.nombreClub(),
       siglas     : this.siglasClub(),
-      tipo       : this.tipoSeleccionado(),
-      imagen     : this.imagenArchivo(),   // TODO: subir a servidor
-      ubicacion  : {
-        pais      : this.pais(),
-        comunidad : this.comunidad(),
-        provincia : this.provincia(),
-        ciudad    : this.ciudad(),
-        direccion : this.direccion(),
-      },
-      tamano     : this.tamanoSeleccionado(),
-      frecuencia : this.frecuenciaSeleccionada(),
+      institucion: this.tipoSeleccionado() ?? '',
+      usuarios   : []
     };
 
-    console.log('Club a crear:', nuevoClub);
-
-    // TODO: llamada al backend → navegar a /clubs/exito o /clubs/:id
-    // Por ahora navegamos a /clubs
-    this.router.navigate(['/clubs']);
+    this.clubsService.crearClub(nuevoClub).subscribe({
+      next: (club) => {
+        this.enviando.set(false);
+        this.router.navigate(['/clubs', club.id]);
+      },
+      error: () => {
+        this.enviando.set(false);
+        this.error.set('No se pudo crear el club. Inténtalo de nuevo.');
+      }
+    });
   }
 }

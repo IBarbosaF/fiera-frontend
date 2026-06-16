@@ -1,16 +1,33 @@
 <!-- ============================================================
-     MainLayout — Con sesión activa
-     Header + partículas + contenido de la página
+     MainLayout — Shell global de la aplicación
+
+     Con sesión: flex-row → sidebar (via Header) + main content
+     Sin sesión: solo el router-outlet ocupa toda la pantalla
 ============================================================ -->
 <app-particles />
 
-<!-- Header: solo visible con sesión activa -->
+<!-- ── Con sesión: layout de dos columnas ─────────────────────
+     .layout-con-sesion crea el flex-row que pone el sidebar
+     (renderizado por <app-header />) a la izquierda y el
+     contenido de la página a la derecha.
+     Header gestiona internamente su visibilidad por breakpoint:
+     sidebar en desktop, bottom bar en mobile.
+──────────────────────────────────────────────────────────── -->
 @if (auth.estaLogueado()) {
-  <app-header />
+  <div class="layout-con-sesion">
+    <app-header />
+    <main class="main-content">
+      <router-outlet />
+    </main>
+  </div>
 }
 
-<main class="main-content"
-    [class.sin-header]="!auth.estaLogueado()"
-    [style.overflow]="auth.estaLogueado() ? 'hidden' : 'auto'">
-  <router-outlet />
-</main>
+<!-- ── Sin sesión: pantalla completa ──────────────────────────
+     Sin header ni sidebar. El router-outlet ocupa todo el
+     viewport. Usado por Home (vista landing) y Registro.
+──────────────────────────────────────────────────────────── -->
+@if (!auth.estaLogueado()) {
+  <main class="main-content sin-sesion">
+    <router-outlet />
+  </main>
+}
