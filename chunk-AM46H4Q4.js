@@ -1,0 +1,1 @@
+import{aa as n,c as i,f as e}from"./chunk-3DYL65S7.js";var o="http://fiera.retorika.es:9010",a=class t{http=e(n);getClubs(){return this.http.get(`${o}/api/app/clubs`)}crearClub(r){return this.http.post(`${o}/api/app/clubs/new`,r)}static \u0275fac=function(p){return new(p||t)};static \u0275prov=i({token:t,factory:t.\u0275fac,providedIn:"root"})};export{a};
