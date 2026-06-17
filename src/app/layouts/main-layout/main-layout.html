@@ -1,32 +1,19 @@
-<!-- ============================================================
-     MainLayout — Shell global de la aplicación
-
-     Con sesión: flex-row → sidebar (via Header) + main content
-     Sin sesión: solo el router-outlet ocupa toda la pantalla
-============================================================ -->
 <app-particles />
 
-<!-- ── Con sesión: layout de dos columnas ─────────────────────
-     .layout-con-sesion crea el flex-row que pone el sidebar
-     (renderizado por <app-header />) a la izquierda y el
-     contenido de la página a la derecha.
-     Header gestiona internamente su visibilidad por breakpoint:
-     sidebar en desktop, bottom bar en mobile.
-──────────────────────────────────────────────────────────── -->
 @if (auth.estaLogueado()) {
   <div class="layout-con-sesion">
     <app-header />
     <main class="main-content">
+      @if (mostrarLeona()) {
+        <div class="layout-fiera-bg">
+          <div class="layout-fiera-ring"></div>
+          <img src="assets/fieraLogo.png" alt="" class="layout-fiera-img" aria-hidden="true" />
+        </div>
+      }
       <router-outlet />
     </main>
   </div>
-}
-
-<!-- ── Sin sesión: pantalla completa ──────────────────────────
-     Sin header ni sidebar. El router-outlet ocupa todo el
-     viewport. Usado por Home (vista landing) y Registro.
-──────────────────────────────────────────────────────────── -->
-@if (!auth.estaLogueado()) {
+} @else {
   <main class="main-content sin-sesion">
     <router-outlet />
   </main>

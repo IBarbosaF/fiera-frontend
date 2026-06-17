@@ -5,9 +5,6 @@
        9 ítems de nav, banner premium y sección de usuario.
        Incluye botón hamburguesa y overlay para móvil.
 
-     MOBILE  (≤ 768px): bottom bar fijo con 5 ítems y
-       botón Debate elevado en el centro.
-
      Solo se renderiza cuando hay sesión activa.
      El @if(auth.estaLogueado()) vive en MainLayout.
 ============================================================ -->
@@ -27,7 +24,7 @@
      ║  BOTÓN HAMBURGUESA                                      ║
      ║  Solo visible en ≤ 768px. Abre/cierra el sidebar.       ║
      ╚══════════════════════════════════════════════════════════╝ -->
-<button class="hamburguesa" (click)="toggleSidebar()" aria-label="Abrir menú">
+<button class="hamburguesa" [class.oculta]="sidebarAbierto()" (click)="toggleSidebar()" aria-label="Abrir menú">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
        stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
     <line x1="3"  y1="6"  x2="21" y2="6"/>
@@ -35,7 +32,6 @@
     <line x1="3"  y1="18" x2="21" y2="18"/>
   </svg>
 </button>
-
 
 <!-- ╔══════════════════════════════════════════════════════════╗
      ║  SIDEBAR — DESKTOP                                      ║
@@ -70,10 +66,19 @@
             <polyline points="9 22 9 12 15 12 15 22"/>
           </svg>
         }
-        @if (item.icono === 'debates') {
+        @if (item.icono === 'comunidad') {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        }
+        @if (item.icono === 'club') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         }
         @if (item.icono === 'ligas') {
@@ -91,27 +96,11 @@
             <line x1="6"  y1="20" x2="6"  y2="14"/>
           </svg>
         }
-        @if (item.icono === 'club') {
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-        }
         @if (item.icono === 'academia') {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
             <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-          </svg>
-        }
-        @if (item.icono === 'perfil') {
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
           </svg>
         }
         @if (item.icono === 'logros') {
@@ -121,6 +110,13 @@
             <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
           </svg>
         }
+        @if (item.icono === 'perfil') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        }
         @if (item.icono === 'ajustes') {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -128,10 +124,18 @@
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
         }
-
         <span>{{ item.label }}</span>
       </a>
     }
+    <button class="sidebar-nav-item nav-salir" (click)="cerrarSesion()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span>Cerrar sesión</span>
+    </button>
   </nav>
 
   <!-- ── Banner Premium ── -->
@@ -147,119 +151,16 @@
 
   <!-- ── Sección de usuario ── -->
   <div class="sidebar-usuario">
-    <button class="usuario-btn" (click)="toggleUsuario($event)">
+    <div class="usuario-btn">
       <div class="usuario-avatar">{{ inicialesUsuario() }}</div>
       <div class="usuario-info">
         <span class="usuario-nombre">{{ auth.usuario()?.nombre ?? 'Usuario' }}</span>
         <span class="usuario-nivel">Nivel Intermedio</span>
       </div>
-      <svg class="usuario-chevron" [class.rotado]="dropdownUsuarioAbierto()"
-           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-    </button>
-
-    @if (dropdownUsuarioAbierto()) {
-      <div class="dropdown-usuario">
-        <button class="dropdown-usuario-item cerrar-sesion" (click)="cerrarSesion()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-               stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-          Cerrar sesión
-        </button>
-      </div>
-    }
+    </div>
   </div>
 
 </aside>
-
-
-<!-- ╔══════════════════════════════════════════════════════════╗
-     ║  BOTTOM BAR — MOBILE                                    ║
-     ║  Fijo abajo, visible solo en ≤ 768px.                   ║
-     ║  5 ítems: Club · Progreso · Debate · Perfil · Contextual║
-     ╚══════════════════════════════════════════════════════════╝ -->
-<nav class="bottom-nav-mobile">
-  <div class="mobile-nav-items">
-
-    <!-- ── 1. Club ── -->
-    <a routerLink="/clubs" class="mobile-nav-item"
-       routerLinkActive="mobile-nav-activo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      <span>Club</span>
-    </a>
-
-    <!-- ── 2. Progreso ── -->
-    <a routerLink="/progreso" class="mobile-nav-item"
-       routerLinkActive="mobile-nav-activo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"/>
-        <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6"  y1="20" x2="6"  y2="14"/>
-      </svg>
-      <span>Progreso</span>
-    </a>
-
-    <!-- ── 3. Debate — central elevado ── -->
-    <div class="mobile-nav-debate-wrapper">
-      <a routerLink="/configurar" class="mobile-nav-debate"
-         routerLinkActive="mobile-nav-debate-activo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-        </svg>
-      </a>
-      <span class="mobile-nav-debate-label">Debate</span>
-    </div>
-
-    <!-- ── 4. Perfil ── -->
-    <a routerLink="/perfil" class="mobile-nav-item"
-       routerLinkActive="mobile-nav-activo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-      <span>Perfil</span>
-    </a>
-
-    <!-- ── 5. Contextual: Cerrar sesión (home) / Inicio (resto) ── -->
-    @if (estaEnHome()) {
-      <button class="mobile-nav-item mobile-nav-salir" (click)="cerrarSesion()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-        <span>Cerrar sesión</span>
-      </button>
-    } @else {
-      <button class="mobile-nav-item" (click)="irAInicio()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-        <span>Inicio</span>
-      </button>
-    }
-
-  </div>
-</nav>
-
 
 <!-- ╔══════════════════════════════════════════════════════════╗
      ║  MODAL PREMIUM                                          ║

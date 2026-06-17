@@ -728,7 +728,7 @@
     gap        : 8px;
   }
 
-  .dash-saludo h1  { font-size: 1.3rem; }
+  .dash-saludo h1  { font-size: 1.3rem; margin-left: 48px; }
   .dash-fiera-bg   { display: none; }
 
   .dash-cards-grid    { grid-template-columns: repeat(2, 1fr); gap: 8px; }

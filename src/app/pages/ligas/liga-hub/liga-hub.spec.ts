@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UnirseDebate } from './unirse-debate';
+import { LigaHub } from './liga-hub';
 
-describe('UnirseDebate', () => {
-  let component: UnirseDebate;
-  let fixture: ComponentFixture<UnirseDebate>;
+describe('LigaHub', () => {
+  let component: LigaHub;
+  let fixture: ComponentFixture<LigaHub>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UnirseDebate],
+      imports: [LigaHub],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(UnirseDebate);
+    fixture = TestBed.createComponent(LigaHub);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

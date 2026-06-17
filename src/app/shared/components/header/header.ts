@@ -4,7 +4,6 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
-  HostListener
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -68,14 +67,6 @@ export class Header {
    */
   sidebarAbierto = signal(false);
 
-  /* ── Estado del dropdown de usuario ───────────────────── */
-
-  /**
-   * dropdownUsuarioAbierto — muestra u oculta el dropdown
-   * con la opción "Cerrar sesión" sobre la sección de usuario.
-   * Se cierra al hacer click fuera gracias al HostListener.
-   */
-  dropdownUsuarioAbierto = signal(false);
 
   /* ── Estado del modal Premium ──────────────────────────── */
 
@@ -122,13 +113,13 @@ export class Header {
    */
   readonly navItems: NavItem[] = [
     { label: 'Inicio',   ruta: '/',         icono: 'home'    },
-    { label: 'Debates',  ruta: '/debate',   icono: 'debates' },
+    { label: 'Comunidad',ruta: '/comunidad',   icono: 'comunidad' },
+    { label: 'Club',     ruta: '/clubs',    icono: 'club'    },
     { label: 'Ligas',    ruta: '/ligas',    icono: 'ligas'   },
     { label: 'Ranking',  ruta: '/ranking',  icono: 'ranking' },
-    { label: 'Club',     ruta: '/clubs',    icono: 'club'    },
     { label: 'Academia', ruta: '/academia', icono: 'academia'},
-    { label: 'Perfil',   ruta: '/perfil',   icono: 'perfil'  },
     { label: 'Logros',   ruta: '/logros',   icono: 'logros'  },
+    { label: 'Perfil',   ruta: '/perfil',   icono: 'perfil'  },
     { label: 'Ajustes',  ruta: '/ajustes',  icono: 'ajustes' },
   ];
 
@@ -145,27 +136,6 @@ export class Header {
    */
   cerrarSidebar(): void {
     this.sidebarAbierto.set(false);
-  }
-
-  /* ── Dropdown usuario ──────────────────────────────────── */
-
-  /**
-   * toggleUsuario — abre o cierra el dropdown de usuario.
-   * stopPropagation evita que el HostListener de document:click
-   * lo cierre inmediatamente después de abrirlo.
-   */
-  toggleUsuario(event: MouseEvent): void {
-    event.stopPropagation();
-    this.dropdownUsuarioAbierto.update(v => !v);
-  }
-
-  /**
-   * onDocumentClick — escucha clicks globales en el documento.
-   * Cierra el dropdown de usuario si se hace click fuera de él.
-   */
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.dropdownUsuarioAbierto.set(false);
   }
 
   /* ── Modal Premium ─────────────────────────────────────── */
@@ -203,7 +173,6 @@ export class Header {
    * TODO: llamar al endpoint de logout cuando el backend lo exponga.
    */
   cerrarSesion(): void {
-    this.dropdownUsuarioAbierto.set(false);
     this.sidebarAbierto.set(false);
     this.auth.cerrarSesion();
     this.router.navigate(['/']);

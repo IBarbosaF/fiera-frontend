@@ -3,62 +3,9 @@
 ============================================================ */
 
 .hub-root {
-  position  : relative;
-  min-height: calc(100vh - var(--header-height, 64px));
-}
-
-/* Partículas al fondo */
-.hub-root app-particles {
-  position: absolute;
-  inset   : 0;
-  z-index : 0;
-}
-
-/* ── Leona decorativa ── */
-.hub-fiera-wrapper {
-  position: absolute;
-  bottom  : 0;
-  left    : 0;
-  width   : 280px;
-  z-index : 1;
-  pointer-events: none;
-}
-
-.hub-fiera-glow {
-  position     : absolute;
-  width        : 75%;
-  aspect-ratio : 1;
-  border-radius: 50%;
-  border       : 2px solid #156fe7;
-  bottom       : -6%;
-  left         : 52%;
-  transform    : translateX(-50%);
-  box-shadow   :
-    0 0 30px rgba(21, 111, 231, 0.5),
-    inset 0 0 30px rgba(21, 111, 231, 0.1);
-  animation    : hub-pulse 3s ease-in-out infinite;
-}
-
-@keyframes hub-pulse {
-  0%, 100% { opacity: 1;   transform: translateX(-50%) scale(1);    }
-  50%       { opacity: 0.6; transform: translateX(-50%) scale(1.05); }
-}
-
-.hub-fiera-img {
-  width     : 100%;
-  bottom    : -100px;
-  object-fit: contain;
-  display   : block;
-  position  : relative;
-  z-index   : 1;
-}
-
-/* ── Contenido sobre la leona ── */
-.hub-contenido {
-  position: relative;
-  z-index : 2;
-  padding : 40px 40px 48px 320px; /* deja espacio para la leona */
-  max-width: 1000px;
+  max-width: 720px;
+  margin   : 0 auto;
+  padding  : 48px 24px 64px;
 }
 
 .hub-header { margin-bottom: 24px; }
@@ -87,8 +34,7 @@
   display        : flex;
   align-items    : center;
   gap            : 20px;
-  background     : rgba(15, 25, 48, 0.85);
-  backdrop-filter: blur(8px);
+  background     : #0f1930;
   border         : 1.5px solid rgba(255, 255, 255, 0.08);
   border-radius  : 14px;
   padding        : 18px 22px;
@@ -100,7 +46,7 @@
 }
 
 .hub-card:hover {
-  background: rgba(17, 30, 56, 0.95);
+  background: #111e38;
   transform : translateX(4px);
 }
 
@@ -122,7 +68,7 @@
   transition    : opacity 0.3s;
 }
 
-.hub-card:hover .hub-card-glow      { opacity: 0.06; }
+.hub-card:hover .hub-card-glow       { opacity: 0.06; }
 .hub-card.color-azul   .hub-card-glow { background: #156fe7; }
 .hub-card.color-verde  .hub-card-glow { background: #03d26e; }
 .hub-card.color-fucsia .hub-card-glow { background: #ff3a72; }
@@ -183,10 +129,10 @@
 .hub-card.color-fucsia:hover .hub-card-arrow { color: #ff3a72; transform: translateX(3px); }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
-  .hub-fiera-wrapper { display: none; }
-  .hub-contenido     { padding: 28px 16px 48px; }
-  .hub-card          { padding: 14px 16px; gap: 14px; }
-  .hub-card-icono    { width: 40px; height: 40px; font-size: 20px; }
-  .hub-card-titulo   { font-size: 14px; }
+@media (max-width: 600px) {
+  .hub-root        { padding: 28px 16px 48px; }
+  .hub-card        { padding: 14px 16px; gap: 14px; }
+  .hub-card-icono  { width: 40px; height: 40px; font-size: 20px; }
+  .hub-card-titulo { font-size: 14px; }
+  .hub-card-arrow  { font-size: 18px; }
 }

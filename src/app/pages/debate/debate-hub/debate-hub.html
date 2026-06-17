@@ -3,52 +3,40 @@
 ============================================================ -->
 <div class="hub-root">
 
-  <!-- Partículas de fondo -->
-  <app-particles />
-
-  <!-- Leona decorativa con aura -->
-  <div class="hub-fiera-wrapper">
-    <div class="hub-fiera-glow"></div>
-    <img src="assets/fieraLogo.png" alt="FIERA" class="hub-fiera-img" />
+  <div class="hub-header">
+    <h1 class="hub-titulo">¿Cómo quieres debatir?</h1>
+    <p class="hub-subtitulo">Elige el modo que mejor se adapte a tu entrenamiento de hoy.</p>
   </div>
 
-  <!-- Contenido -->
-  <div class="hub-contenido">
-    <div class="hub-header">
-      <h1 class="hub-titulo">¿Cómo quieres debatir?</h1>
-      <p class="hub-subtitulo">Elige el modo que mejor se adapte a tu entrenamiento de hoy.</p>
-    </div>
-
-    <div class="hub-cards">
-      @for (modo of modos; track modo.ruta) {
-        <a [routerLink]="modo.ruta"
-           class="hub-card"
+  <div class="hub-cards">
+    @for (modo of modos; track modo.ruta) {
+      <div class="hub-card"
            [class.destacada]="modo.destacada"
            [class.color-azul]="modo.color === 'azul'"
            [class.color-verde]="modo.color === 'verde'"
-           [class.color-fucsia]="modo.color === 'fucsia'">
+           [class.color-fucsia]="modo.color === 'fucsia'"
+           (click)="navegar(modo.ruta)">
 
-          <div class="hub-card-glow"></div>
+        <div class="hub-card-glow"></div>
 
-          <div class="hub-card-icono">
-            <i class="ti {{ modo.icono }}" aria-hidden="true"></i>
+        <div class="hub-card-icono">
+          <i class="ti {{ modo.icono }}" aria-hidden="true"></i>
+        </div>
+
+        <div class="hub-card-body">
+          <p class="hub-card-titulo">{{ modo.titulo }}</p>
+          <p class="hub-card-desc">{{ modo.desc }}</p>
+          <div class="hub-card-tags">
+            @for (tag of modo.tags; track tag) {
+              <span class="hub-tag">{{ tag }}</span>
+            }
           </div>
+        </div>
 
-          <div class="hub-card-body">
-            <p class="hub-card-titulo">{{ modo.titulo }}</p>
-            <p class="hub-card-desc">{{ modo.desc }}</p>
-            <div class="hub-card-tags">
-              @for (tag of modo.tags; track tag) {
-                <span class="hub-tag">{{ tag }}</span>
-              }
-            </div>
-          </div>
+        <i class="ti ti-arrow-right hub-card-arrow" aria-hidden="true"></i>
 
-          <i class="ti ti-arrow-right hub-card-arrow" aria-hidden="true"></i>
-
-        </a>
-      }
-    </div>
+      </div>
+    }
   </div>
 
 </div>

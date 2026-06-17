@@ -3,7 +3,6 @@
 
    Estructura:
    1. SIDEBAR DESKTOP  — fijo izquierdo, 210px (≥ 769px)
-   2. MOBILE NAV       — bottom bar fijo (≤ 768px)
    3. MODAL PREMIUM    — centrado en pantalla
    4. MEDIA QUERIES    — switch de visibilidad y ajustes
 ============================================================ */
@@ -91,6 +90,27 @@
   color: var(--azul-principal);
 }
 
+.nav-salir {
+  color     : rgba(255, 77, 109, 0.7);
+  background: none;
+  border    : none;
+  width     : 100%;
+  text-align: left;
+}
+
+.nav-salir svg {
+  color: rgba(255, 77, 109, 0.7);
+}
+
+.nav-salir:hover {
+  background: rgba(255, 77, 109, 0.08) !important;
+  color     : #ff4d6d !important;
+}
+
+.nav-salir:hover svg {
+  color: #ff4d6d;
+}
+
 /* ── Banner Premium ── */
 .sidebar-premium {
   padding    : 8px 10px;
@@ -150,7 +170,7 @@
   border     : none;
   border-top : 1px solid rgba(255, 255, 255, 0.05);
   padding    : 10px 4px;
-  cursor     : pointer;
+  cursor     : default;
   transition : opacity 0.2s;
   text-align : left;
 }
@@ -273,76 +293,6 @@
   background    : rgba(0, 0, 0, 0.6);
   z-index       : 99;
   backdrop-filter: blur(2px);
-}
-
-
-/* ────────────────────────────────────────────────────────────
-   2. MOBILE NAV — BOTTOM BAR
-   Bottom bar oscuro fijo, visible solo en ≤ 768px.
-   5 ítems con ítem Debate elevado en el centro.
-──────────────────────────────────────────────────────────── */
-
-.bottom-nav-mobile {
-  position      : fixed;
-  bottom        : 0;
-  left          : 0;
-  right         : 0;
-  z-index       : 100;
-  background    : #0d1a33;
-  border-top    : 1px solid rgba(21, 111, 231, 0.18);
-  /* Espacio extra para safe-area en iOS (notch/home indicator) */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Fila de 5 ítems alineados abajo para el elevado */
-.mobile-nav-items {
-  display        : flex;
-  align-items    : flex-end;
-  justify-content: space-around;
-  padding        : 10px 8px 14px;
-  position       : relative;
-}
-
-/* Ítem estándar: icono + label centrados */
-.mobile-nav-item {
-  display        : flex;
-  flex-direction : column;
-  align-items    : center;
-  gap            : 4px;
-  flex           : 1;
-  color          : rgba(21, 111, 231, 0.5);
-  font-size      : 10px;
-  font-weight    : 500;
-  font-family    : 'Inter', sans-serif;
-  text-decoration: none;
-  cursor         : pointer;
-  background     : none;
-  border         : none;
-  padding        : 0;
-  transition     : color 0.2s;
-}
-
-.mobile-nav-item svg {
-  width : 22px;
-  height: 22px;
-}
-
-.mobile-nav-item:hover {
-  color: var(--azul-principal);
-}
-
-/* Estado activo — azul sólido */
-.mobile-nav-activo {
-  color: var(--azul-principal) !important;
-}
-
-/* Variante cerrar sesión — rojo */
-.mobile-nav-salir {
-  color: #ff4d6d !important;
-}
-
-.mobile-nav-salir:hover {
-  color: #ff4d6d !important;
 }
 
 /* ── Debate — ítem central elevado ────────────────────────
@@ -486,9 +436,8 @@
   /* Overlay y hamburguesa visibles en móvil */
   .sidebar-overlay   { display: block; }
   .hamburguesa       { display: flex; }
+  .hamburguesa.oculta {  display: none;}
 
-  /* Bottom bar visible */
-  .bottom-nav-mobile { display: block; }
 }
 
 /* Pantallas muy pequeñas — ajuste de tamaños */

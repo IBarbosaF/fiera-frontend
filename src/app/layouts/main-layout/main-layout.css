@@ -1,31 +1,23 @@
 /* ============================================================
    main-layout.css — Estilos del shell global
-
-   .layout-con-sesion: fila horizontal que coloca el sidebar
-   (210px, gestionado por Header) a la izquierda y el
-   contenido de la página a la derecha ocupando el resto.
-
-   En mobile (≤ 768px) el sidebar desaparece y el main
-   ocupa todo el ancho, con padding-bottom para no quedar
-   tapado por el bottom bar fijo.
 ============================================================ */
 
 /* ── Con sesión — contenedor flex horizontal ── */
 .layout-con-sesion {
-  display   : flex;
+  display       : flex;
   flex-direction: row;
-  height    : 100vh;
-  overflow  : hidden; /* el scroll lo gestiona cada página */
-  position  : relative;
-  z-index   : 1;
+  height        : 100vh;
+  overflow      : hidden;
+  position      : relative;
+  z-index       : 1;
 }
 
 /* ── Área de contenido — ocupa el espacio restante ── */
 .main-content {
-  flex      : 1;          /* ocupa todo el ancho tras el sidebar */
-  min-width : 0;          /* evita desbordamiento en flex */
+  flex      : 1;
+  min-width : 0;
   height    : 100vh;
-  overflow-y: auto;       /* scroll vertical por página */
+  overflow-y: auto;
   overflow-x: hidden;
   position  : relative;
   z-index   : 1;
@@ -44,6 +36,55 @@
   overflow : auto;
 }
 
+/* ── Leona decorativa de fondo ── */
+.layout-fiera-bg {
+  position      : absolute;
+  bottom        : -20px;
+  left          : 18%;
+  transform     : translateX(-76%);
+  width         : 320px;
+  height        : 320px;
+  pointer-events: none;
+  z-index       : 0;
+}
+
+.layout-fiera-ring {
+  position     : absolute;
+  width        : 200px;
+  height       : 200px;
+  border-radius: 50%;
+  border       : 2px solid var(--azul-principal);
+  top          : 50%;
+  left         : 50%;
+  transform    : translate(-50%, -50%);
+  box-shadow   :
+    0 0 30px rgba(21, 111, 231, 0.5),
+    inset 0 0 30px rgba(21, 111, 231, 0.1);
+  animation    : pulse-ring 3s ease-in-out infinite;
+}
+
+.layout-fiera-img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: contain;
+  position  : relative;
+  z-index   : 1;
+  filter    : drop-shadow(0 4px 20px rgba(21, 111, 231, 0.3));
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    box-shadow:
+      0 0 30px rgba(21, 111, 231, 0.5),
+      inset 0 0 30px rgba(21, 111, 231, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 60px rgba(21, 111, 231, 0.85),
+      inset 0 0 50px rgba(21, 111, 231, 0.25);
+  }
+}
+
 /* ── Mobile — el main ocupa todo el ancho ── */
 @media (max-width: 768px) {
   .layout-con-sesion {
@@ -54,7 +95,28 @@
   .main-content {
     height        : auto;
     min-height    : 100vh;
-    /* Espacio para no quedar tapado por el bottom bar (≈ 70px) */
-    padding-bottom: 72px;
+  }
+
+    .layout-con-sesion {
+    flex-direction: column;
+    overflow      : auto;
+  }
+
+  .main-content {
+    height        : auto;
+    min-height    : 100vh;
+  }
+
+  /* ── Leona más pequeña y reposicionada en móvil ── */
+  .layout-fiera-bg {
+    width  : 180px;
+    height : 180px;
+    left   : 30%;
+    bottom : -10px;
+  }
+
+  .layout-fiera-ring {
+    width : 110px;
+    height: 110px;
   }
 }

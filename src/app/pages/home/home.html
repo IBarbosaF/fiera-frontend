@@ -183,7 +183,7 @@
 
     <!-- 4 CARDS -->
     <div class="dash-cards-grid">
-      <a class="dash-card card-azul" routerLink="/configurar">
+      <a class="dash-card card-azul" routerLink="/crear-debate">
         <div class="dash-card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -201,7 +201,7 @@
         </div>
       </a>
 
-      <a class="dash-card card-fucsia">
+      <a class="dash-card card-fucsia" routerLink="/debate/unirse">
         <div class="dash-card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
@@ -220,7 +220,7 @@
         </div>
       </a>
 
-      <a class="dash-card card-verde">
+      <a class="dash-card card-verde" routerLink="/crear-liga">
         <div class="dash-card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="8" r="6"/>
@@ -239,7 +239,7 @@
         </div>
       </a>
 
-      <a class="dash-card card-dorado">
+      <a class="dash-card card-dorado" routerLink="/ligas/unirse">
         <div class="dash-card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -249,7 +249,7 @@
           </svg>
         </div>
         <div class="dash-card-body">
-          <h3>Unirme a liga</h3>
+          <h3>Unirse a liga</h3>
           <p>Únete a una liga existente con un código</p>
         </div>
         <div class="dash-card-arrow">
@@ -323,7 +323,7 @@
           <span class="reto-badge">{{ retoDia.duracion }}</span>
         </div>
         <p class="reto-pregunta">{{ retoDia.pregunta }}</p>
-        <button class="btn-primary reto-btn" routerLink="/configurar">
+        <button class="btn-primary reto-btn" routerLink="/crear-debate">
           Debatir ahora ⚡
         </button>
       </div>

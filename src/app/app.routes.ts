@@ -1,57 +1,31 @@
 import { Routes } from '@angular/router';
 import { MainLayout } from './layouts/main-layout/main-layout';
 
-/* ============================================================
-   Rutas de la aplicación
-
-   FUERA del MainLayout — páginas con layout propio:
-   · /registro         → Registro (wizard multi-paso)
-   · /configurar       → ConfigDebate (config de partida)
-   · /partida          → PartidaDebate (debate en vivo)
-   · /clubs            → ClubsHub
-   · /clubs/explorar   → ExplorarClubs
-   · /clubs/crear      → CrearClub
-   · /clubs/:id        → ClubDetalle
-
-   DENTRO del MainLayout — páginas con sidebar global:
-   · /                 → Home (dashboard)
-   · /debate           → DebateHub (3 opciones)
-   · /debate/rapido    → DebateRapido
-   · /debate/unirse    → UnirseDebate
-   · /resultados       → Resultados
-
-   NOTA: /configurar y /partida viven fuera del MainLayout
-   para evitar conflicto con las rutas hijas de /debate.
-   El DebateHub enlaza a /configurar y /partida directamente.
-============================================================ */
-
 export const routes: Routes = [
 
   /* ── Rutas sin MainLayout — layout propio ─────────────── */
-
   {
     path        : 'registro',
     loadComponent: () =>
       import('./pages/registro/registro').then(m => m.Registro)
   },
   {
-    path        : 'debate-configurar',
+    path        : 'crear-debate',
     loadComponent: () =>
-      import('./pages/debate/config-debate/config-debate').then(m => m.ConfigDebate)
+      import('./pages/debate/crear-debate/crear-debate').then(m => m.CrearDebate)
   },
   {
     path        : 'debate-partida',
     loadComponent: () =>
       import('./pages/debate/partida-debate/partida-debate').then(m => m.PartidaDebate)
   },
-
-  /* ── Módulo clubs — sin MainLayout ────────────────────── */
-  /* IMPORTANTE: rutas específicas antes del wildcard :id   */
   {
-    path        : 'clubs',
+    path        : 'crear-liga',
     loadComponent: () =>
-      import('./pages/clubs/clubs-hub/clubs-hub').then(m => m.ClubsHub)
+      import('./pages/ligas/crear-liga/crear-liga').then(m => m.CrearLiga)
   },
+
+  /* ── Módulo clubs sin MainLayout ──────────────────────── */
   {
     path        : 'clubs/explorar',
     loadComponent: () =>
@@ -73,26 +47,75 @@ export const routes: Routes = [
     path     : '',
     component: MainLayout,
     children : [
+
       {
         path        : '',
         loadComponent: () =>
           import('./pages/home/home').then(m => m.Home)
       },
+
+      /* Comunidad */
       {
-        path        : 'debate',
+        path        : 'comunidad',
         loadComponent: () =>
-          import('./pages/debate/debate-hub/debate-hub').then(m => m.DebateHub)
+          import('./pages/comunidad/comunidad-hub/comunidad-hub').then(m => m.ComunidadHub)
+      },
+
+      /* Ligas */
+      {
+        path        : 'ligas',
+        loadComponent: () =>
+          import('./pages/ligas/liga-hub/liga-hub').then(m => m.LigaHub)
       },
       {
-        path        : 'debate/rapido',
+        path        : 'ligas/unirse',
         loadComponent: () =>
-          import('./pages/debate/debate-rapido/debate-rapido').then(m => m.DebateRapido)
+          import('./pages/ligas/unirse-liga/unirse-liga').then(m => m.UnirseLiga)
       },
+
+      /* Ranking */
       {
-        path        : 'debate/unirse',
+        path        : 'ranking',
         loadComponent: () =>
-          import('./pages/debate/unirse-debate/unirse-debate').then(m => m.UnirseDebate)
+          import('./pages/ranking/ranking').then(m => m.Ranking)
       },
+
+      /* Clubs */
+      {
+        path        : 'clubs',
+        loadComponent: () =>
+          import('./pages/clubs/clubs-hub/clubs-hub').then(m => m.ClubsHub)
+      },
+
+      /* Academia */
+      {
+        path        : 'academia',
+        loadComponent: () =>
+          import('./pages/academia/academia-hub/academia-hub').then(m => m.AcademiaHub)
+      },
+
+      /* Perfil */
+      {
+        path        : 'perfil',
+        loadComponent: () =>
+          import('./pages/perfil/perfil').then(m => m.Perfil)
+      },
+
+      /* Logros */
+      {
+        path        : 'logros',
+        loadComponent: () =>
+          import('./pages/logros/logros').then(m => m.Logros)
+      },
+
+      /* Ajustes */
+      {
+        path        : 'ajustes',
+        loadComponent: () =>
+          import('./pages/ajustes/ajustes').then(m => m.Ajustes)
+      },
+
+      /* Resultados */
       {
         path        : 'resultados',
         loadComponent: () =>

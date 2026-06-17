@@ -72,14 +72,14 @@ const SUBTURNOS_BASE: SubTurnoConfig[] = [
 ];
 
 @Component({
-  selector        : 'app-config-debate',
+  selector        : 'app-crear-debate',
   standalone      : true,
   imports         : [RouterLink, Particles],
-  templateUrl     : './config-debate.html',
-  styleUrl        : './config-debate.css',
+  templateUrl     : './crear-debate.html',
+  styleUrl        : './crear-debate.css',
   changeDetection : ChangeDetectionStrategy.OnPush
 })
-export class ConfigDebate implements OnInit {
+export class CrearDebate implements OnInit {
 
   /* ── Servicios ── */
   debateService = inject(DebateService);

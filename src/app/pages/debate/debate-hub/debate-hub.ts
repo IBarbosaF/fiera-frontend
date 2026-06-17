@@ -1,29 +1,25 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Particles } from '../../../shared/components/particles/particles';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
 
 /* ============================================================
    DebateHub — Pantalla de selección de modo de debate
-
-   Tres opciones:
-   - Configurar debate  → /debate/configurar
-   - Debate rápido      → /debate/rapido
-   - Unirme a debate    → /debate/unirse
 ============================================================ */
 
 @Component({
   selector        : 'app-debate-hub',
   standalone      : true,
-  imports         : [RouterLink, Particles],
+  imports         : [],
   templateUrl     : './debate-hub.html',
   styleUrl        : './debate-hub.css',
   changeDetection : ChangeDetectionStrategy.OnPush
 })
 export class DebateHub {
 
+  router = inject(Router);
+
   readonly modos = [
     {
-      ruta     : '/debate-configurar',
+      ruta     : 'debate-configurar',
       icono    : 'ti-settings',
       titulo   : 'Configurar debate',
       desc     : 'Elige el tema, la postura, la personalidad de FIERA y los turnos. Control total sobre tu entrenamiento.',
@@ -32,7 +28,7 @@ export class DebateHub {
       destacada: true
     },
     {
-      ruta     : '/debate/rapido',
+      ruta     : 'debate-rapido',
       icono    : 'ti-bolt',
       titulo   : 'Debate rápido',
       desc     : 'FIERA elige el tema y la dificultad. Empieza a debatir en segundos sin configuración previa.',
@@ -41,7 +37,7 @@ export class DebateHub {
       destacada: false
     },
     {
-      ruta     : '/debate/unirse',
+      ruta     : 'debate-unirse',
       icono    : 'ti-users',
       titulo   : 'Unirme a un debate',
       desc     : 'Introduce el código de sesión que te ha compartido un compañero para unirte a su debate.',
@@ -50,4 +46,8 @@ export class DebateHub {
       destacada: false
     }
   ];
+
+  navegar(ruta: string): void {
+    this.router.navigate([ruta]);
+  }
 }

@@ -1,36 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, computed } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { Particles } from '../../shared/components/particles/particles';
 import { Header } from '../../shared/components/header/header';
 import { AuthService } from '../../core/services/auth.service';
-
-/* ============================================================
-   MainLayout — Shell global de la aplicación
-
-   Estructura en desktop (≥ 769px):
-   ┌──────────┬────────────────────────────────┐
-   │ sidebar  │   <router-outlet />            │
-   │ (Header) │   contenido de cada página     │
-   └──────────┴────────────────────────────────┘
-
-   Estructura en mobile (≤ 768px):
-   ┌────────────────────────────────┐
-   │   <router-outlet />            │
-   │   contenido de cada página     │
-   ├────────────────────────────────┤
-   │   bottom bar (en Header)       │
-   └────────────────────────────────┘
-
-   Header gestiona internamente:
-   · Sidebar desktop (210px fijo izquierdo)
-   · Bottom bar mobile (fijo abajo)
-   · Hamburguesa + overlay móvil
-   · Modal Premium
-   · Dropdown de usuario
-
-   El @if(auth.estaLogueado()) controla que Header
-   solo se renderice con sesión activa.
-============================================================ */
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 
 @Component({
   selector    : 'app-main-layout',
@@ -40,5 +14,23 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl    : './main-layout.css'
 })
 export class MainLayout {
-  auth = inject(AuthService);
+  auth   = inject(AuthService);
+  router = inject(Router);
+
+    urlActual = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(e => (e as NavigationEnd).urlAfterRedirects)
+    ),
+    { initialValue: this.router.url }
+  );
+
+  /**
+   * mostrarLeona — true en cualquier ruta excepto Home (/).
+   * La leona es decorativa global pero no aparece en el dashboard.
+   */
+  mostrarLeona = computed(() => {
+    const url = this.urlActual();
+    return url !== '/' && url !== '' && url !== '/#/';
+  });
 }
