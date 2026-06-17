@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink }                                            from '@angular/router';
 import { CommonModule }                                                  from '@angular/common';
 import { FormsModule }                                                   from '@angular/forms';
@@ -16,6 +16,7 @@ export class ExplorarClubs {
 
   private router      = inject(Router);
   private clubsService = inject(ClubsService);
+  private cdr = inject(ChangeDetectorRef);
 
   // ── Estado ────────────────────────────────────────────────────────────────
   clubs          = signal<Club[]>([]);
@@ -49,7 +50,7 @@ export class ExplorarClubs {
     this.clubsService.getClubs().subscribe({
       next: (clubs) => {
         this.clubs.set(clubs);
-        this.cargando.set(false);
+        this.cargando.set(false);this.cdr.markForCheck();
       },
       error: () => {
         this.error.set(true);

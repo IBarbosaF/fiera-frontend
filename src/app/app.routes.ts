@@ -15,7 +15,7 @@ export const routes: Routes = [
       import('./pages/debate/crear-debate/crear-debate').then(m => m.CrearDebate)
   },
   {
-    path        : 'debate-partida',
+    path        : 'partida-debate',
     loadComponent: () =>
       import('./pages/debate/partida-debate/partida-debate').then(m => m.PartidaDebate)
   },

@@ -338,7 +338,7 @@ export class CrearDebate implements OnInit {
   ──────────────────────────────────────────── */
   iniciarDebate(): void {
     this.debateService.guardarConfig();
-    this.router.navigate(['/debate']);
+    this.router.navigate(['/partida-debate']);
   }
 
   /* ────────────────────────────────────────────
