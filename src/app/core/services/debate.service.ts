@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
          cuando la API esté lista.
 ============================================================ */
 
-const API_BASE = 'http://fiera.retorika.es';
+const API_BASE = 'https://fiera.retorika.es';
 
 export interface TemaApi {
   id       : number;

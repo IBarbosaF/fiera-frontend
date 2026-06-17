@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-const API_BASE = 'http://fiera.retorika.es';
+const API_BASE = 'https://fiera.retorika.es';
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 export type RolMiembro = 'administrador' | 'miembro' | 'pendiente';
