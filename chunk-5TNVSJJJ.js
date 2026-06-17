@@ -1,0 +1,1 @@
+import{Ra as a,Sa as n,eb as o,za as s}from"./chunk-AGV3ZBFK.js";var i=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=s({type:t,selectors:[["app-ajustes"]],decls:2,vars:0,template:function(e,m){e&1&&(a(0,"p"),o(1,"ajustes works!"),n())},encapsulation:2})};export{i as Ajustes};
