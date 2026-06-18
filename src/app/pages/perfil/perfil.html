@@ -1,1 +1,454 @@
-<p>perfil works!</p>
+<!-- ============================================================
+     Perfil — Dashboard de cards apiladas
+     Vive dentro de MainLayout (sidebar ya gestiona la nav)
+============================================================ -->
+<div class="perfil-root">
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO CARD — Avatar + nombre + nivel
+  ══════════════════════════════════════════════════════════ -->
+  <div class="perfil-hero-card">
+    <div class="perfil-avatar">
+      <span class="perfil-avatar-iniciales">{{ iniciales() }}</span>
+      <div class="perfil-avatar-glow"></div>
+    </div>
+    <div class="perfil-hero-info">
+      <h1 class="perfil-nombre">{{ usuario()?.nombre }} {{ usuario()?.apellidos }}</h1>
+      <p class="perfil-email">{{ usuario()?.email }}</p>
+      <div class="perfil-nivel-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        Debatiente Intermedio
+      </div>
+    </div>
+    <button class="perfil-cta" (click)="abrirModalEditar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      Editar perfil
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       GRID principal (2 columnas en desktop, 1 en móvil)
+  ══════════════════════════════════════════════════════════ -->
+  <div class="perfil-grid">
+
+    <!-- COL IZQ: CV -->
+    <div class="perfil-col">
+
+      <!-- CARD: CV -->
+      <div class="perfil-card">
+        <div class="perfil-card-header">
+          <div class="perfil-card-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            Curriculum Vitae
+          </div>
+        </div>
+
+        @if (!cvNombre()) {
+          <label class="perfil-cv-zona">
+            <input type="file" accept=".pdf" class="perfil-cv-input" (change)="subirCv($event)" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+              <polyline points="16 16 12 12 8 16"/>
+              <line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+            <span class="perfil-cv-label">Arrastra tu CV o <strong>haz clic para subir</strong></span>
+            <span class="perfil-cv-hint">PDF · Máximo 5 MB</span>
+          </label>
+        } @else {
+          <div class="perfil-cv-archivo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <span class="perfil-cv-nombre">{{ cvNombre() }}</span>
+            <button class="perfil-cv-eliminar" (click)="eliminarCv()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        }
+        @if (cvError()) {
+          <p class="perfil-error">{{ cvError() }}</p>
+        }
+      </div>
+
+      <!-- CARD: Logros -->
+      <div class="perfil-card">
+        <div class="perfil-card-header">
+          <div class="perfil-card-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <circle cx="12" cy="8" r="6"/>
+              <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+            </svg>
+            Logros
+          </div>
+          <span class="perfil-logros-contador">{{ logrosDesbloqueados }} / {{ logros.length }}</span>
+        </div>
+
+        <div class="perfil-logros-grid">
+          @for (logro of logros; track logro.id) {
+            <div class="perfil-logro" [class.perfil-logro--bloqueado]="!logro.desbloqueado">
+              <div class="perfil-logro-icono">
+                @if (logro.icono === 'espada') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                    <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
+                    <line x1="13" y1="19" x2="19" y2="13"/>
+                    <line x1="16" y1="16" x2="20" y2="20"/>
+                    <line x1="19" y1="21" x2="21" y2="19"/>
+                  </svg>
+                }
+                @if (logro.icono === 'fuego') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                  </svg>
+                }
+                @if (logro.icono === 'escudo') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                }
+                @if (logro.icono === 'trofeo') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                    <polyline points="8 17 12 21 16 17"/>
+                    <line x1="12" y1="12" x2="12" y2="21"/>
+                    <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/>
+                  </svg>
+                }
+                @if (logro.icono === 'rayo') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                }
+                @if (logro.icono === 'brujula') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                  </svg>
+                }
+              </div>
+              <div class="perfil-logro-info">
+                <p class="perfil-logro-nombre">{{ logro.nombre }}</p>
+                <p class="perfil-logro-desc">{{ logro.descripcion }}</p>
+                @if (logro.desbloqueado && logro.fecha) {
+                  <span class="perfil-logro-fecha">{{ logro.fecha }}</span>
+                }
+              </div>
+              @if (!logro.desbloqueado) {
+                <div class="perfil-logro-lock">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+    </div><!-- /col izq -->
+
+    <!-- COL DER: Stats + Historial -->
+    <div class="perfil-col">
+
+      <!-- CARD: Estadísticas -->
+      <div class="perfil-card">
+        <div class="perfil-card-header">
+          <div class="perfil-card-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6"  y1="20" x2="6"  y2="14"/>
+            </svg>
+            Estadísticas
+          </div>
+          <span class="perfil-badge-mock">Mock</span>
+        </div>
+
+        <div class="perfil-stats-grid">
+          <div class="perfil-stat">
+            <span class="perfil-stat-valor">{{ stats.totalDebates }}</span>
+            <span class="perfil-stat-label">Debates</span>
+          </div>
+          <div class="perfil-stat">
+            <span class="perfil-stat-valor perfil-stat--verde">{{ stats.victorias }}</span>
+            <span class="perfil-stat-label">Victorias</span>
+          </div>
+          <div class="perfil-stat">
+            <span class="perfil-stat-valor perfil-stat--rojo">{{ stats.derrotas }}</span>
+            <span class="perfil-stat-label">Derrotas</span>
+          </div>
+          <div class="perfil-stat">
+            <span class="perfil-stat-valor perfil-stat--azul">{{ stats.racha }}</span>
+            <span class="perfil-stat-label">Racha</span>
+          </div>
+        </div>
+
+        <div class="perfil-stat-barra-wrap">
+          <div class="perfil-stat-barra-label">
+            <span>Tasa de victorias</span>
+            <span class="perfil-stat-barra-pct">{{ porcentajeVictorias }}%</span>
+          </div>
+          <div class="perfil-stat-barra-bg">
+            <div class="perfil-stat-barra-fill" [style.width.%]="porcentajeVictorias"></div>
+          </div>
+        </div>
+
+        <div class="perfil-stats-extra">
+          <div class="perfil-stat-extra-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>{{ stats.horasEntrenadas }}h entrenadas</span>
+          </div>
+          <div class="perfil-stat-extra-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>{{ stats.mediaPuntos }} pts de media</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD: Historial -->
+      <div class="perfil-card">
+        <div class="perfil-card-header">
+          <div class="perfil-card-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Historial de debates
+          </div>
+          <span class="perfil-badge-mock">Mock</span>
+        </div>
+
+        <div class="perfil-historial-lista">
+          @for (debate of historial; track debate.id) {
+            <div class="perfil-historial-item">
+              <div class="perfil-historial-resultado"
+                  [class.perfil-resultado--victoria]="debate.resultado === 'victoria'"
+                  [class.perfil-resultado--derrota]="debate.resultado === 'derrota'"
+                  [class.perfil-resultado--empate]="debate.resultado === 'empate'">
+                {{ debate.resultado === 'victoria' ? 'V' : debate.resultado === 'derrota' ? 'D' : 'E' }}
+              </div>
+              <div class="perfil-historial-info">
+                <p class="perfil-historial-tema">{{ debate.tema }}</p>
+                <div class="perfil-historial-meta">
+                  <span class="perfil-historial-fecha">{{ debate.fecha }}</span>
+                  <span class="perfil-historial-dif perfil-dif--{{ debate.dificultad }}">
+                    {{ debate.dificultad }}
+                  </span>
+                </div>
+              </div>
+              <div class="perfil-historial-puntos">
+                <span class="perfil-historial-pts">{{ debate.puntuacion }}</span>
+                <span class="perfil-historial-pts-label">pts</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div><!-- /col der -->
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+      MODAL: Editar perfil
+  ══════════════════════════════════════════════════════════ -->
+  @if (modalEditarAbierto()) {
+    <div class="perfil-modal-overlay" (click)="cerrarModalAlClickarFuera($event)">
+      <div class="perfil-modal">
+
+        <div class="perfil-modal-header">
+          <h2 class="perfil-modal-titulo">Editar perfil</h2>
+          <button class="perfil-modal-cerrar" (click)="cerrarModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="perfil-modal-tabs">
+          <button class="perfil-modal-tab"
+                  [class.activo]="modalTab() === 'datos'"
+                  (click)="modalTab.set('datos')">
+            Datos personales
+          </button>
+          <button class="perfil-modal-tab"
+                  [class.activo]="modalTab() === 'password'"
+                  (click)="modalTab.set('password')">
+            Contraseña
+          </button>
+        </div>
+
+        <!-- TAB: Datos personales -->
+        @if (modalTab() === 'datos') {
+          <div class="perfil-form">
+            <div class="perfil-form-row">
+              <div class="perfil-field">
+                <label class="perfil-label">NOMBRE</label>
+                <input class="perfil-input" type="text" placeholder="Tu nombre"
+                      [value]="editNombre()"
+                      (input)="editNombre.set($any($event.target).value)" />
+              </div>
+              <div class="perfil-field">
+                <label class="perfil-label">APELLIDOS</label>
+                <input class="perfil-input" type="text" placeholder="Tus apellidos"
+                      [value]="editApellidos()"
+                      (input)="editApellidos.set($any($event.target).value)" />
+              </div>
+            </div>
+            <div class="perfil-field">
+              <label class="perfil-label">EMAIL</label>
+              <input class="perfil-input" type="email" placeholder="tu@email.com"
+                    [value]="editEmail()"
+                    (input)="editEmail.set($any($event.target).value)" />
+            </div>
+            @if (errorDatos()) {
+              <p class="perfil-error">{{ errorDatos() }}</p>
+            }
+            @if (exitoDatos()) {
+              <p class="perfil-exito">✓ Datos actualizados correctamente.</p>
+            }
+            <div class="perfil-form-acciones">
+              <button class="perfil-btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+              <button class="perfil-btn-guardar" (click)="guardarDatos()">Guardar cambios</button>
+            </div>
+          </div>
+        }
+
+        <!-- TAB: Contraseña -->
+        @if (modalTab() === 'password') {
+          <div class="perfil-form">
+            <div class="perfil-field">
+              <label class="perfil-label">CONTRASEÑA ACTUAL</label>
+              <div class="perfil-input-wrapper">
+                <input class="perfil-input" [type]="verPassActual() ? 'text' : 'password'"
+                      placeholder="Tu contraseña actual"
+                      [value]="passActual()"
+                      (input)="passActual.set($any($event.target).value)" />
+                <button class="perfil-ojo" (click)="verPassActual.set(!verPassActual())">
+                  @if (verPassActual()) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            <div class="perfil-field">
+              <label class="perfil-label">NUEVA CONTRASEÑA</label>
+              <div class="perfil-input-wrapper">
+                <input class="perfil-input" [type]="verPassNueva() ? 'text' : 'password'"
+                      placeholder="Mínimo 6 caracteres"
+                      [value]="passNueva()"
+                      (input)="passNueva.set($any($event.target).value)" />
+                <button class="perfil-ojo" (click)="verPassNueva.set(!verPassNueva())">
+                  @if (verPassNueva()) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            <div class="perfil-field">
+              <label class="perfil-label">REPETIR NUEVA CONTRASEÑA</label>
+              <div class="perfil-input-wrapper">
+                <input class="perfil-input" [type]="verPassRepetir() ? 'text' : 'password'"
+                      placeholder="Repite la nueva contraseña"
+                      [value]="passRepetir()"
+                      (input)="passRepetir.set($any($event.target).value)" />
+                <button class="perfil-ojo" (click)="verPassRepetir.set(!verPassRepetir())">
+                  @if (verPassRepetir()) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            @if (errorPassword()) {
+              <p class="perfil-error">{{ errorPassword() }}</p>
+            }
+            @if (exitoPassword()) {
+              <p class="perfil-exito">✓ Contraseña actualizada correctamente.</p>
+            }
+            <div class="perfil-form-acciones">
+              <button class="perfil-btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+              <button class="perfil-btn-guardar" (click)="guardarPassword()">Guardar contraseña</button>
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+
+</div>

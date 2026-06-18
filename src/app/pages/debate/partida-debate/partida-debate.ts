@@ -1,47 +1,39 @@
 import { Component, inject, signal, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { Router, RouterLink  } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DebateService } from '../../../core/services/debate.service';
 
 /* ============================================================
-   DebateComponent — Pantalla del debate en vivo
+   PartidaDebate — Pantalla del debate en vivo
 
    Gestiona:
-   - Secuencia de sub-turnos (Tú / FIERA alternados)
+   - Secuencia de sub-turnos leída desde SubTurnoConfig
    - Temporizador circular con countdown
    - Historial de intervenciones
    - Interrupciones (FIERA levanta la mano / Tú levantas la mano)
+   - Llamadas al backend via DebateService.procesarTurno()
    - Navegación a resultados al finalizar
-
-   TODO: conectar respuestas de FIERA con backend de IA
 ============================================================ */
 
-/* Interfaz de un sub-turno del debate */
+/* Sub-turno en ejecución durante la partida */
 export interface SubTurno {
-  id      : string;
-  nombre  : string;
-  quien   : 'equipo' | 'fiera';
-  duracion: number; /* en segundos */
+  id            : string;   /* id del SubTurnoConfig original */
+  intervencionId: number | null; /* id de la intervención en el backend */
+  nombre        : string;
+  quien         : 'equipo' | 'fiera' | 'companero';
+  duracion      : number;   /* en segundos */
+  postura       : 'favor' | 'contra';
 }
 
-/* Interfaz de una intervención del historial */
 export interface ItemHistorial {
-  titulo: string;
-  texto : string;
+  titulo  : string;
+  texto   : string;
   expandido: boolean;
 }
 
-/* Nombres legibles de cada intervención */
-const NOMBRES: Record<string, string> = {
-  intro     : 'Introducción',
-  ref1      : '1ª Refutación',
-  ref2      : '2ª Refutación',
-  conclusion: 'Conclusión',
-};
+/* Circunferencia SVG (r=85): 2 * PI * 85 ≈ 534 */
+const CIRCUNFERENCIA = 534;
 
-const ORDEN = ['intro', 'ref1', 'ref2', 'conclusion'];
-
-/* Respuestas simuladas de FIERA
-   TODO: reemplazar con llamada a la API de IA del backend */
+/* Fallbacks simulados — se usan si el backend no responde */
 const RESPUESTAS_FIERA = [
   'La evidencia empírica no respalda esa afirmación de forma concluyente.',
   'Ese argumento incurre en una generalización excesiva que debilita la tesis.',
@@ -51,27 +43,19 @@ const RESPUESTAS_FIERA = [
   'Interesante perspectiva, pero omite factores estructurales determinantes.',
 ];
 
-/* Preguntas que FIERA hace al interrumpir
-   TODO: reemplazar con llamada a la API de IA del backend */
 const PREGUNTAS_FIERA = [
   '¿Puede concretar con datos reales ese argumento que acaba de exponer?',
   '¿No contradice eso lo que afirmó en su introducción?',
   '¿Cómo respondería a los estudios que refutan directamente esa tesis?',
   '¿Está asumiendo una correlación sin demostrar causalidad?',
-  '¿Qué evidencia empírica respalda específicamente ese punto?',
 ];
 
-/* Respuestas de FIERA cuando el usuario le pregunta
-   TODO: reemplazar con llamada a la API de IA del backend */
 const RESPUESTAS_A_PREGUNTA = [
   'Es una pregunta interesante, pero no altera el núcleo de mi argumento.',
   'Precisamente esa cuestión refuerza mi posición si analizamos los datos.',
   'La respuesta es compleja, pero en síntesis: los hechos me dan la razón.',
   'Agradezco la pregunta. Mi postura se sostiene incluso bajo ese supuesto.',
 ];
-
-/* Circunferencia SVG (r=85): 2 * PI * 85 ≈ 534 */
-const CIRCUNFERENCIA = 534;
 
 @Component({
   selector        : 'app-partida-debate',
@@ -91,8 +75,8 @@ export class PartidaDebate implements OnInit, OnDestroy {
   subTurnoActual = signal(0);
   segundosRest   = signal(0);
   pausado        = false;
-  private intervalId: ReturnType<typeof setInterval> | null = null;
-  private timeoutInterrupcion: ReturnType<typeof setTimeout> | null = null;
+  private intervalId           : ReturnType<typeof setInterval>  | null = null;
+  private timeoutInterrupcion  : ReturnType<typeof setTimeout>   | null = null;
 
   /* ── Historial ── */
   historial = signal<ItemHistorial[]>([]);
@@ -103,15 +87,14 @@ export class PartidaDebate implements OnInit, OnDestroy {
   modalPreguntaFieraAbierto = signal(false);
   modalTuPreguntaAbierto    = signal(false);
 
-  /* ── Texto de la pregunta de FIERA ── */
   preguntaFieraTexto = signal('');
 
   /* ── SVG timer ── */
-  svgOffset = signal(0);
+  svgOffset    = signal(0);
   timerUrgente = signal(false);
 
   /* ----------------------------------------------------------
-     ngOnInit — Cargar config e iniciar el debate
+     ngOnInit
   ---------------------------------------------------------- */
   ngOnInit(): void {
     this.debateService.cargarConfig();
@@ -119,41 +102,37 @@ export class PartidaDebate implements OnInit, OnDestroy {
     this.iniciarSubTurno(0);
   }
 
-  /* ----------------------------------------------------------
-     ngOnDestroy — Limpiar timers al salir del componente
-  ---------------------------------------------------------- */
   ngOnDestroy(): void {
     this.limpiarTimers();
   }
 
   /* ----------------------------------------------------------
      construirSecuencia()
-     Genera el array de sub-turnos a partir de la config.
-     Cada intervención se divide en dos sub-turnos:
-     primero quien eligió el usuario, luego el contrario.
-     TODO: validar con backend que la config es correcta
+     Lee los SubTurnoConfig guardados por el wizard y los
+     convierte a SubTurno para la partida. Solo incluye
+     los que están activos.
+     Cruza con las intervenciones del DebateActivo para
+     obtener el id real de cada intervención del backend.
   ---------------------------------------------------------- */
   private construirSecuencia(): SubTurno[] {
-    const config   = this.debateService.config();
-    const secuencia: SubTurno[] = [];
+    const subturnos      = this.debateService.cargarSubturnos();
+    const debateActivo   = this.debateService.getDebateActivo();
+    const intervenciones = debateActivo?.intervenciones ?? [];
 
-    ORDEN.forEach(id => {
-      const nombre   = NOMBRES[id];
-      const duracion = (config.tiempos[id as keyof typeof config.tiempos] || 3) * 60;
-      const primero  = config.turnos[id as keyof typeof config.turnos] || 'equipo';
-      const segundo  = primero === 'equipo' ? 'fiera' : 'equipo';
+    const activos = subturnos.filter(t => t.activo);
 
-      secuencia.push({ id, nombre, quien: primero, duracion });
-      secuencia.push({ id, nombre, quien: segundo,  duracion });
-    });
-
-    return secuencia;
+    return activos.map((t, index): SubTurno => ({
+      id            : t.id,
+      intervencionId: intervenciones[index]?.id ?? null,
+      nombre        : t.nombre,
+      quien         : (t.asignado === 'yo' ? 'equipo' : t.asignado) as SubTurno['quien'],
+      duracion      : t.minutos * 60,
+      postura       : t.postura
+    }));
   }
 
   /* ----------------------------------------------------------
      iniciarSubTurno(indice)
-     Configura el estado para el sub-turno dado y arranca
-     el countdown
   ---------------------------------------------------------- */
   iniciarSubTurno(indice: number): void {
     if (indice >= this.secuencia.length) {
@@ -167,28 +146,19 @@ export class PartidaDebate implements OnInit, OnDestroy {
     this.timerUrgente.set(false);
     this.actualizarSvg();
 
-    /* Si es turno de FIERA: responde automáticamente y
-       programa posible interrupción en refutaciones */
     if (sub.quien === 'fiera') {
-      setTimeout(() => {
-        const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
-        this.añadirAlHistorial(`${sub.nombre} — FIERA`, texto);
-      }, 2000);
+      this.turnoFiera(sub, indice);
     } else {
-      /* Es turno del usuario — programar interrupción en refutaciones */
       this.programarInterrupcionFiera(sub);
     }
 
-    /* Arrancar countdown */
     this.limpiarTimers();
     this.intervalId = setInterval(() => {
       if (this.pausado) return;
-
       const restantes = this.segundosRest() - 1;
       this.segundosRest.set(restantes);
       this.timerUrgente.set(restantes <= 30);
       this.actualizarSvg();
-
       if (restantes <= 0) {
         this.limpiarTimers();
         setTimeout(() => this.iniciarSubTurno(this.subTurnoActual() + 1), 800);
@@ -197,12 +167,62 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   /* ----------------------------------------------------------
+     turnoFiera(sub, indice)
+     Llama al backend para obtener la respuesta de FIERA.
+     Usa fallback simulado si no hay conexión.
+  ---------------------------------------------------------- */
+  private turnoFiera(sub: SubTurno, indice: number): void {
+    const debateActivo = this.debateService.getDebateActivo();
+
+    if (debateActivo && sub.intervencionId) {
+      this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, '').subscribe({
+        next: (res) => {
+          const texto = res?.respuestaFiera?.mensaje
+            ?? RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
+          this.añadirAlHistorial(`${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — FIERA`, texto);
+        },
+        error: () => {
+          const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
+          this.añadirAlHistorial(`${sub.nombre} — FIERA (simulado)`, texto);
+        }
+      });
+    } else {
+      setTimeout(() => {
+        const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
+        this.añadirAlHistorial(`${sub.nombre} — FIERA (simulado)`, texto);
+      }, 1500);
+    }
+  }
+
+  /* ----------------------------------------------------------
+     enviarArgumento(texto, input)
+  ---------------------------------------------------------- */
+  enviarArgumento(texto: string, input: HTMLInputElement): void {
+    if (!texto.trim()) return;
+
+    const sub          = this.secuencia[this.subTurnoActual()];
+    const debateActivo = this.debateService.getDebateActivo();
+
+    this.añadirAlHistorial(
+      `${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — Tú`,
+      texto.trim()
+    );
+    input.value = '';
+
+    if (debateActivo && sub.intervencionId) {
+      this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, texto.trim())
+        .subscribe({
+          next : (res) => console.log('Argumento registrado:', res),
+          error: (err) => console.warn('No se pudo registrar el argumento:', err)
+        });
+    }
+  }
+
+  /* ----------------------------------------------------------
      actualizarSvg()
-     Recalcula el offset del círculo SVG según los segundos
-     restantes del sub-turno actual
   ---------------------------------------------------------- */
   private actualizarSvg(): void {
-    const sub      = this.secuencia[this.subTurnoActual()];
+    const sub = this.secuencia[this.subTurnoActual()];
     if (!sub) return;
     const progreso = this.segundosRest() / sub.duracion;
     this.svgOffset.set(CIRCUNFERENCIA * (1 - progreso));
@@ -210,12 +230,10 @@ export class PartidaDebate implements OnInit, OnDestroy {
 
   /* ----------------------------------------------------------
      programarInterrupcionFiera(sub)
-     En refutaciones durante el turno del usuario,
-     FIERA interrumpe en un momento aleatorio.
-     TODO: la lógica de interrupción vendrá del backend
   ---------------------------------------------------------- */
   private programarInterrupcionFiera(sub: SubTurno): void {
-    if (sub.id !== 'ref1' && sub.id !== 'ref2') return;
+    const esRefutacion = sub.id.startsWith('ref');
+    if (!esRefutacion) return;
 
     const minSeg = 15;
     const maxSeg = Math.max(minSeg + 5, sub.duracion - 15);
@@ -228,37 +246,19 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   /* ----------------------------------------------------------
-     enviarArgumento(texto)
-     Añade el argumento del usuario al historial.
-     NO cambia de turno — el turno avanza al acabar el tiempo.
-     TODO: enviar argumento al backend para análisis
-  ---------------------------------------------------------- */
-  enviarArgumento(texto: string, input: HTMLInputElement): void {
-    if (!texto.trim()) return;
-    const sub = this.secuencia[this.subTurnoActual()];
-    this.añadirAlHistorial(`${sub.nombre} — Tú`, texto.trim());
-    input.value = '';
-  }
-
-  /* ----------------------------------------------------------
-     accionPrincipal(input)
-     Gestiona el botón ENVIAR / LEVANTAR MANO según el turno
+     accionPrincipal
   ---------------------------------------------------------- */
   accionPrincipal(texto: string, input: HTMLInputElement): void {
     const sub = this.secuencia[this.subTurnoActual()];
-
     if (sub.quien === 'equipo') {
       this.enviarArgumento(texto, input);
-    } else {
-      /* LEVANTAR MANO durante turno de FIERA en refutaciones */
-      if (sub.id === 'ref1' || sub.id === 'ref2') {
-        this.modalTuPreguntaAbierto.set(true);
-      }
+    } else if (sub.id.startsWith('ref')) {
+      this.modalTuPreguntaAbierto.set(true);
     }
   }
 
   /* ----------------------------------------------------------
-     Gestión modal: FIERA levanta la mano
+     Modales FIERA levanta la mano
   ---------------------------------------------------------- */
   rechazarPreguntaFiera(): void {
     const sub = this.secuencia[this.subTurnoActual()];
@@ -284,7 +284,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   /* ----------------------------------------------------------
-     Gestión modal: Tú levantas la mano
+     Modales Tú levantas la mano
   ---------------------------------------------------------- */
   cancelarTuPregunta(): void {
     this.modalTuPreguntaAbierto.set(false);
@@ -294,18 +294,16 @@ export class PartidaDebate implements OnInit, OnDestroy {
     if (!texto.trim()) return;
     const sub = this.secuencia[this.subTurnoActual()];
     this.añadirAlHistorial(`${sub.nombre} — Tú pregunta`, texto.trim());
-
     setTimeout(() => {
       const respuesta = RESPUESTAS_A_PREGUNTA[Math.floor(Math.random() * RESPUESTAS_A_PREGUNTA.length)];
       this.añadirAlHistorial(`${sub.nombre} — FIERA responde`, respuesta);
     }, 1500);
-
     input.value = '';
     this.modalTuPreguntaAbierto.set(false);
   }
 
   /* ----------------------------------------------------------
-     Gestión modal: Salir
+     Modal Salir
   ---------------------------------------------------------- */
   abrirModalSalir(): void {
     this.pausado = true;
@@ -316,7 +314,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
   cancelarSalir(): void {
     this.modalSalirAbierto.set(false);
     this.pausado = false;
-    /* Reanudar countdown */
     this.intervalId = setInterval(() => {
       if (this.pausado) return;
       const restantes = this.segundosRest() - 1;
@@ -337,39 +334,29 @@ export class PartidaDebate implements OnInit, OnDestroy {
 
   /* ----------------------------------------------------------
      finalizarDebate()
-     Genera puntuaciones simuladas y navega a resultados
-     TODO: obtener puntuaciones reales del backend
   ---------------------------------------------------------- */
   private finalizarDebate(): void {
     this.limpiarTimers();
-
     const resultados = {
       argumentacion: Math.floor(Math.random() * 8) + 17,
       claridad     : Math.floor(Math.random() * 8) + 16,
       refutacion   : Math.floor(Math.random() * 8) + 16,
       evidencia    : Math.floor(Math.random() * 8) + 15,
     };
-
     this.debateService.guardarResultados(resultados);
     setTimeout(() => this.router.navigate(['/resultados']), 800);
   }
 
   /* ----------------------------------------------------------
-     añadirAlHistorial(titulo, texto)
-     Inserta una nueva intervención al historial
+     Historial
   ---------------------------------------------------------- */
   añadirAlHistorial(titulo: string, texto: string): void {
-    this.historial.update(h => [
-      { titulo, texto, expandido: false },
-      ...h
-    ]);
+    this.historial.update(h => [{ titulo, texto, expandido: false }, ...h]);
   }
 
   toggleHistorial(index: number): void {
     this.historial.update(h =>
-      h.map((item, i) =>
-        i === index ? { ...item, expandido: !item.expandido } : item
-      )
+      h.map((item, i) => i === index ? { ...item, expandido: !item.expandido } : item)
     );
   }
 
@@ -377,7 +364,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
      Getters para el template
   ---------------------------------------------------------- */
   get subTurnoInfo(): SubTurno | null {
-    return this.secuencia[this.subTurnoActual()] || null;
+    return this.secuencia[this.subTurnoActual()] ?? null;
   }
 
   get esTuTurno(): boolean {
@@ -385,8 +372,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   get esRefutacion(): boolean {
-    const id = this.subTurnoInfo?.id;
-    return id === 'ref1' || id === 'ref2';
+    return this.subTurnoInfo?.id.startsWith('ref') ?? false;
   }
 
   formatearSegundos(seg: number): string {
@@ -401,12 +387,8 @@ export class PartidaDebate implements OnInit, OnDestroy {
       : '00:00';
   }
 
-  /* ----------------------------------------------------------
-     limpiarTimers()
-     Cancela el interval y el timeout de interrupción
-  ---------------------------------------------------------- */
   private limpiarTimers(): void {
-    if (this.intervalId)          clearInterval(this.intervalId);
+    if (this.intervalId)         clearInterval(this.intervalId);
     if (this.timeoutInterrupcion) clearTimeout(this.timeoutInterrupcion);
     this.intervalId          = null;
     this.timeoutInterrupcion = null;

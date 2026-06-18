@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 
 const API_BASE = 'https://fiera.retorika.es';
 
@@ -29,7 +30,9 @@ export class ClubsService {
   private http = inject(HttpClient);
 
   getClubs() {
-    return this.http.get<Club[]>(`${API_BASE}/api/app/clubs`);
+    return this.http.get<Club[]>(`${API_BASE}/api/app/clubs`).pipe(
+      map(clubs => clubs.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')))
+    );
   }
 
   crearClub(club: Partial<Club>) {

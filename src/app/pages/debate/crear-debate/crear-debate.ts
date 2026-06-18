@@ -1,48 +1,34 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DebateService, TemaApi } from '../../../core/services/debate.service';
+import { DebateService, TemaApi, SubTurnoConfig } from '../../../core/services/debate.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Particles } from '../../../shared/components/particles/particles';
 
 /* ============================================================
-   ConfigDebateComponent — Configuración del debate (v2)
-
-   Wizard de 7 pasos lineales:
-   1. Invitar compañero   → código simulado + lista de invitados
-   2. Configurar FIERA    → personalidad + nivel de dificultad
-   3. Elegir tema         → categorías → temas | entrada manual
-   4. Postura             → favor / contra / aleatoria
-   5. Configurar debate   → modo + tabla de turnos con tiempos
-   6. Participantes       → asignar turno a yo / fiera / compañero
-   7. Resumen             → revisión final + iniciar debate
-
-   Layout desktop: panel izquierdo decorativo + panel derecho con formulario
-   Layout móvil  : una sola columna (card centrada)
+   CrearDebate — Wizard de 7 pasos
 ============================================================ */
 
 export type PasoDebate = 1 | 2 | 3 | 4 | 5 | 6 | 7;
-
-/* Participante asignable a cada sub-turno */
 export type Participante = 'yo' | 'fiera' | 'companero';
 
-/* Sub-turno del paso 5 y 6 */
-export interface SubTurnoConfig {
-  id      : string;
-  nombre  : string;
-  postura : 'favor' | 'contra';
-  minutos : number;
-  activo  : boolean;
-  asignado: Participante;
+/* ── Intervención simplificada para el paso 5 ──
+   Una fila = una intervención con un tiempo que aplica
+   a favor y contra. Al guardar se expande a dos SubTurnoConfig. */
+export interface IntervencionConfig {
+  id        : string;
+  nombre    : string;
+  minutos   : number;
+  activo    : boolean;
+  asignadoF : Participante; /* quien hace el turno a favor */
+  asignadoC : Participante; /* quien hace el turno en contra */
 }
 
-/* Compañero invitado (simulado) */
 export interface Companero {
   iniciales: string;
   nombre   : string;
   estado   : 'pendiente' | 'unido';
 }
 
-/* Categorías del banco de temas */
 export interface CategoriaItem {
   nombre: string;
   icono : string;
@@ -51,25 +37,24 @@ export interface CategoriaItem {
 }
 
 const CATEGORIAS: CategoriaItem[] = [
-  { nombre: 'Educación',     icono: 'ti-school',       color: '#156fe7', bg: 'rgba(21,111,231,0.12)'  },
-  { nombre: 'Tecnología',    icono: 'ti-cpu',           color: '#03d26e', bg: 'rgba(3,210,110,0.12)'   },
-  { nombre: 'Ética',         icono: 'ti-scale',         color: '#ff3a72', bg: 'rgba(255,58,114,0.12)'  },
-  { nombre: 'Sociedad',      icono: 'ti-users',         color: '#f0a742', bg: 'rgba(240,167,66,0.12)'  },
-  { nombre: 'Economía',      icono: 'ti-trending-up',   color: '#156fe7', bg: 'rgba(21,111,231,0.12)'  },
-  { nombre: 'Medioambiente', icono: 'ti-leaf',          color: '#03d26e', bg: 'rgba(3,210,110,0.12)'   },
+  { nombre: 'Educación',     icono: 'ti-school',     color: '#156fe7', bg: 'rgba(21,111,231,0.12)' },
+  { nombre: 'Tecnología',    icono: 'ti-cpu',         color: '#03d26e', bg: 'rgba(3,210,110,0.12)'  },
+  { nombre: 'Ética',         icono: 'ti-scale',       color: '#ff3a72', bg: 'rgba(255,58,114,0.12)' },
+  { nombre: 'Sociedad',      icono: 'ti-users',       color: '#f0a742', bg: 'rgba(240,167,66,0.12)' },
+  { nombre: 'Economía',      icono: 'ti-trending-up', color: '#156fe7', bg: 'rgba(21,111,231,0.12)' },
+  { nombre: 'Medioambiente', icono: 'ti-leaf',        color: '#03d26e', bg: 'rgba(3,210,110,0.12)'  },
 ];
 
-/* Sub-turnos base — se usan en pasos 5 y 6 */
-const SUBTURNOS_BASE: SubTurnoConfig[] = [
-  { id: 'intro-f',  nombre: 'Introducción',  postura: 'favor',  minutos: 3, activo: true, asignado: 'yo'       },
-  { id: 'intro-c',  nombre: 'Introducción',  postura: 'contra', minutos: 3, activo: true, asignado: 'fiera'    },
-  { id: 'ref1-f',   nombre: '1ª Refutación', postura: 'favor',  minutos: 4, activo: true, asignado: 'yo'       },
-  { id: 'ref1-c',   nombre: '1ª Refutación', postura: 'contra', minutos: 4, activo: true, asignado: 'fiera'    },
-  { id: 'ref2-f',   nombre: '2ª Refutación', postura: 'favor',  minutos: 5, activo: true, asignado: 'yo'       },
-  { id: 'ref2-c',   nombre: '2ª Refutación', postura: 'contra', minutos: 5, activo: true, asignado: 'companero'},
-  { id: 'conc-c',   nombre: 'Conclusión',    postura: 'contra', minutos: 3, activo: true, asignado: 'fiera'    },
-  { id: 'conc-f',   nombre: 'Conclusión',    postura: 'favor',  minutos: 3, activo: true, asignado: 'yo'       },
+/* Intervenciones base — una fila por intervención */
+const INTERVENCIONES_BASE: IntervencionConfig[] = [
+  { id: 'intro', nombre: 'Introducción',  minutos: 3, activo: true, asignadoF: 'yo',   asignadoC: 'fiera' },
+  { id: 'ref1',  nombre: '1ª Refutación', minutos: 4, activo: true, asignadoF: 'yo',   asignadoC: 'fiera' },
+  { id: 'ref2',  nombre: '2ª Refutación', minutos: 5, activo: true, asignadoF: 'yo',   asignadoC: 'fiera' },
+  { id: 'conc',  nombre: 'Conclusión',    minutos: 3, activo: true, asignadoF: 'yo',   asignadoC: 'fiera' },
 ];
+
+/* Nombres ordinales para refutaciones extra */
+const ORDINALES = ['1ª', '2ª', '3ª', '4ª', '5ª', '6ª'];
 
 @Component({
   selector        : 'app-crear-debate',
@@ -81,101 +66,75 @@ const SUBTURNOS_BASE: SubTurnoConfig[] = [
 })
 export class CrearDebate implements OnInit {
 
-  /* ── Servicios ── */
   debateService = inject(DebateService);
   authService   = inject(AuthService);
   router        = inject(Router);
 
-  /* ── Paso activo ── */
   pasoActivo = signal<PasoDebate>(1);
 
-  /* ── Info panel izquierdo (desktop) — cambia por paso ── */
   infoPaso = computed(() => {
     const pasos: Record<number, { titulo: string; desc: string }> = {
-      1: { titulo: 'Entrena con compañeros',       desc: 'Invita a tu equipo y practicad juntos contra FIERA.' },
-      2: { titulo: 'Elige a tu rival',              desc: 'Define la personalidad y dificultad de FIERA para este entrenamiento.' },
-      3: { titulo: 'El tema lo es todo',            desc: 'Un buen debate empieza con un buen tema. Elige el tuyo.' },
-      4: { titulo: 'Define tu postura',             desc: 'Defiende tu posición con argumentos sólidos y evidencia.' },
-      5: { titulo: 'Estructura el debate',          desc: 'Configura los turnos y el tiempo de cada intervención.' },
-      6: { titulo: 'Asigna los participantes',      desc: 'Decide quién debate en cada turno: tú, FIERA o un compañero.' },
-      7: { titulo: 'Todo listo para debatir',       desc: 'Revisa tu configuración y empieza cuando estés preparado.' },
+      1: { titulo: 'Entrena con compañeros',  desc: 'Invita a tu equipo y practicad juntos contra FIERA.' },
+      2: { titulo: 'Elige a tu rival',         desc: 'Define la personalidad y dificultad de FIERA para este entrenamiento.' },
+      3: { titulo: 'El tema lo es todo',       desc: 'Un buen debate empieza con un buen tema. Elige el tuyo.' },
+      4: { titulo: 'Define tu postura',        desc: 'Defiende tu posición con argumentos sólidos y evidencia.' },
+      5: { titulo: 'Estructura el debate',     desc: 'Configura los turnos y el tiempo de cada intervención.' },
+      6: { titulo: 'Asigna los participantes', desc: 'Decide quién debate en cada turno: tú, FIERA o un compañero.' },
+      7: { titulo: 'Todo listo para debatir',  desc: 'Revisa tu configuración y empieza cuando estés preparado.' },
     };
     return pasos[this.pasoActivo()];
   });
 
-  /* ── Cerrar sesión ── */
   cerrarSesion(): void {
     this.authService.cerrarSesion();
     this.router.navigate(['/']);
   }
 
-  /* ────────────────────────────────────────────
-     PASO 1 — Invitar compañero
-  ──────────────────────────────────────────── */
-  tabInvitar     = signal<'codigo' | 'enlace'>('codigo');
-  codigoSesion   = signal('FIERA-7XJ4');
-  companeros     = signal<Companero[]>([
-    { iniciales: 'ML', nombre: 'María López',  estado: 'pendiente' },
-    { iniciales: 'CR', nombre: 'Carlos Ruiz',  estado: 'pendiente' },
+  /* ── PASO 1 ── */
+  tabInvitar   = signal<'codigo' | 'enlace'>('codigo');
+  codigoSesion = signal('FIERA-7XJ4');
+  companeros   = signal<Companero[]>([
+    { iniciales: 'ML', nombre: 'María López', estado: 'pendiente' },
+    { iniciales: 'CR', nombre: 'Carlos Ruiz', estado: 'pendiente' },
   ]);
 
   copiarCodigo(): void {
     navigator.clipboard?.writeText(this.codigoSesion()).catch(() => {});
   }
 
-  /* ────────────────────────────────────────────
-     PASO 2 — Configurar FIERA
-  ──────────────────────────────────────────── */
+  /* ── PASO 2 ── */
   setPersonalidad(valor: string): void {
-    this.debateService.actualizarConfig({
-      personalidad: valor as 'agresiva' | 'elegante' | 'sarcastica'
-    });
+    this.debateService.actualizarConfig({ personalidad: valor as 'agresiva' | 'elegante' | 'sarcastica' });
   }
 
   setDificultad(valor: string): void {
-    this.debateService.actualizarConfig({
-      dificultad: valor as 'basico' | 'medio' | 'avanzado'
-    });
+    this.debateService.actualizarConfig({ dificultad: valor as 'basico' | 'medio' | 'avanzado' });
   }
 
-  /* ────────────────────────────────────────────
-     PASO 3 — Elegir tema
-  ──────────────────────────────────────────── */
-  temas             = signal<TemaApi[]>([]);
-  cargandoTemas     = signal(false);
-  errorTemas        = signal(false);
-  pestanaActiva     = signal<'banco' | 'manual'>('banco');
-  categorias        = CATEGORIAS;
-  categoriaActiva   = signal<CategoriaItem | null>(null);
-  temasFiltrados    = signal<TemaApi[]>([]);
-  temaSeleccionado  = signal<TemaApi | null>(null);
-
-  /* Campos manual */
-  temaManual      = signal('');
-  enunciadoManual = signal('');
+  /* ── PASO 3 ── */
+  temas            = signal<TemaApi[]>([]);
+  cargandoTemas    = signal(false);
+  errorTemas       = signal(false);
+  pestanaActiva    = signal<'banco' | 'manual'>('banco');
+  categorias       = CATEGORIAS;
+  categoriaActiva  = signal<CategoriaItem | null>(null);
+  temasFiltrados   = signal<TemaApi[]>([]);
+  temaSeleccionado = signal<TemaApi | null>(null);
+  temaManual       = signal('');
+  enunciadoManual  = signal('');
 
   cargarTemas(): void {
     this.cargandoTemas.set(true);
     this.errorTemas.set(false);
-
     this.debateService.getTemas().subscribe({
-      next: (temas) => {
-        this.temas.set(temas);
-        this.cargandoTemas.set(false);
-      },
-      error: () => {
-        this.errorTemas.set(true);
-        this.cargandoTemas.set(false);
-      }
+      next : (temas) => { this.temas.set(temas); this.cargandoTemas.set(false); },
+      error: ()      => { this.errorTemas.set(true); this.cargandoTemas.set(false); }
     });
   }
 
   seleccionarCategoria(cat: CategoriaItem): void {
     this.categoriaActiva.set(cat);
-    const filtrados = this.temas().filter(
-      t => t.categoria.toLowerCase() === cat.nombre.toLowerCase()
-    );
-    this.temasFiltrados.set(filtrados);
+    this.temasFiltrados.set(this.temas().filter(t => t.categoria.toLowerCase() === cat.nombre.toLowerCase()));
     this.temaSeleccionado.set(null);
   }
 
@@ -186,107 +145,130 @@ export class CrearDebate implements OnInit {
 
   seleccionarTema(tema: TemaApi): void {
     this.temaSeleccionado.set(tema);
-    this.debateService.actualizarConfig({
-      tema: { id: tema.id, enunciado: tema.enunciado, categoria: tema.categoria }
-    });
+    this.debateService.actualizarConfig({ tema: { id: tema.id, enunciado: tema.enunciado, categoria: tema.categoria } });
   }
 
   temaAleatorio(): void {
     const lista = this.temasFiltrados();
     if (!lista.length) return;
-    const aleatorio = lista[Math.floor(Math.random() * lista.length)];
-    this.seleccionarTema(aleatorio);
+    this.seleccionarTema(lista[Math.floor(Math.random() * lista.length)]);
   }
 
   temaAleatorioGlobal(): void {
     const lista = this.temas();
     if (!lista.length) return;
     const aleatorio = lista[Math.floor(Math.random() * lista.length)];
-    this.categoriaActiva.set(null);
     this.seleccionarTema(aleatorio);
-    /* Mostrar en qué categoría quedó para que el usuario sepa */
-    const cat = this.categorias.find(
-      c => c.nombre.toLowerCase() === aleatorio.categoria.toLowerCase()
-    ) ?? null;
+    const cat = this.categorias.find(c => c.nombre.toLowerCase() === aleatorio.categoria.toLowerCase()) ?? null;
     this.categoriaActiva.set(cat);
-    this.temasFiltrados.set(this.temas().filter(
-      t => t.categoria.toLowerCase() === aleatorio.categoria.toLowerCase()
-    ));
+    this.temasFiltrados.set(this.temas().filter(t => t.categoria.toLowerCase() === aleatorio.categoria.toLowerCase()));
   }
 
   actualizarTemaManual(): void {
     if (this.temaManual() && this.enunciadoManual()) {
-      this.debateService.actualizarConfig({
-        tema: {
-          enunciado: this.enunciadoManual(),
-          categoria: this.temaManual(),
-          manual   : true
-        }
-      });
+      this.debateService.actualizarConfig({ tema: { enunciado: this.enunciadoManual(), categoria: this.temaManual(), manual: true } });
     }
   }
 
   contarTemasPorCategoria(cat: string): number {
-    return this.temas().filter(
-      t => t.categoria.toLowerCase() === cat.toLowerCase()
-    ).length;
+    return this.temas().filter(t => t.categoria.toLowerCase() === cat.toLowerCase()).length;
   }
 
-  /* ────────────────────────────────────────────
-     PASO 4 — Postura
-  ──────────────────────────────────────────── */
+  /* ── PASO 4 ── */
   setPostura(valor: string): void {
-    this.debateService.actualizarConfig({
-      postura: valor as 'favor' | 'contra' | 'aleatoria'
-    });
+    this.debateService.actualizarConfig({ postura: valor as 'favor' | 'contra' | 'aleatoria' });
+
+    /* Actualizar asignados según la postura elegida */
+    const miPostura   = valor === 'contra' ? 'asignadoC' : 'asignadoF';
+    const fieraPostura = valor === 'contra' ? 'asignadoF' : 'asignadoC';
+
+    this.intervenciones.update(lista =>
+      lista.map(t => ({
+        ...t,
+        asignadoF: valor === 'contra' ? 'fiera' : 'yo',
+        asignadoC: valor === 'contra' ? 'yo'   : 'fiera'
+      }))
+    );
   }
 
-  /* ────────────────────────────────────────────
-     PASO 5 — Configurar debate (modo + turnos)
-  ──────────────────────────────────────────── */
-  subturnos = signal<SubTurnoConfig[]>(
-    SUBTURNOS_BASE.map(t => ({ ...t }))
+  /* ── PASO 5 — Intervenciones ── */
+  intervenciones = signal<IntervencionConfig[]>(
+    INTERVENCIONES_BASE.map(t => ({ ...t }))
   );
 
   setModo(valor: string): void {
-    this.debateService.actualizarConfig({
-      modo: valor as 'completo' | 'express'
-    });
+    this.debateService.actualizarConfig({ modo: valor as 'completo' | 'express' });
   }
 
-  toggleSubturno(id: string): void {
-    this.subturnos.update(lista =>
+  toggleIntervencion(id: string): void {
+    this.intervenciones.update(lista =>
       lista.map(t => t.id === id ? { ...t, activo: !t.activo } : t)
     );
   }
 
   cambiarTiempo(id: string, delta: number): void {
-    this.subturnos.update(lista =>
-      lista.map(t => t.id === id
-        ? { ...t, minutos: Math.min(15, Math.max(1, t.minutos + delta)) }
-        : t
-      )
+    this.intervenciones.update(lista =>
+      lista.map(t => t.id === id ? { ...t, minutos: Math.min(15, Math.max(1, t.minutos + delta)) } : t)
     );
+  }
+
+  anadirRefutacion(): void {
+    const refs = this.intervenciones().filter(t => t.id.startsWith('ref'));
+    const siguiente = refs.length + 1;
+    const ordinal   = ORDINALES[refs.length] ?? `${siguiente}ª`;
+    const conclusionIdx = this.intervenciones().findIndex(t => t.id === 'conc');
+    this.intervenciones.update(lista => {
+      const postura = this.config.postura;
+      const nueva: IntervencionConfig = {
+        id       : `ref${siguiente}`,
+        nombre   : `${ordinal} Refutación`,
+        minutos  : 4,
+        activo   : true,
+        asignadoF: postura === 'contra' ? 'fiera' : 'yo',
+        asignadoC: postura === 'contra' ? 'yo'    : 'fiera'
+      };
+      const copia = [...lista];
+      copia.splice(conclusionIdx, 0, nueva);
+      return copia;
+    });
+  }
+
+  eliminarRefutacion(id: string): void {
+    const refs = this.intervenciones().filter(t => t.id.startsWith('ref'));
+    if (refs.length <= 1) return; // mínimo 1 refutación
+    this.intervenciones.update(lista => lista.filter(t => t.id !== id));
   }
 
   tiempoTotal = computed(() =>
-    this.subturnos()
+    this.intervenciones()
       .filter(t => t.activo)
-      .reduce((acc, t) => acc + t.minutos, 0)
+      .reduce((acc, t) => acc + t.minutos * 2, 0) // × 2 porque cada intervención tiene favor y contra
   );
 
-  /* ────────────────────────────────────────────
-     PASO 6 — Participantes
-  ──────────────────────────────────────────── */
-  setAsignado(id: string, valor: Participante): void {
-    this.subturnos.update(lista =>
-      lista.map(t => t.id === id ? { ...t, asignado: valor } : t)
+  /* ── PASO 6 — Participantes ── */
+  setAsignadoF(id: string, valor: Participante): void {
+    this.intervenciones.update(lista =>
+      lista.map(t => t.id === id ? { ...t, asignadoF: valor } : t)
     );
   }
 
-  /* ────────────────────────────────────────────
-     PASO 7 — Resumen
-  ──────────────────────────────────────────── */
+  setAsignadoC(id: string, valor: Participante): void {
+    this.intervenciones.update(lista =>
+      lista.map(t => t.id === id ? { ...t, asignadoC: valor } : t)
+    );
+  }
+
+  /* Convierte IntervencionConfig[] → SubTurnoConfig[] para el servicio */
+  private expandirASubturnos(): SubTurnoConfig[] {
+    const subturnos: SubTurnoConfig[] = [];
+    this.intervenciones().filter(t => t.activo).forEach(t => {
+      subturnos.push({ id: `${t.id}-f`, nombre: t.nombre, postura: 'favor',  minutos: t.minutos, activo: true, asignado: t.asignadoF });
+      subturnos.push({ id: `${t.id}-c`, nombre: t.nombre, postura: 'contra', minutos: t.minutos, activo: true, asignado: t.asignadoC });
+    });
+    return subturnos;
+  }
+
+  /* ── PASO 7 — Resumen ── */
   textoPostura(): string {
     const map = { favor: 'A favor', contra: 'En contra', aleatoria: 'Aleatoria' };
     return map[this.config.postura] ?? '—';
@@ -308,7 +290,8 @@ export class CrearDebate implements OnInit {
   }
 
   textoParticipantes(): string {
-    const asignados = new Set(this.subturnos().filter(t => t.activo).map(t => t.asignado));
+    const subturnos = this.expandirASubturnos();
+    const asignados = new Set(subturnos.map(t => t.asignado));
     const partes: string[] = [];
     if (asignados.has('yo'))        partes.push('Yo');
     if (asignados.has('fiera'))     partes.push('FIERA');
@@ -316,34 +299,42 @@ export class CrearDebate implements OnInit {
     return partes.join(', ');
   }
 
-  /* ────────────────────────────────────────────
-     Navegación entre pasos
-  ──────────────────────────────────────────── */
+  /* ── Navegación ── */
   ir(paso: number): void {
-    if (paso >= 1 && paso <= 7) {
-      this.pasoActivo.set(paso as PasoDebate);
+    if (paso >= 1 && paso <= 7) this.pasoActivo.set(paso as PasoDebate);
+  }
+
+  siguiente(): void { this.ir(this.pasoActivo() + 1); }
+  volver()   : void { this.ir(this.pasoActivo() - 1); }
+
+  volverOHome(): void {
+    if (this.pasoActivo() === 1) {
+      this.router.navigate(['/']);
+    } else {
+      this.volver();
     }
   }
 
-  siguiente(): void {
-    this.ir(this.pasoActivo() + 1);
-  }
-
-  volver(): void {
-    this.ir(this.pasoActivo() - 1);
-  }
-
-  /* ────────────────────────────────────────────
-     Iniciar debate
-  ──────────────────────────────────────────── */
+  /* ── Iniciar debate ── */
   iniciarDebate(): void {
+    const subturnos = this.expandirASubturnos();
     this.debateService.guardarConfig();
-    this.router.navigate(['/partida-debate']);
+    this.debateService.guardarSubturnos(subturnos);
+    this.debateService.getFieras().subscribe(() => {
+      this.debateService.crearDebate().subscribe({
+        next: (debate) => {
+          if (debate?.id) {
+            this.debateService.setDebateId(debate.id);
+            this.debateService.setDebateActivo(debate);
+          }
+          this.router.navigate(['partida-debate']);
+        },
+        error: () => this.router.navigate(['partida-debate'])
+      });
+    });
   }
 
-  /* ────────────────────────────────────────────
-     Helpers
-  ──────────────────────────────────────────── */
+  /* ── Helpers ── */
   get config() { return this.debateService.config(); }
 
   formatearTiempo(minutos: number): string {
@@ -352,5 +343,6 @@ export class CrearDebate implements OnInit {
 
   ngOnInit(): void {
     this.cargarTemas();
+    this.debateService.getFieras().subscribe();
   }
 }
