@@ -174,19 +174,32 @@ export class PartidaDebate implements OnInit, OnDestroy {
   private turnoFiera(sub: SubTurno, indice: number): void {
     const debateActivo = this.debateService.getDebateActivo();
 
+    console.log('🦁 TURNO FIERA:', {
+      subTurno      : sub,
+      indice,
+      debateId      : debateActivo?.id,
+      intervencionId: sub.intervencionId
+    })
+
     if (debateActivo && sub.intervencionId) {
       this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, '').subscribe({
         next: (res) => {
+          console.log('🦁 RESPUESTA FIERA:', res)
           const texto = res?.respuestaFiera?.mensaje
             ?? RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
           this.añadirAlHistorial(`${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — FIERA`, texto);
         },
-        error: () => {
+        error: (err) => {
+          console.error('🦁 ERROR TURNO FIERA:', err);
           const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
           this.añadirAlHistorial(`${sub.nombre} — FIERA (simulado)`, texto);
         }
       });
     } else {
+      console.warn('🦁 Sin debateActivo o intervencionId — usando fallback', {
+        debateActivo,
+        intervencionId: sub.intervencionId
+      });
       setTimeout(() => {
         const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
         this.añadirAlHistorial(`${sub.nombre} — FIERA (simulado)`, texto);
@@ -202,6 +215,13 @@ export class PartidaDebate implements OnInit, OnDestroy {
 
     const sub          = this.secuencia[this.subTurnoActual()];
     const debateActivo = this.debateService.getDebateActivo();
+
+    console.log('👤 TURNO USUARIO:', {
+      subTurno      : sub,
+      texto         : texto.trim(),
+      debateId      : debateActivo?.id,
+      intervencionId: sub.intervencionId
+    });
 
     this.añadirAlHistorial(
       `${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — Tú`,

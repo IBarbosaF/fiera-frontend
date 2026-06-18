@@ -803,6 +803,113 @@
   color     : #fff;
   font-weight: 600;
 }
+
+/* Hero — nombre + username en fila */
+.perfil-hero-nombre-row {
+  display    : flex;
+  align-items: baseline;
+  gap        : 10px;
+  flex-wrap  : wrap;
+  margin-bottom: 4px;
+}
+
+.perfil-hero-username {
+  font-size  : 14px;
+  color      : var(--texto-muted, #8a9ab8);
+  font-weight: 400;
+}
+
+/* Badges fila */
+.perfil-hero-badges {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  flex-wrap  : wrap;
+  margin-bottom: 14px;
+}
+
+/* Badge subscripción */
+.perfil-sub-badge {
+  display      : inline-flex;
+  align-items  : center;
+  gap          : 5px;
+  border-radius: 20px;
+  padding      : 4px 12px;
+  font-size    : 12px;
+  font-weight  : 600;
+}
+
+.sub--free  {
+  background: rgba(138,154,184,0.1);
+  border    : 1px solid rgba(138,154,184,0.2);
+  color     : #8a9ab8;
+}
+.sub--pro   {
+  background: rgba(21,111,231,0.12);
+  border    : 1px solid rgba(21,111,231,0.25);
+  color     : #156fe7;
+}
+.sub--club  {
+  background: rgba(240,167,66,0.12);
+  border    : 1px solid rgba(240,167,66,0.25);
+  color     : #f0a742;
+}
+
+/* Badge posición */
+.perfil-posicion-badge {
+  display      : inline-flex;
+  align-items  : center;
+  gap          : 5px;
+  background   : rgba(3,210,110,0.08);
+  border       : 1px solid rgba(3,210,110,0.2);
+  border-radius: 20px;
+  padding      : 4px 12px;
+  font-size    : 12px;
+  font-weight  : 600;
+  color        : #03d26e;
+}
+
+/* Fila stats hero (puntos, ranking, XP) */
+.perfil-hero-stats-row {
+  display    : flex;
+  align-items: center;
+  gap        : 16px;
+}
+
+.perfil-hero-stat {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  gap           : 2px;
+}
+
+.perfil-hero-stat-val {
+  font-size  : 20px;
+  font-weight: 800;
+  color      : #fff;
+  line-height: 1;
+}
+
+.perfil-hero-stat-label {
+  font-size: 11px;
+  color    : var(--texto-muted, #8a9ab8);
+}
+
+.perfil-hero-stat-sep {
+  width        : 1px;
+  height       : 32px;
+  background   : rgba(255,255,255,0.1);
+}
+
+/* Avatar con imagen real */
+.perfil-avatar-img {
+  width        : 80px;
+  height       : 80px;
+  border-radius: 50%;
+  object-fit   : cover;
+  position     : relative;
+  z-index      : 1;
+}
 /* ══════════════════════════════════════════════════════════════
    RESPONSIVE — móvil
 ══════════════════════════════════════════════════════════════ */

@@ -19,7 +19,7 @@ export interface TemaApi {
 }
 
 export interface FieraApi {
-  id         : number;
+  id          : number;
   personalidad: string;
   descripcion : string;
 }
@@ -60,6 +60,15 @@ export interface Resultados {
   claridad     : number;
   refutacion   : number;
   evidencia    : number;
+}
+
+export interface SubTurnoConfig {
+  id      : string;
+  nombre  : string;
+  postura : 'favor' | 'contra';
+  minutos : number;
+  activo  : boolean;
+  asignado: 'yo' | 'fiera' | 'companero';
 }
 
 export interface IntervencionRequest {
@@ -114,18 +123,22 @@ export interface DebateApi {
   resultado     : any;
 }
 
-export interface SubTurnoConfig {
-  id      : string;
-  nombre  : string;
-  postura : 'favor' | 'contra';
-  minutos : number;
-  activo  : boolean;
-  asignado: 'yo' | 'fiera' | 'companero';
-}
-
+/* ── Constantes de almacenamiento ── */
 const STORAGE_CONFIG     = 'fiera_config';
 const STORAGE_RESULTADOS = 'fiera_resultados';
 const STORAGE_DEBATE_ID  = 'fiera_debate_id';
+const STORAGE_SUBTURNOS  = 'fiera_subturnos';
+const STORAGE_DEBATE_ACT = 'fiera_debate_activo';
+
+/* ── Mapa nombre wizard → nombre backend ── */
+const NOMBRE_MAP: Record<string, string> = {
+  'Introducción' : 'introductor',
+  '1ª Refutación': 'refutador1',
+  '2ª Refutación': 'refutador2',
+  '3ª Refutación': 'refutador3',
+  '4ª Refutación': 'refutador4',
+  'Conclusión'   : 'conclusor',
+};
 
 const CONFIG_INICIAL: ConfigDebate = {
   tiempos: {
@@ -154,22 +167,23 @@ export class DebateService {
 
   private http = inject(HttpClient);
 
-  /* Signal con la configuración actual */
-  private _config   = signal<ConfigDebate>({ ...CONFIG_INICIAL });
-  config            = this._config.asReadonly();
+  /* ── Signals de estado ── */
+  private _config       = signal<ConfigDebate>({ ...CONFIG_INICIAL });
+  private _debateId     = signal<number | null>(null);
+  private _fieras       = signal<FieraApi[]>([]);
+  private _subturnos    = signal<SubTurnoConfig[]>([]);
+  private _debateActivo = signal<DebateApi | null>(null);
 
-  /* Signal con el id del debate activo */
-  private _debateId = signal<number | null>(null);
-  debateId          = this._debateId.asReadonly();
-
-  /* Cache de FIERAs cargadas del backend */
-  private _fieras   = signal<FieraApi[]>([]);
-  fieras            = this._fieras.asReadonly();
+  /* ── Señales públicas de solo lectura ── */
+  config       = this._config.asReadonly();
+  debateId     = this._debateId.asReadonly();
+  fieras       = this._fieras.asReadonly();
+  subturnos    = this._subturnos.asReadonly();
+  debateActivo = this._debateActivo.asReadonly();
 
   /* ----------------------------------------------------------
      getFieras()
-     Carga las FIERAs del backend y las cachea en el signal.
-     Si ya están cargadas, no vuelve a llamar al backend.
+     Carga las FIERAs del backend y las cachea en el signal
   ---------------------------------------------------------- */
   getFieras() {
     return this.http.get<FieraApi[]>(`${API_BASE}/api/app/fieras`).pipe(
@@ -194,40 +208,50 @@ export class DebateService {
   }
 
   /* ----------------------------------------------------------
+     guardarSubturnos() / cargarSubturnos()
+     Persiste los subturnos expandidos del wizard
+  ---------------------------------------------------------- */
+  guardarSubturnos(subturnos: SubTurnoConfig[]): void {
+    this._subturnos.set(subturnos);
+    localStorage.setItem(STORAGE_SUBTURNOS, JSON.stringify(subturnos));
+  }
+
+  cargarSubturnos(): SubTurnoConfig[] {
+    if (this._subturnos().length) return this._subturnos();
+    const datos = localStorage.getItem(STORAGE_SUBTURNOS);
+    if (datos) {
+      const lista = JSON.parse(datos) as SubTurnoConfig[];
+      this._subturnos.set(lista);
+      return lista;
+    }
+    return [];
+  }
+
+  /* ----------------------------------------------------------
      crearDebate()
-     Construye el body y envía POST /api/app/debates/new-debate
+     Construye el body desde los subturnos del wizard y envía
+     POST /api/app/debates/new-debate
   ---------------------------------------------------------- */
   crearDebate() {
-    const config = this._config();
+    const config    = this._config();
+    const subturnos = this.cargarSubturnos();
 
     /* Calcular postura del usuario y de FIERA */
     const posturaUsuario = config.postura === 'aleatoria'
       ? (Math.random() > 0.5 ? 'pro' : 'contra')
       : config.postura === 'favor' ? 'pro' : 'contra';
-
     const posturaFiera = posturaUsuario === 'pro' ? 'contra' : 'pro';
 
-    /* Construir intervenciones */
-    const turnosConfig = [
-      { key: 'intro',      nombre: 'introductor', duracion: config.tiempos.intro      },
-      { key: 'ref1',       nombre: 'refutador1',  duracion: config.tiempos.ref1       },
-      { key: 'ref2',       nombre: 'refutador2',  duracion: config.tiempos.ref2       },
-      { key: 'conclusion', nombre: 'conclusor',   duracion: config.tiempos.conclusion }
-    ];
-
-    const intervenciones: IntervencionRequest[] = turnosConfig.map(t => {
-      const speaker  = config.turnos[t.key as keyof TurnosDebate];
-      const minutos  = String(t.duracion).padStart(2, '0');
-      return {
-        nombre          : t.nombre,
-        duracion        : `00:${minutos}:00`,
-        speaker         : speaker === 'equipo' ? 'usuario' : 'fiera',
-        postura         : speaker === 'equipo' ? posturaUsuario : posturaFiera,
-        mensaje         : '',
-        estado          : 'PENDING',
-        speakerInputType: 'text'
-      };
-    });
+    /* Construir intervenciones desde los subturnos del wizard */
+    const intervenciones: IntervencionRequest[] = subturnos.map(t => ({
+      nombre          : NOMBRE_MAP[t.nombre] ?? t.nombre.toLowerCase(),
+      duracion        : `00:${String(t.minutos).padStart(2, '0')}:00`,
+      speaker         : t.asignado === 'fiera' ? 'fiera' : 'usuario',
+      postura         : t.postura === 'favor' ? posturaUsuario : posturaFiera,
+      mensaje         : '',
+      estado          : 'PENDING',
+      speakerInputType: 'text'
+    }));
 
     /* Obtener fiera_id dinámicamente */
     const fieraId = config.personalidad
@@ -267,20 +291,17 @@ export class DebateService {
 
   /* ----------------------------------------------------------
      setDebateActivo() / getDebateActivo()
-     Guarda el debate completo (con intervenciones y sus ids)
-     para poder referenciarlos durante el debate
+     Guarda el debate completo con intervenciones y sus ids
+     para poder referenciarlos durante la partida
   ---------------------------------------------------------- */
-  private _debateActivo = signal<DebateApi | null>(null);
-  debateActivo = this._debateActivo.asReadonly();
-
   setDebateActivo(debate: DebateApi): void {
     this._debateActivo.set(debate);
-    localStorage.setItem('fiera_debate_activo', JSON.stringify(debate));
+    localStorage.setItem(STORAGE_DEBATE_ACT, JSON.stringify(debate));
   }
 
   getDebateActivo(): DebateApi | null {
     if (this._debateActivo()) return this._debateActivo();
-    const stored = localStorage.getItem('fiera_debate_activo');
+    const stored = localStorage.getItem(STORAGE_DEBATE_ACT);
     return stored ? JSON.parse(stored) : null;
   }
 
@@ -299,28 +320,6 @@ export class DebateService {
       formData
     );
   }
-
-  /*--------------------------------------
-  metodos subturnos
-   --------------------------------------*/
-    private readonly STORAGE_SUBTURNOS = 'fiera_subturnos';
-    private _subturnos = signal<SubTurnoConfig[]>([]);
-
-    guardarSubturnos(subturnos: SubTurnoConfig[]): void {
-      this._subturnos.set(subturnos);
-      localStorage.setItem(this.STORAGE_SUBTURNOS, JSON.stringify(subturnos));
-    }
-
-    cargarSubturnos(): SubTurnoConfig[] {
-      if (this._subturnos().length) return this._subturnos();
-      const datos = localStorage.getItem(this.STORAGE_SUBTURNOS);
-      if (datos) {
-        const lista = JSON.parse(datos) as SubTurnoConfig[];
-        this._subturnos.set(lista);
-        return lista;
-      }
-      return [];
-    }
 
   /* ----------------------------------------------------------
      actualizarConfig()

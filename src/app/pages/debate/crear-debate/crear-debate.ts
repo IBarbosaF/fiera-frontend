@@ -37,12 +37,21 @@ export interface CategoriaItem {
 }
 
 const CATEGORIAS: CategoriaItem[] = [
-  { nombre: 'Educación',     icono: 'ti-school',     color: '#156fe7', bg: 'rgba(21,111,231,0.12)' },
-  { nombre: 'Tecnología',    icono: 'ti-cpu',         color: '#03d26e', bg: 'rgba(3,210,110,0.12)'  },
-  { nombre: 'Ética',         icono: 'ti-scale',       color: '#ff3a72', bg: 'rgba(255,58,114,0.12)' },
-  { nombre: 'Sociedad',      icono: 'ti-users',       color: '#f0a742', bg: 'rgba(240,167,66,0.12)' },
-  { nombre: 'Economía',      icono: 'ti-trending-up', color: '#156fe7', bg: 'rgba(21,111,231,0.12)' },
-  { nombre: 'Medioambiente', icono: 'ti-leaf',        color: '#03d26e', bg: 'rgba(3,210,110,0.12)'  },
+  { nombre: 'política',         icono: 'ti-building', color: '#156fe7', bg: 'rgba(21,111,231,0.12)'  },
+  { nombre: 'política global',  icono: 'ti-world',    color: '#03d26e', bg: 'rgba(3,210,110,0.12)'   },
+  { nombre: 'ética',            icono: 'ti-scale',    color: '#ff3a72', bg: 'rgba(255,58,114,0.12)'  },
+  { nombre: 'social',           icono: 'ti-users',    color: '#f0a742', bg: 'rgba(240,167,66,0.12)'  },
+  { nombre: 'socio-política',   icono: 'ti-flag',     color: '#156fe7', bg: 'rgba(21,111,231,0.12)'  },
+  { nombre: 'socio-económica',  icono: 'ti-coin',     color: '#03d26e', bg: 'rgba(3,210,110,0.12)'   },
+  { nombre: 'socio-cultural',   icono: 'ti-palette',  color: '#ff3a72', bg: 'rgba(255,58,114,0.12)'  },
+  { nombre: 'educación',        icono: 'ti-school',   color: '#f0a742', bg: 'rgba(240,167,66,0.12)'  },
+  { nombre: 'tecnología (IA)',  icono: 'ti-cpu',      color: '#156fe7', bg: 'rgba(21,111,231,0.12)'  },
+  { nombre: 'medioambiente',    icono: 'ti-leaf',     color: '#03d26e', bg: 'rgba(3,210,110,0.12)'   },
+  { nombre: 'salud',            icono: 'ti-heart',    color: '#ff3a72', bg: 'rgba(255,58,114,0.12)'  },
+  { nombre: 'político-económica', icono: 'ti-trending-up', color: '#f0a742', bg: 'rgba(240,167,66,0.12)' },
+  { nombre: 'derecho',          icono: 'ti-gavel',    color: '#156fe7', bg: 'rgba(21,111,231,0.12)'  },
+  { nombre: 'arte',             icono: 'ti-brush',    color: '#03d26e', bg: 'rgba(3,210,110,0.12)'   },
+  { nombre: 'ambiental',        icono: 'ti-tree',     color: '#ff3a72', bg: 'rgba(255,58,114,0.12)'  },
 ];
 
 /* Intervenciones base — una fila por intervención */
@@ -134,7 +143,10 @@ export class CrearDebate implements OnInit {
 
   seleccionarCategoria(cat: CategoriaItem): void {
     this.categoriaActiva.set(cat);
-    this.temasFiltrados.set(this.temas().filter(t => t.categoria.toLowerCase() === cat.nombre.toLowerCase()));
+    const filtrados = this.temas().filter(
+      t => t.categoria.trim().toLowerCase() === cat.nombre.trim().toLowerCase()
+    );
+    this.temasFiltrados.set(filtrados);
     this.temaSeleccionado.set(null);
   }
 
@@ -171,7 +183,9 @@ export class CrearDebate implements OnInit {
   }
 
   contarTemasPorCategoria(cat: string): number {
-    return this.temas().filter(t => t.categoria.toLowerCase() === cat.toLowerCase()).length;
+    return this.temas().filter(
+      t => t.categoria.trim().toLowerCase() === cat.trim().toLowerCase()
+    ).length;
   }
 
   /* ── PASO 4 ── */
@@ -320,16 +334,28 @@ export class CrearDebate implements OnInit {
     const subturnos = this.expandirASubturnos();
     this.debateService.guardarConfig();
     this.debateService.guardarSubturnos(subturnos);
+
+    console.log('🚀 INICIAR DEBATE — Config:', this.debateService.config());
+    console.log('🚀 INICIAR DEBATE — Subturnos:', subturnos);
+
     this.debateService.getFieras().subscribe(() => {
+      console.log('🚀 FIERAS cargadas:', this.debateService.fieras());
+
       this.debateService.crearDebate().subscribe({
         next: (debate) => {
+          console.log('✅ DEBATE CREADO:', debate);
+          console.log('✅ Intervenciones del backend:', debate?.intervenciones);
+
           if (debate?.id) {
             this.debateService.setDebateId(debate.id);
             this.debateService.setDebateActivo(debate);
           }
           this.router.navigate(['partida-debate']);
         },
-        error: () => this.router.navigate(['partida-debate'])
+        error: (err) => {
+          console.error('❌ ERROR AL CREAR DEBATE:', err);
+          this.router.navigate(['partida-debate']);
+        }
       });
     });
   }

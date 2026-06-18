@@ -8,10 +8,19 @@ import { Injectable, signal, computed } from '@angular/core';
 ============================================================ */
 
 export interface Usuario {
-  nombre   : string;
-  apellidos: string;
-  email    : string;
-  password : string;
+  id?          : number;
+  nombre       : string;
+  apellidos    : string;
+  email        : string;
+  password     : string;
+  username     : string;
+  img_perfil?  : string | null;
+  experiencia? : number | null;
+  posicion?    : string | null;
+  nivel?       : string | null;
+  puntos?      : number | null;
+  ranking?     : number | null;
+  subscripcion?: string | null;
 }
 
 const STORAGE_USUARIOS = 'fiera_users';
@@ -44,8 +53,8 @@ export class AuthService {
      registrar()
      Registra un nuevo usuario si el email no existe
   ---------------------------------------------------------- */
-  registrar(datos: Omit<Usuario, never>): { ok: boolean; error?: string } {
-    if (!datos.nombre || !datos.apellidos || !datos.email || !datos.password) {
+  registrar(datos: Usuario): { ok: boolean; error?: string } {
+    if (!datos.nombre || !datos.apellidos || !datos.email || !datos.password || !datos.username) {
       return { ok: false, error: 'Rellena todos los campos.' };
     }
 

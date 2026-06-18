@@ -46,6 +46,7 @@ export class Registro {
   authService = inject(AuthService);
   router      = inject(Router);
   mostrarPassword = signal(false);
+  posicion = signal<Posicion | null>(null);
 
   /* Paso activo (1–4) */
   pasoActual = signal(1);
@@ -60,6 +61,17 @@ export class Registro {
 
   /* ── Paso 2 ── */
   experiencia = signal<Experiencia>(null);
+
+  // Mapeo de experiencia a integer
+  private experienciaToInt(): number {
+  const map: Record<string, number> = {
+    ninguna: 0,
+    menos1 : 1,
+    '1a3'  : 2,
+    mas3   : 3,
+  };
+  return map[this.experiencia() ?? 'ninguna'] ?? 0;
+}
 
   /* ── Paso 3 ── */
   clubSeleccionado  = signal<Club | null>(null);
@@ -163,15 +175,12 @@ export class Registro {
   /* ----------------------------------------------------------
      Paso 4 — toggle de posiciones
   ---------------------------------------------------------- */
-  togglePosicion(pos: Posicion): void {
-    const set = new Set(this.posiciones());
-    if (set.has(pos)) set.delete(pos);
-    else              set.add(pos);
-    this.posiciones.set(set);
+  seleccionarPosicion(pos: Posicion): void {
+    this.posicion.set(pos);
   }
 
   tienePosicion(pos: Posicion): boolean {
-    return this.posiciones().has(pos);
+    return this.posicion() === pos;
   }
 
   /* ----------------------------------------------------------
@@ -179,10 +188,13 @@ export class Registro {
   ---------------------------------------------------------- */
   finalizar(): void {
     const resultado = this.authService.registrar({
-      nombre   : this.nombre(),
-      apellidos: this.apellidos(),
-      email    : this.email(),
-      password : this.password(),
+      nombre      : this.nombre(),
+      apellidos   : this.apellidos(),
+      username    : this.usuario(),
+      email       : this.email(),
+      password    : this.password(),
+      experiencia : this.experienciaToInt(),
+      posicion    : this.posicion() ?? '',
     });
 
     if (!resultado.ok) {

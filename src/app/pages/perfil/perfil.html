@@ -8,21 +8,65 @@
        HERO CARD — Avatar + nombre + nivel
   ══════════════════════════════════════════════════════════ -->
   <div class="perfil-hero-card">
+
+    <!-- Avatar: imagen real o iniciales -->
     <div class="perfil-avatar">
-      <span class="perfil-avatar-iniciales">{{ iniciales() }}</span>
+      @if (tieneImagen()) {
+        <img [src]="usuario()?.img_perfil" alt="Avatar" class="perfil-avatar-img" />
+      } @else {
+        <span class="perfil-avatar-iniciales">{{ iniciales() }}</span>
+      }
       <div class="perfil-avatar-glow"></div>
     </div>
+
+    <!-- Info principal -->
     <div class="perfil-hero-info">
-      <h1 class="perfil-nombre">{{ usuario()?.nombre }} {{ usuario()?.apellidos }}</h1>
+      <div class="perfil-hero-nombre-row">
+        <h1 class="perfil-nombre">{{ usuario()?.nombre }} {{ usuario()?.apellidos }}</h1>
+        <span class="perfil-hero-username">@{{ usuario()?.username }}</span>
+      </div>
       <p class="perfil-email">{{ usuario()?.email }}</p>
-      <div class="perfil-nivel-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-             stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-        Debatiente Intermedio
+      <div class="perfil-hero-badges">
+        <div class="perfil-nivel-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          {{ nivelLabel() }}
+        </div>
+        <div class="perfil-sub-badge" [class]="subClase()">{{ subLabel() }}</div>
+        @if (usuario()?.posicion) {
+          <div class="perfil-posicion-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            {{ usuario()?.posicion }}
+          </div>
+        }
+      </div>
+      <!-- Puntos, ranking, experiencia -->
+      <div class="perfil-hero-stats-row">
+        <div class="perfil-hero-stat">
+          <span class="perfil-hero-stat-val">{{ puntos }}</span>
+          <span class="perfil-hero-stat-label">puntos</span>
+        </div>
+        <div class="perfil-hero-stat-sep"></div>
+        <div class="perfil-hero-stat">
+          <span class="perfil-hero-stat-val">#{{ ranking }}</span>
+          <span class="perfil-hero-stat-label">ranking</span>
+        </div>
+        <div class="perfil-hero-stat-sep"></div>
+        <div class="perfil-hero-stat">
+          <span class="perfil-hero-stat-val">{{ experiencia }}</span>
+          <span class="perfil-hero-stat-label">XP</span>
+        </div>
       </div>
     </div>
+
+    <!-- Botón editar -->
     <button class="perfil-cta" (click)="abrirModalEditar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
           stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
@@ -31,6 +75,7 @@
       </svg>
       Editar perfil
     </button>
+
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
@@ -195,7 +240,7 @@
 
         <div class="perfil-stats-grid">
           <div class="perfil-stat">
-            <span class="perfil-stat-valor">{{ stats.totalDebates }}</span>
+            <span class="perfil-stat-valor">{{ totalDebates }}</span>
             <span class="perfil-stat-label">Debates</span>
           </div>
           <div class="perfil-stat">
@@ -332,6 +377,21 @@
                 <input class="perfil-input" type="text" placeholder="Tus apellidos"
                       [value]="editApellidos()"
                       (input)="editApellidos.set($any($event.target).value)" />
+              </div>
+            </div>
+            <!-- fila username / posición -->
+            <div class="perfil-form-row">
+              <div class="perfil-field">
+                <label class="perfil-label">USERNAME</label>
+                <input class="perfil-input" type="text" placeholder="tu_username"
+                      [value]="editUsername()"
+                      (input)="editUsername.set($any($event.target).value)" />
+              </div>
+              <div class="perfil-field">
+                <label class="perfil-label">POSICIÓN / ROL</label>
+                <input class="perfil-input" type="text" placeholder="Ej: Capitán de equipo"
+                      [value]="editPosicion()"
+                      (input)="editPosicion.set($any($event.target).value)" />
               </div>
             </div>
             <div class="perfil-field">
