@@ -1,1 +1,0 @@
-import{Ra as r,Sa as i,eb as n,za as t}from"./chunk-AGV3ZBFK.js";var o=class a{static \u0275fac=function(e){return new(e||a)};static \u0275cmp=t({type:a,selectors:[["app-crear-liga"]],decls:2,vars:0,template:function(e,c){e&1&&(r(0,"p"),n(1,"crear-liga works!"),i())},encapsulation:2})};export{o as CrearLiga};

@@ -1,1 +1,0 @@
-import{Ra as i,Sa as n,eb as m,za as t}from"./chunk-AGV3ZBFK.js";var c=class a{static \u0275fac=function(e){return new(e||a)};static \u0275cmp=t({type:a,selectors:[["app-academia-hub"]],decls:2,vars:0,template:function(e,s){e&1&&(i(0,"p"),m(1,"academia-hub works!"),n())},encapsulation:2})};export{c as AcademiaHub};

@@ -1,0 +1,1 @@
+import{Ra as i,Sa as n,fb as o,za as a}from"./chunk-4BIPDLIV.js";var s=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=a({type:t,selectors:[["app-liga-hub"]],decls:2,vars:0,template:function(e,p){e&1&&(i(0,"p"),o(1,"liga-hub works!"),n())},encapsulation:2})};export{s as LigaHub};
