@@ -1,0 +1,72 @@
+<!-- ============================================================
+     RecursosHub — Hub de recursos formativos
+============================================================ -->
+<div class="recursos-page">
+
+  <div class="recursos-header">
+    <h1 class="recursos-titulo">Recursos</h1>
+    <p class="recursos-subtitulo">Materiales para entrenar y mejorar tu debate</p>
+  </div>
+
+  <div class="recursos-grid">
+    @for (recurso of recursos; track recurso.id) {
+
+      <div class="recurso-card"
+           [class]="'recurso-card--' + recurso.color"
+           (click)="navegarA(recurso.id)">
+
+        <div class="card-top">
+        <div class="card-icono" [class]="'card-icono--' + recurso.color">
+        @if (recurso.id === 'torneos') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3"  y1="10" x2="21" y2="10"/>
+          </svg>
+        }
+          @if (recurso.id === 'preguntas') {
+            <span class="card-icono-doble-interrogacion">¿?</span>
+          }
+          @if (recurso.id === 'formaciones') {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          }
+          @if (recurso.id === 'apuntes') {
+            <span class="card-icono-pdf">PDF</span>
+          }
+        </div>
+          <span class="card-badge" [class]="'card-badge--' + recurso.color">
+            {{ recurso.badge }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <h2 class="card-titulo">{{ recurso.titulo }}</h2>
+          <p class="card-desc">{{ recurso.desc }}</p>
+        </div>
+
+        <div class="card-footer">
+          <div class="card-meta">
+            @for (item of recurso.meta; track item.texto) {
+              <span class="meta-item">
+                <i [class]="'ti ' + item.icono"></i>
+                {{ item.texto }}
+              </span>
+            }
+          </div>
+          <span class="card-cta">
+            {{ recurso.cta }}
+            <i class="ti ti-arrow-right"></i>
+          </span>
+        </div>
+
+      </div>
+
+    }
+  </div>
+
+</div>

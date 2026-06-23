@@ -21,8 +21,6 @@
   overflow-x: hidden;
   position  : relative;
   z-index   : 1;
-  scrollbar-width: thin;
-  scrollbar-color: #1e2d47 transparent;
 }
 
 .main-content::-webkit-scrollbar       { width: 4px; }
@@ -38,9 +36,9 @@
 
 /* ── Leona decorativa de fondo ── */
 .layout-fiera-bg {
-  position      : absolute;
+  position      : fixed;
   bottom        : -20px;
-  left          : 18%;
+  left          : 30%;
   transform     : translateX(-76%);
   width         : 320px;
   height        : 320px;
@@ -109,10 +107,7 @@
 
   /* ── Leona más pequeña y reposicionada en móvil ── */
   .layout-fiera-bg {
-    width  : 180px;
-    height : 180px;
-    left   : 30%;
-    bottom : -10px;
+    display       : none;
   }
 
   .layout-fiera-ring {

@@ -1,7 +1,6 @@
 import { Component, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { Particles } from '../../shared/components/particles/particles';
 
 export interface ProximoDebate {
   dia    : string;
@@ -23,7 +22,7 @@ export interface JugadorRanking {
 @Component({
   selector        : 'app-home',
   standalone      : true,
-  imports         : [RouterLink, Particles],
+  imports         : [RouterLink],
   templateUrl     : './home.html',
   styleUrl        : './home.css',
   changeDetection : ChangeDetectionStrategy.OnPush

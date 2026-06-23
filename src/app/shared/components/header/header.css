@@ -21,7 +21,7 @@
   width         : 210px;
   min-width     : 210px;
   height        : 100vh;
-  background    : linear-gradient(160deg, #0d1a33 0%, #080e1a 100%);
+  background    : linear-gradient(160deg, rgba(13, 26, 51, 0.85) 0%, rgba(8, 14, 26, 0.85) 100%);
   border-right  : 1px solid rgba(21, 111, 231, 0.12);
   overflow      : hidden; /* sin scroll en desktop */
   /* Posicionamiento: el MainLayout usa flex-row,

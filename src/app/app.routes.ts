@@ -10,11 +10,6 @@ export const routes: Routes = [
       import('./pages/registro/registro').then(m => m.Registro)
   },
   {
-    path        : 'crear-debate',
-    loadComponent: () =>
-      import('./pages/debate/crear-debate/crear-debate').then(m => m.CrearDebate)
-  },
-  {
     path        : 'partida-debate',
     loadComponent: () =>
       import('./pages/debate/partida-debate/partida-debate').then(m => m.PartidaDebate)
@@ -23,23 +18,6 @@ export const routes: Routes = [
     path        : 'crear-liga',
     loadComponent: () =>
       import('./pages/ligas/crear-liga/crear-liga').then(m => m.CrearLiga)
-  },
-
-  /* ── Módulo clubs sin MainLayout ──────────────────────── */
-  {
-    path        : 'clubs/explorar',
-    loadComponent: () =>
-      import('./pages/clubs/explorar-clubs/explorar-clubs').then(m => m.ExplorarClubs)
-  },
-  {
-    path        : 'clubs/crear',
-    loadComponent: () =>
-      import('./pages/clubs/crear-club/crear-club').then(m => m.CrearClub)
-  },
-  {
-    path        : 'clubs/:id',
-    loadComponent: () =>
-      import('./pages/clubs/club-detalle/club-detalle').then(m => m.ClubDetalle)
   },
 
   /* ── Rutas con MainLayout — sidebar global ─────────────── */
@@ -72,7 +50,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/ligas/unirse-liga/unirse-liga').then(m => m.UnirseLiga)
       },
-
+      /* Crear Debate */
+      {
+        path        : 'crear-debate',
+        loadComponent: () =>
+          import('./pages/debate/crear-debate/crear-debate').then(m => m.CrearDebate)
+      },
       /* Ranking */
       {
         path        : 'ranking',
@@ -86,12 +69,27 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/clubs/clubs-hub/clubs-hub').then(m => m.ClubsHub)
       },
-
-      /* Academia */
       {
-        path        : 'academia',
+        path        : 'clubs/explorar',
         loadComponent: () =>
-          import('./pages/academia/academia-hub/academia-hub').then(m => m.AcademiaHub)
+          import('./pages/clubs/explorar-clubs/explorar-clubs').then(m => m.ExplorarClubs)
+      },
+      {
+        path        : 'clubs/crear',
+        loadComponent: () =>
+          import('./pages/clubs/crear-club/crear-club').then(m => m.CrearClub)
+      },
+      {
+        path        : 'clubs/:id',
+        loadComponent: () =>
+          import('./pages/clubs/club-detalle/club-detalle').then(m => m.ClubDetalle)
+      },
+
+      /* Recursos */
+      {
+        path        : 'recursos',
+        loadComponent: () =>
+          import('./pages/recursos/recursos-hub/recursos-hub').then(m => m.RecursosHub)
       },
 
       /* Perfil */

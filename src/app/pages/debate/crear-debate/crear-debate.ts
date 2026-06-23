@@ -2,8 +2,6 @@ import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } 
 import { Router, RouterLink } from '@angular/router';
 import { DebateService, TemaApi, SubTurnoConfig } from '../../../core/services/debate.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Particles } from '../../../shared/components/particles/particles';
-
 /* ============================================================
    CrearDebate — Wizard de 7 pasos
 ============================================================ */
@@ -68,7 +66,7 @@ const ORDINALES = ['1ª', '2ª', '3ª', '4ª', '5ª', '6ª'];
 @Component({
   selector        : 'app-crear-debate',
   standalone      : true,
-  imports         : [RouterLink, Particles],
+  imports         : [RouterLink],
   templateUrl     : './crear-debate.html',
   styleUrl        : './crear-debate.css',
   changeDetection : ChangeDetectionStrategy.OnPush
@@ -109,6 +107,35 @@ export class CrearDebate implements OnInit {
 
   copiarCodigo(): void {
     navigator.clipboard?.writeText(this.codigoSesion()).catch(() => {});
+  }
+
+  enlaceCopiado = signal(false);
+
+  copiarEnlace(): void {
+    const url = this.enlaceCompartir;
+    navigator.clipboard?.writeText(url).catch(() => {});
+    this.enlaceCopiado.set(true);
+    setTimeout(() => this.enlaceCopiado.set(false), 2000);
+  }
+
+  compartirEnlace(): void {
+    const esMobil = window.innerWidth < 768;
+
+    if (esMobil && navigator.share) {
+      const url   = this.enlaceCompartir;
+      const texto = `¡Únete a mi debate en FIERA! Usa el código ${this.codigoSesion()} o entra directamente:`;
+      navigator.share({ title: 'FIERA — Debate', text: texto, url }).catch(() => {});
+      return;
+    }
+
+    /* Desktop — siempre modal propio */
+    this.modalCompartirAbierto.set(true);
+  }
+
+  modalCompartirAbierto = signal(false);
+
+  get enlaceCompartir(): string {
+    return `https://fiera.retorika.es/unirse/${this.codigoSesion()}`;
   }
 
   /* ── PASO 2 ── */

@@ -26,11 +26,12 @@ export class MainLayout {
   );
 
   /**
-   * mostrarLeona — true en cualquier ruta excepto Home (/).
-   * La leona es decorativa global pero no aparece en el dashboard.
+   * mostrarLeona — true en cualquier ruta excepto las indicadas.
    */
   mostrarLeona = computed(() => {
     const url = this.urlActual();
-    return url !== '/' && url !== '' && url !== '/#/';
+    // Rutas donde NO se muestra la leona (contenido llena la pantalla)
+    const rutasSinLeona = ['/', '/clubs', '/perfil'];
+    return !rutasSinLeona.includes(url);
   });
 }

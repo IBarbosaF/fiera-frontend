@@ -1,0 +1,191 @@
+/* ============================================================
+   RecursosHub — Estilos
+============================================================ */
+
+.recursos-page {
+  padding    : 32px 40px 32px 240px;
+  height     : 100vh;
+  display    : flex;
+  flex-direction: column;
+  box-sizing : border-box;
+}
+
+/* ── Header ── */
+.recursos-header {
+  margin-bottom: 24px;
+  flex-shrink  : 0;
+}
+
+.recursos-titulo {
+  font-size    : 1.6rem;
+  font-weight  : 900;
+  color        : var(--blanco);
+  margin-bottom: 4px;
+}
+
+.recursos-subtitulo {
+  font-size: 0.88rem;
+  color    : var(--texto-muted);
+}
+
+/* ── Grid ── */
+.recursos-grid {
+  display              : grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap                  : 12px;
+  max-width            : 720px;
+  flex                 : 1;
+  align-content        : start;
+}
+
+/* ── Card base ── */
+.recurso-card {
+  background    : #0c1424;
+  border        : 1px solid rgba(255, 255, 255, 0.07);
+  border-radius : 14px;
+  padding       : 18px 20px;
+  cursor        : pointer;
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+  transition    : border-color 0.2s ease, background 0.2s ease;
+}
+
+/* ── Card hover por color ── */
+.recurso-card--blue:hover {
+  border-color: rgba(21, 111, 231, 0.4);
+  background  : rgba(21, 111, 231, 0.04);
+}
+.recurso-card--pink:hover {
+  border-color: rgba(255, 58, 114, 0.4);
+  background  : rgba(255, 58, 114, 0.04);
+}
+.recurso-card--green:hover {
+  border-color: rgba(3, 210, 110, 0.4);
+  background  : rgba(3, 210, 110, 0.04);
+}
+.recurso-card--amber:hover {
+  border-color: rgba(240, 167, 66, 0.4);
+  background  : rgba(240, 167, 66, 0.04);
+}
+
+/* ── Card top ── */
+.card-top {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+}
+
+/* ── Icono ── */
+.card-icono {
+  width          : 38px;
+  height         : 38px;
+  border-radius  : 10px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 19px;
+}
+
+.card-icono--blue  { background: rgba(21, 111, 231, 0.15); color: #5e9ef7; }
+.card-icono--pink  { background: rgba(255, 58, 114, 0.12); color: #ff3a72; }
+.card-icono--green { background: rgba(3, 210, 110, 0.12);  color: #03d26e; }
+.card-icono--amber { background: rgba(240, 167, 66, 0.12); color: #f0a742; }
+
+/* ── Badge ── */
+.card-badge {
+  font-size    : 10px;
+  font-weight  : 600;
+  padding      : 3px 9px;
+  border-radius: 20px;
+}
+
+.card-badge--blue  { background: rgba(21, 111, 231, 0.15); color: #6ba8f5; }
+.card-badge--pink  { background: rgba(255, 58, 114, 0.12); color: #ff3a72; }
+.card-badge--green { background: rgba(3, 210, 110, 0.12);  color: #03d26e; }
+.card-badge--amber { background: rgba(240, 167, 66, 0.12); color: #f0a742; }
+
+/* ── Body ── */
+.card-titulo {
+  font-size    : 0.92rem;
+  font-weight  : 700;
+  color        : #e8edf5;
+  margin-bottom: 4px;
+}
+
+.card-desc {
+  font-size  : 0.8rem;
+  color      : var(--texto-muted);
+  line-height: 1.5;
+}
+
+/* ── Footer ── */
+.card-footer {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  margin-top     : auto;
+  padding-top    : 6px;
+  border-top     : 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-meta {
+  display: flex;
+  gap    : 10px;
+}
+
+.meta-item {
+  display    : flex;
+  align-items: center;
+  gap        : 4px;
+  font-size  : 0.75rem;
+  color      : var(--texto-muted);
+}
+
+.meta-item .ti { font-size: 13px; }
+
+.card-cta {
+  display    : flex;
+  align-items: center;
+  gap        : 4px;
+  font-size  : 0.78rem;
+  font-weight: 600;
+  color      : var(--azul-principal);
+  white-space: nowrap;
+}
+
+.card-cta .ti {
+  font-size : 13px;
+  transition: transform 0.2s ease;
+}
+
+.recurso-card:hover .card-cta .ti { transform: translateX(3px); }
+
+/* ── Iconos especiales ── */
+.card-icono-doble-interrogacion {
+  font-size  : 17px;
+  font-weight: 900;
+  color      : inherit;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.card-icono-pdf {
+  font-size     : 12px;
+  font-weight   : 900;
+  color         : inherit;
+  letter-spacing: 0.5px;
+  line-height   : 1;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .recursos-page {
+    padding: 24px 20px;
+    height : auto;
+  }
+
+  .recursos-grid {
+    grid-template-columns: 1fr;
+  }
+}

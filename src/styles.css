@@ -4,7 +4,7 @@
    Paleta Retorika:
      --azul-principal : #156fe7
      --azul-oscuro    : #105cb1
-     --fucsia         : #ff3aa72  (uso futuro)
+     --fucsia         : #ff3a72  (uso futuro)
      --verde          : #03d26e   (uso futuro)
    Lógica de sesión via clase .con-sesion en <body>
 ============================================================ */
@@ -12,14 +12,14 @@
 :root {
   --azul-principal : #156fe7;
   --azul-oscuro    : #105cb1;
-  --fucsia         : #ff3aa72;
+  --fucsia         : #ff3a72; /*(este esta mal escrito en el geneal, tenia una "a" de mas, lo corregi)*/
   --verde          : #03d26e;
   --blanco         : #ffffff;
 
-  --fondo-app      : #080e1a;
-  --fondo-header   : rgba(8, 14, 26, 0.92);
-  --fondo-nav      : #0d1526;
-  --fondo-modal    : #0f1930;
+  --fondo-app      : #080e1a; /*(color de fondo general)*/
+  --fondo-header   : rgba(8, 14, 26, 0.92); /*(color de fondo del header con blur)*/
+  --fondo-nav      : #0d1526; /*(color de fondo del menú móvil)*/
+  --fondo-modal    : #0f1930; /*(color de fondo de los modales)*/
 
   --texto-principal: #ffffff;
   --texto-muted    : #8a9ab8;
