@@ -1,6 +1,7 @@
-import { Component, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { CareoInfo } from '../careo/careo-info/careo-info';
 
 export interface ProximoDebate {
   dia    : string;
@@ -22,11 +23,13 @@ export interface JugadorRanking {
 @Component({
   selector        : 'app-home',
   standalone      : true,
-  imports         : [RouterLink],
+  imports         : [RouterLink, CareoInfo],
   templateUrl     : './home.html',
   styleUrl        : './home.css',
   changeDetection : ChangeDetectionStrategy.OnPush
 })
+
+
 export class Home {
 
   auth   = inject(AuthService);
@@ -56,6 +59,8 @@ export class Home {
     { texto: 'Nuevo reto disponible: IA en educación',   tiempo: 'Hace 3 horas',leida: true  },
     { texto: 'Subiste al puesto #18 en el ranking',      tiempo: 'Ayer',        leida: true  },
   ];
+
+  @ViewChild('careoInfo') careoInfoRef!: CareoInfo;
 
   /* ── Próximos debates hardcodeados ── */
   readonly proximosDebates: ProximoDebate[] = [
@@ -94,6 +99,7 @@ export class Home {
   get tieneNoLeidas(): boolean {
     return this.notificaciones.some(n => !n.leida);
   }
+
 
   /* ----------------------------------------------------------
      Dropdown notificaciones
@@ -152,4 +158,9 @@ export class Home {
       this.cerrarLogin();
     }
   }
+
+  abrirCareoInfo(): void {
+  this.careoInfoRef.abrir();
+}
+
 }

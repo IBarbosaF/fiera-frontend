@@ -118,6 +118,11 @@ export const routes: Routes = [
         path        : 'resultados',
         loadComponent: () =>
           import('./pages/resultados/resultados').then(m => m.Resultados)
+      },
+      /* Careo */
+      {
+        path: 'careo-diario',
+        loadComponent: () => import('./pages/careo/careo-diario/careo-diario').then(m => m.CareoDiario)
       }
     ]
   },

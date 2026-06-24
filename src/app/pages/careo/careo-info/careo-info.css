@@ -1,0 +1,514 @@
+/* ============================================================
+   careo-info.css — Modal informativo del Careo del día
+============================================================ */
+
+/* ── Overlay ── */
+.careo-overlay {
+  position        : fixed;
+  inset           : 0;
+  background      : rgba(0, 0, 0, 0.65);
+  backdrop-filter : blur(4px);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  z-index         : 1000;
+  padding         : 16px;
+}
+
+/* ── Modal contenedor ── */
+.careo-modal {
+  background    : #0d1625;
+  border        : 1px solid rgba(21, 111, 231, 0.2);
+  border-radius : 20px;
+  width         : 100%;
+  max-width     : 520px;
+  max-height    : 90vh;
+  display       : flex;
+  flex-direction: column;
+  overflow      : hidden;
+  position      : relative;
+  box-shadow    : 0 24px 64px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(21, 111, 231, 0.1);
+}
+
+/* ── Botón cerrar ── */
+.careo-close {
+  position  : absolute;
+  top       : 14px;
+  right     : 14px;
+  width     : 32px;
+  height    : 32px;
+  border    : none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color     : #8a9ab8;
+  cursor    : pointer;
+  display   : flex;
+  align-items    : center;
+  justify-content: center;
+  z-index   : 10;
+  transition: background 0.2s, color 0.2s;
+}
+
+.careo-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color     : #fff;
+}
+
+.careo-close svg {
+  width : 16px;
+  height: 16px;
+}
+
+/* ══════════════════════════════════════════
+   CABECERA AZUL
+══════════════════════════════════════════ */
+.careo-header {
+  background    : linear-gradient(135deg, #156fe7 0%, #0f4fb5 100%);
+  padding       : 6px 28px 0 28px;
+  display       : flex;
+  align-items   : flex-end;
+  justify-content: space-between;
+  gap           : 12px;
+  flex-shrink   : 0;
+  min-height    : 130px;
+}
+
+.careo-header-texto {
+  padding-bottom: 24px;
+}
+
+.careo-header-titulo {
+  font-size    : 1.6rem;
+  font-weight  : 800;
+  color        : #fff;
+  line-height  : 1.2;
+  margin-bottom: 6px;
+}
+
+.careo-header-sub {
+  font-size  : 0.88rem;
+  color      : rgba(255, 255, 255, 0.82);
+  line-height: 1.5;
+}
+
+.careo-header-img {
+  width      : 110px;
+  object-fit : contain;
+  align-self : flex-end;
+  filter     : drop-shadow(0 -4px 20px rgba(0,0,0,0.3));
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   CUERPO SCROLLABLE
+══════════════════════════════════════════ */
+.careo-body {
+  overflow-y: auto;
+  padding   : 0 20px 4px;
+  flex      : 1;
+}
+
+.careo-body::-webkit-scrollbar       { width: 4px; }
+.careo-body::-webkit-scrollbar-track { background: transparent; }
+.careo-body::-webkit-scrollbar-thumb { background: rgba(21,111,231,0.3); border-radius: 4px; }
+
+/* ══════════════════════════════════════════
+   BLOQUES COMUNES
+══════════════════════════════════════════ */
+.careo-bloque {
+  background    : rgba(255, 255, 255, 0.03);
+  border        : 1px solid rgba(255, 255, 255, 0.07);
+  border-radius : 12px;
+  padding       : 16px;
+  margin-top    : 14px;
+}
+
+/* ── Encabezado de sección (icono + título en mayús) ── */
+.careo-seccion-header {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  margin-bottom: 14px;
+}
+
+.careo-seccion-header svg {
+  color      : #156fe7;
+  flex-shrink: 0;
+}
+
+.careo-seccion-titulo {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  letter-spacing: 1px;
+  color         : #156fe7;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   BLOQUE 1 — Nombre del Careo
+══════════════════════════════════════════ */
+.careo-bloque-titulo {
+  display    : flex;
+  align-items: center;
+  gap        : 14px;
+}
+
+.careo-vs-icon {
+  flex-shrink: 0;
+  width      : 44px;
+  height     : 44px;
+}
+
+.careo-vs-icon svg {
+  width : 44px;
+  height: 44px;
+}
+
+.careo-nombre {
+  font-size    : 1.4rem;
+  font-weight  : 800;
+  color        : #fff;
+  line-height  : 1;
+  margin-bottom: 4px;
+}
+
+.careo-desc-corta {
+  font-size: 0.85rem;
+  color    : #8a9ab8;
+}
+
+/* ══════════════════════════════════════════
+   BLOQUE 2 — Info rápida + pills
+══════════════════════════════════════════ */
+.careo-info-rapida {
+  display       : flex;
+  flex-direction: row;      /* ← era column */
+  align-items   : center;   /* ← alinea verticalmente */
+  gap           : 10px;
+  flex-wrap     : wrap;     /* por si acaso en móvil */
+}
+
+.info-rapida-badge {
+  width         : 28px;
+  height        : 28px;
+  border-radius : 50%;
+  background    : rgba(21, 111, 231, 0.15);
+  display       : flex;
+  align-items   : center;
+  justify-content: center;
+  color         : #156fe7;
+  flex-shrink   : 0;
+}
+
+.info-rapida-desc {
+  font-size  : 0.88rem;
+  color      : #c8d4e8;
+  line-height: 1.5;
+}
+
+.info-rapida-desc strong {
+  color: #fff;
+}
+
+.careo-pills {
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+  margin-top    : 4px;
+}
+
+.careo-pill {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  background : rgba(21, 111, 231, 0.08);
+  border     : 1px solid rgba(21, 111, 231, 0.18);
+  border-radius: 8px;
+  padding    : 10px 14px;
+  font-size  : 0.84rem;
+  color      : #c8d4e8;
+}
+
+.careo-pill svg {
+  color      : #156fe7;
+  flex-shrink: 0;
+}
+
+.careo-pill strong {
+  color: #fff;
+}
+
+/* ══════════════════════════════════════════
+   BLOQUE 3 — Estructura (grid turnos + objetivo)
+══════════════════════════════════════════ */
+.careo-estructura-grid {
+  display              : grid;
+  grid-template-columns: 1fr auto;
+  gap                  : 12px;
+  align-items          : start;
+}
+
+/* Turnos */
+.careo-turnos {
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+}
+
+.careo-turno {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+}
+
+.careo-turno-icono {
+  width         : 32px;
+  height        : 32px;
+  border-radius : 50%;
+  background    : #156fe7;
+  display       : flex;
+  align-items   : center;
+  justify-content: center;
+  flex-shrink   : 0;
+  color         : #fff;
+}
+
+.careo-turno-icono.turno-contra {
+  background: rgba(21, 111, 231, 0.25);
+}
+
+.careo-turno-nombre {
+  font-size  : 0.85rem;
+  font-weight: 600;
+  color      : #e8edf5;
+  white-space: nowrap;
+}
+
+.careo-turno-linea {
+  flex      : 1;
+  height    : 1px;
+  background: rgba(255,255,255,0.08);
+  min-width : 12px;
+}
+
+.careo-turno-tiempo {
+  font-size    : 0.78rem;
+  font-weight  : 600;
+  color        : #fff;
+  background   : rgba(21, 111, 231, 0.2);
+  border       : 1px solid rgba(21, 111, 231, 0.3);
+  border-radius: 6px;
+  padding      : 3px 10px;
+  white-space  : nowrap;
+  flex-shrink  : 0;
+}
+
+/* Objetivo */
+.careo-objetivo {
+  background   : rgba(21, 111, 231, 0.08);
+  border       : 1px solid rgba(21, 111, 231, 0.2);
+  border-radius: 10px;
+  padding      : 14px 12px;
+  text-align   : center;
+  display      : flex;
+  flex-direction: column;
+  align-items  : center;
+  gap          : 6px;
+  min-width    : 130px;
+}
+
+.careo-objetivo-icono {
+  margin-bottom: 2px;
+}
+
+.careo-objetivo-label {
+  font-size  : 0.82rem;
+  font-weight: 700;
+  color      : #156fe7;
+}
+
+.careo-objetivo-desc {
+  font-size  : 0.78rem;
+  color      : #8a9ab8;
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════
+   BLOQUE 4 — Evaluación
+══════════════════════════════════════════ */
+.careo-evaluacion {
+  display    : flex;
+  align-items: center;
+  gap        : 16px;
+}
+
+.careo-eval-izq {
+  flex: 1;
+}
+
+.careo-eval-desc {
+  font-size  : 0.84rem;
+  color      : #8a9ab8;
+  line-height: 1.6;
+}
+
+.careo-eval-trofeo {
+  flex-shrink: 0;
+  opacity    : 0.9;
+}
+
+/* ══════════════════════════════════════════
+   BLOQUE 5 — Cada día
+══════════════════════════════════════════ */
+.careo-diario-grid {
+  display              : grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap                  : 10px;
+}
+
+.careo-diario-item {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  gap           : 8px;
+  text-align    : center;
+}
+
+.careo-diario-icono {
+  width         : 44px;
+  height        : 44px;
+  border-radius : 10px;
+  background    : rgba(21, 111, 231, 0.1);
+  border        : 1px solid rgba(21, 111, 231, 0.2);
+  display       : flex;
+  align-items   : center;
+  justify-content: center;
+  flex-shrink   : 0;
+}
+
+.careo-diario-texto {
+  font-size  : 0.75rem;
+  color      : #8a9ab8;
+  line-height: 1.4;
+}
+
+/* ══════════════════════════════════════════
+   FOOTER — Checkbox + Botón
+══════════════════════════════════════════ */
+.careo-footer {
+  padding       : 16px 20px 20px;
+  display       : flex;
+  flex-direction: column;
+  gap           : 14px;
+  border-top    : 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink   : 0;
+}
+
+/* Checkbox custom */
+.careo-checkbox-label {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  cursor     : pointer;
+  user-select: none;
+}
+
+.careo-checkbox {
+  width         : 18px;
+  height        : 18px;
+  border-radius : 5px;
+  border        : 2px solid #2a3a55;
+  background    : transparent;
+  display       : flex;
+  align-items   : center;
+  justify-content: center;
+  flex-shrink   : 0;
+  transition    : border-color 0.2s, background 0.2s;
+}
+
+.careo-checkbox.marcado {
+  background  : #156fe7;
+  border-color: #156fe7;
+}
+
+.careo-checkbox svg {
+  color: #fff;
+}
+
+.careo-checkbox-label span {
+  font-size: 0.84rem;
+  color    : #8a9ab8;
+}
+
+.careo-checkbox-label:hover span {
+  color: #c8d4e8;
+}
+
+/* Botón comenzar */
+.careo-btn-comenzar {
+  width          : 100%;
+  padding        : 14px;
+  background     : #156fe7;
+  border         : none;
+  border-radius  : 10px;
+  color          : #fff;
+  font-size      : 0.95rem;
+  font-weight    : 700;
+  font-family    : 'Inter', sans-serif;
+  letter-spacing : 0.03em;
+  cursor         : pointer;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  transition     : background 0.2s, transform 0.1s;
+}
+
+.careo-btn-comenzar:hover  { background: #105cb1; }
+.careo-btn-comenzar:active { transform: scale(0.98); }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — móvil
+══════════════════════════════════════════ */
+@media (max-width: 540px) {
+  .careo-header {
+    min-height: 110px;
+    padding   : 20px 20px 0;
+  }
+
+  .careo-header-titulo { font-size: 1.3rem; }
+  .careo-header-img    { width: 88px; }
+
+  .careo-body { padding: 0 14px 4px; }
+
+  .careo-estructura-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .careo-objetivo {
+    flex-direction: row;
+    text-align    : left;
+    min-width     : unset;
+  }
+
+  .careo-info-rapida {
+    flex-wrap  : wrap;
+    align-items: flex-start;
+  }
+
+  .info-rapida-desc {
+    font-size: 0.8rem;
+  }
+
+  .careo-pills {
+    width: 100%;
+  }
+  .careo-diario-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .careo-footer {
+    padding: 14px 14px 18px;
+  }
+}

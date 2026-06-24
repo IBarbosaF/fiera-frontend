@@ -659,7 +659,6 @@
   border-radius: 14px;
   padding      : 16px 20px;
   position     : relative;
-  overflow     : hidden;
   flex-shrink  : 0;
 }
 
@@ -712,10 +711,85 @@
   gap        : 6px;
   padding    : 8px 18px;
   font-size  : 0.84rem;
+  width     : auto;
 }
 
 .reto-deco { font-size: 2rem; flex-shrink: 0; opacity: 0.35; }
 
+
+.reto-info-btn {
+  background   : transparent;
+  border       : 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  width        : 18px;
+  height       : 18px;
+  display      : flex;
+  align-items  : center;
+  justify-content: center;
+  cursor       : pointer;
+  color        : var(--texto-muted);
+  padding      : 0;
+  transition   : border-color 0.2s, color 0.2s;
+  flex-shrink  : 0;
+}
+.reto-acciones {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  flex-wrap  : nowrap;
+}
+
+.reto-info-btn:hover {
+  border-color: var(--azul-principal);
+  color       : var(--azul-principal);
+}
+
+.reto-info-wrap {
+  position   : relative;
+  flex-shrink: 0;
+}
+
+.reto-tooltip {
+  display      : none;
+  position     : absolute;
+  bottom       : calc(100% + 10px);
+  left         : 50%;
+  transform    : translateX(-50%);
+  width        : 220px;
+  background   : #0d1a33;
+  border       : 1px solid rgba(21,111,231,0.3);
+  border-radius: 10px;
+  padding      : 10px 12px;
+  font-size    : 0.78rem;
+  color        : var(--texto-muted);
+  line-height  : 1.5;
+  z-index      : 100;
+  box-shadow   : 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.reto-tooltip::after {
+  content     : '';
+  position    : absolute;
+  top         : 100%;
+  left        : 50%;
+  transform   : translateX(-50%);
+  border      : 6px solid transparent;
+  border-top-color: rgba(21,111,231,0.3);
+}
+
+.reto-info-wrap:hover .reto-tooltip {
+  display: block;
+}
+
+.modal-careo-info {
+  max-width : 560px;
+  width     : 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #1e2d47 transparent;
+}
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════════════════════ */

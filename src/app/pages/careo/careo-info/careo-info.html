@@ -1,0 +1,235 @@
+<!-- ============================================================
+     CareoInfo — Modal informativo del Careo del día
+
+     Se abre desde el botón "Careo del día" del Home.
+     Muestra las reglas, estructura y evaluación del Careo.
+     Incluye checkbox para saltar el modal en próximas visitas.
+     Botón "Comenzar" navega a /careo-diario.
+============================================================ -->
+@if (modalAbierto()) {
+  <div class="careo-overlay" (click)="cerrarFuera($event)">
+    <div class="careo-modal">
+
+      <!-- ── BOTÓN CERRAR ── -->
+      <button class="careo-close" (click)="cerrar()" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6"  y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <!-- ══════════════════════════════════════════
+           CABECERA AZUL — FIERA presentándose
+      ══════════════════════════════════════════ -->
+      <div class="careo-header">
+        <div class="careo-header-texto">
+          <h2 class="careo-header-titulo">¡Hola! Soy FIERA 👋</h2>
+          <p class="careo-header-sub">Tu entrenadora de debate personal.<br>¡Lista para mejorar juntos cada día!</p>
+        </div>
+        <img src="assets/fieraLogo.png" alt="FIERA" class="careo-header-img" />
+      </div>
+
+      <!-- ── CUERPO SCROLLABLE ── -->
+      <div class="careo-body">
+
+        <!-- ══════════════════════════════════════════
+             BLOQUE 1 — Qué es el Careo
+        ══════════════════════════════════════════ -->
+        <div class="careo-bloque careo-bloque-titulo">
+          <div class="careo-vs-icon">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="10" fill="rgba(21,111,231,0.15)"/>
+              <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
+                    font-size="14" font-weight="800" fill="#156fe7" font-family="Inter,sans-serif">VS</text>
+            </svg>
+          </div>
+          <div>
+            <h3 class="careo-nombre">CAREO</h3>
+            <p class="careo-desc-corta">Debate cara a cara tú contra FIERA.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             BLOQUE 2 — Info rápida (3 pills)
+        ══════════════════════════════════════════ -->
+        <div class="careo-bloque careo-info-rapida">
+          <div class="info-rapida-badge">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            </svg>
+          </div>
+          <p class="info-rapida-desc">Es un debate <strong>cara a cara</strong> tú contra <strong>FIERA</strong>.</p>
+
+          <div class="careo-pills">
+            <div class="careo-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <span>Tema de debate sorpresa</span>
+            </div>
+            <div class="careo-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <polyline points="16 3 21 3 21 8"/>
+                <line x1="4" y1="20" x2="21" y2="3"/>
+                <polyline points="21 16 21 21 16 21"/>
+                <line x1="15" y1="15" x2="21" y2="21"/>
+              </svg>
+              <span>Posición aleatoria (a favor o en contra)</span>
+            </div>
+            <div class="careo-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>Duración del debate <strong>4 u 8 minutos</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             BLOQUE 3 — Estructura del Careo
+        ══════════════════════════════════════════ -->
+        <div class="careo-bloque">
+          <div class="careo-seccion-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <line x1="8"  y1="6"  x2="21" y2="6"/>
+              <line x1="8"  y1="12" x2="21" y2="12"/>
+              <line x1="8"  y1="18" x2="21" y2="18"/>
+              <line x1="3"  y1="6"  x2="3.01" y2="6"/>
+              <line x1="3"  y1="12" x2="3.01" y2="12"/>
+              <line x1="3"  y1="18" x2="3.01" y2="18"/>
+            </svg>
+            <span class="careo-seccion-titulo">ESTRUCTURA DEL CAREO</span>
+          </div>
+
+          <div class="careo-estructura-grid">
+            <!-- Turnos -->
+            <div class="careo-turnos">
+              @for (turno of turnos; track turno.nombre) {
+                <div class="careo-turno">
+                  <div class="careo-turno-icono" [class]="'turno-' + turno.tipo">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                      <path [attr.d]="turno.icono"/>
+                    </svg>
+                  </div>
+                  <span class="careo-turno-nombre">{{ turno.nombre }}</span>
+                  <div class="careo-turno-linea"></div>
+                  <span class="careo-turno-tiempo">{{ turno.tiempo }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Qué se busca -->
+            <div class="careo-objetivo">
+              <div class="careo-objetivo-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#156fe7" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="28" height="28">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
+              <p class="careo-objetivo-label">¿Qué se busca?</p>
+              <p class="careo-objetivo-desc">Entrenar la agilidad mental, la improvisación y la capacidad de síntesis.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             BLOQUE 4 — Evaluación
+        ══════════════════════════════════════════ -->
+        <div class="careo-bloque careo-evaluacion">
+          <div class="careo-eval-izq">
+            <div class="careo-seccion-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+              <span class="careo-seccion-titulo">EVALUACIÓN</span>
+            </div>
+            <p class="careo-eval-desc">
+              La IA juzgará el debate: dirá quién gana y pierde, asignará puntuaciones
+              y te dará feedback detallado para que mejores cada día.
+            </p>
+          </div>
+          <div class="careo-eval-trofeo">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+              <path d="M30 46c-10 0-18-8-18-18V10h36v18c0 10-8 18-18 18z" fill="rgba(21,111,231,0.15)" stroke="#156fe7" stroke-width="1.5"/>
+              <path d="M22 10V6M38 10V6" stroke="#156fe7" stroke-width="1.5" stroke-linecap="round"/>
+              <rect x="24" y="46" width="12" height="6" rx="2" fill="rgba(21,111,231,0.2)" stroke="#156fe7" stroke-width="1.5"/>
+              <line x1="18" y1="52" x2="42" y2="52" stroke="#156fe7" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 10h-4a4 4 0 0 0 0 8h4" stroke="#156fe7" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M48 10h4a4 4 0 0 1 0 8h-4" stroke="#156fe7" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M25 28l3 3 7-7" stroke="#156fe7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             BLOQUE 5 — Cada día, un nuevo Careo
+        ══════════════════════════════════════════ -->
+        <div class="careo-bloque">
+          <div class="careo-seccion-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8"  y1="2" x2="8"  y2="6"/>
+              <line x1="3"  y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="careo-seccion-titulo">CADA DÍA, UN NUEVO CAREO</span>
+          </div>
+
+          <div class="careo-diario-grid">
+            @for (item of itemsDiario; track item.texto) {
+              <div class="careo-diario-item">
+                <div class="careo-diario-icono">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#156fe7" stroke-width="1.8"
+                       stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                    <path [attr.d]="item.icono"/>
+                  </svg>
+                </div>
+                <p class="careo-diario-texto">{{ item.texto }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             FOOTER — Checkbox + Botón comenzar
+        ══════════════════════════════════════════ -->
+        <div class="careo-footer">
+
+          <label class="careo-checkbox-label" (click)="toggleSkip()">
+            <div class="careo-checkbox" [class.marcado]="skipInfo()">
+              @if (skipInfo()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              }
+            </div>
+            <span>No mostrar más esta información</span>
+          </label>
+
+          <button class="careo-btn-comenzar" (click)="comenzar()">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            ¡Comenzar Careo!
+          </button>
+
+        </div>
+
+      </div><!-- /careo-body -->
+    </div><!-- /careo-modal -->
+  </div><!-- /careo-overlay -->
+}
