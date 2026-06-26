@@ -96,6 +96,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/recursos/recursos-hub/recursos-hub').then(m => m.RecursosHub)
       },
+      {
+        path        : 'recursos/torneos',
+        loadComponent: () =>
+          import('./pages/recursos/calendario-torneo/calendario-torneo').then(m => m.CalendarioTorneo)
+      },
 
       /* Perfil */
       {

@@ -1,0 +1,343 @@
+<!-- ============================================================
+     CalendarioTorneo — Calendario angular puro
+============================================================ -->
+<div class="calendario-page" (click)="cerrarNotif()">
+
+  <!-- ══ FILA 1: Stats + Filtros ══ -->
+  <div class="top-row">
+
+    <div class="stats-group">
+
+      <div class="stat-card">
+        <div class="stat-icono stat-icono--blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
+        <div class="stat-texto">
+          <p class="stat-valor">{{ totalTorneos }}</p>
+          <p class="stat-label">Torneos oficiales</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icono stat-icono--purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3"  y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="stat-texto">
+          <p class="stat-valor">{{ torneosEsteMes() }}</p>
+          <p class="stat-label">Este mes</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icono stat-icono--green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-texto">
+          <p class="stat-valor">{{ ligasRetorika }}</p>
+          <p class="stat-label">Ligas Retorika</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="filtros-notif-group">
+
+      <!-- Filtros -->
+      <div class="filtros-group">
+        <button class="filtro-btn"
+                [class.activo]="filtro() === 'todos'"
+                (click)="setFiltro('todos')">
+          Todos
+        </button>
+        <button class="filtro-btn"
+                [class.activo]="filtro() === 'oficiales'"
+                (click)="setFiltro('oficiales')">
+          <span class="filtro-dot filtro-dot--oficial"></span>
+          Torneos oficiales
+        </button>
+        <button class="filtro-btn"
+                [class.activo]="filtro() === 'retorika'"
+                (click)="setFiltro('retorika')">
+          <span class="filtro-dot filtro-dot--retorika"></span>
+          Ligas Retorika
+        </button>
+      </div>
+
+      <!-- Notificaciones -->
+      <div class="notif-wrapper">
+        <button class="notif-btn" (click)="toggleNotif($event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span>{{ notifLabel() }}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        @if (notifAbierto()) {
+          <div class="notif-dropdown" (click)="$event.stopPropagation()">
+            <p class="notif-dropdown-titulo">Avisar con antelación</p>
+            @for (op of opcionesNotif; track op.valor) {
+              <button class="notif-opcion"
+                      [class.activa]="notifSeleccionada() === op.valor"
+                      (click)="seleccionarNotif(op.valor)">
+                @if (notifSeleccionada() === op.valor) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                       stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                } @else {
+                  <span class="notif-opcion-dot"></span>
+                }
+                {{ op.label }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ══ FILA 2: Próximos + Calendario ══ -->
+  <div class="main-row">
+
+    <!-- Columna izquierda: próximos eventos -->
+    <div class="proximos-col">
+      <p class="proximos-titulo">Próximos eventos</p>
+      <div class="proximos-lista">
+        @for (evento of proximosEventos(); track evento.id) {
+          <div class="proximo-item" (click)="abrirModalDirecto(evento)">
+            <div class="proximo-fecha">
+              <span class="proximo-dia">{{ getDia(evento.inicio) }}</span>
+              <span class="proximo-mes">{{ getMes(evento.inicio) }}</span>
+            </div>
+            <div class="proximo-sep"></div>
+            <div class="proximo-info">
+              <p class="proximo-nombre">{{ evento.titulo }}</p>
+              <p class="proximo-lugar">{{ evento.ciudad }}</p>
+            </div>
+            <span class="proximo-badge"
+                  [class.proximo-badge--oficial]="evento.tipo === 'oficial'"
+                  [class.proximo-badge--retorika]="evento.tipo === 'retorika'">
+              {{ evento.tipo === 'oficial' ? 'Oficial' : 'Retorika' }}
+            </span>
+          </div>
+        }
+        @empty {
+          <p class="proximos-vacio">No hay eventos próximos</p>
+        }
+      </div>
+    </div>
+
+    <!-- Columna derecha: calendario -->
+    <div class="calendario-col">
+
+      <!-- Cabecera navegación -->
+      <div class="cal-header">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" (click)="mesAnterior()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button class="cal-nav-btn" (click)="mesSiguiente()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+          <button class="cal-hoy-btn" (click)="irAHoy()">Hoy</button>
+        </div>
+        <h2 class="cal-titulo">{{ tituloMes() }}</h2>
+        <div class="cal-leyenda">
+          <span class="leyenda-item">
+            <span class="leyenda-dot leyenda-dot--oficial"></span>
+            Oficial
+          </span>
+          <span class="leyenda-item">
+            <span class="leyenda-dot leyenda-dot--retorika"></span>
+            Retorika
+          </span>
+        </div>
+      </div>
+
+      <!-- Días de la semana -->
+      <div class="cal-dias-semana">
+        @for (dia of diasSemana; track dia) {
+          <div class="cal-dia-semana">{{ dia }}</div>
+        }
+      </div>
+
+      <!-- Cuadrícula -->
+      <div class="cal-grid">
+        @for (dia of diasCalendario(); track dia.fecha.getTime()) {
+          <div class="cal-celda"
+               [class.cal-celda--otro-mes]="!dia.esDelMes"
+               [class.cal-celda--hoy]="dia.esHoy"
+               [class.cal-celda--con-eventos]="dia.eventos.length > 0">
+
+            <span class="cal-numero" [class.cal-numero--hoy]="dia.esHoy">
+              {{ dia.fecha.getDate() }}
+            </span>
+
+            <div class="cal-eventos">
+              @for (evento of dia.eventos.slice(0, 2); track evento.id) {
+                <div class="cal-evento-pill"
+                     [class.cal-evento-pill--oficial]="evento.tipo === 'oficial'"
+                     [class.cal-evento-pill--retorika]="evento.tipo === 'retorika'"
+                     (click)="abrirModal(evento, $event)">
+                  {{ evento.titulo }}
+                </div>
+              }
+              @if (dia.eventos.length > 2) {
+                <div class="cal-evento-mas">+{{ dia.eventos.length - 2 }} más</div>
+              }
+            </div>
+
+          </div>
+        }
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══ MODAL DETALLE EVENTO ══ -->
+@if (modalAbierto() && eventoSeleccionado()) {
+  <div class="modal-overlay" (click)="cerrarModalFuera($event)">
+    <div class="modal-card modal-evento">
+
+      <button class="modal-close" (click)="cerrarModal()">&times;</button>
+
+      <div class="modal-tipo-badge"
+           [class.modal-tipo-badge--oficial]="eventoSeleccionado()!.tipo === 'oficial'"
+           [class.modal-tipo-badge--retorika]="eventoSeleccionado()!.tipo === 'retorika'">
+        @if (eventoSeleccionado()!.tipo === 'oficial') { Torneo oficial }
+        @else { Liga Retorika }
+      </div>
+
+      <h2 class="modal-titulo">{{ eventoSeleccionado()!.titulo }}</h2>
+
+      <div class="modal-info-grid">
+
+        <div class="modal-info-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3"  y1="10" x2="21" y2="10"/>
+          </svg>
+          <div>
+            <p class="modal-info-label">Fecha</p>
+            <p class="modal-info-valor">{{ formatearFecha(eventoSeleccionado()!.inicio) }}</p>
+          </div>
+        </div>
+
+        <div class="modal-info-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <div>
+            <p class="modal-info-label">Lugar</p>
+            <p class="modal-info-valor">{{ eventoSeleccionado()!.ciudad }}, {{ eventoSeleccionado()!.pais }}</p>
+          </div>
+        </div>
+
+        <div class="modal-info-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <div>
+            <p class="modal-info-label">Organizador</p>
+            <p class="modal-info-valor">{{ eventoSeleccionado()!.organizador }}</p>
+          </div>
+        </div>
+
+        @if (eventoSeleccionado()!.tipo === 'retorika') {
+          <div class="modal-info-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <circle cx="12" cy="8" r="6"/>
+              <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+            </svg>
+            <div>
+              <p class="modal-info-label">Inscritos</p>
+              <p class="modal-info-valor">
+                {{ eventoSeleccionado()!.inscritos }} / {{ eventoSeleccionado()!.maxInscritos }}
+                <span class="modal-plazas">({{ plazasLibres(eventoSeleccionado()!) }} plazas libres)</span>
+              </p>
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <div class="modal-seccion">
+        <p class="modal-seccion-label">Descripción</p>
+        <p class="modal-seccion-texto">{{ eventoSeleccionado()!.descripcion }}</p>
+      </div>
+
+      @if (eventoSeleccionado()!.tipo === 'retorika' && eventoSeleccionado()!.normas) {
+        <div class="modal-seccion">
+          <p class="modal-seccion-label">Normas</p>
+          <p class="modal-seccion-texto">{{ eventoSeleccionado()!.normas }}</p>
+        </div>
+      }
+
+      @if (eventoSeleccionado()!.tipo === 'oficial') {
+        <div class="modal-aviso">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>La inscripción se gestiona a través del organizador. Contacta con
+            <strong>{{ eventoSeleccionado()!.organizador }}</strong>.
+          </p>
+        </div>
+      }
+
+      @if (eventoSeleccionado()!.tipo === 'retorika') {
+        @if (eventoSeleccionado()!.inscripcionAbierta) {
+          <button class="btn-primary btn-full">Inscribirme</button>
+        } @else {
+          <button class="btn-primary btn-full" disabled>Inscripción cerrada</button>
+        }
+      }
+
+    </div>
+  </div>
+}
