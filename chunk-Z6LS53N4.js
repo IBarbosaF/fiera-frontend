@@ -1,0 +1,1 @@
+import{Ra as a,Sa as o,fb as i,za as t}from"./chunk-QERETCW4.js";var d=class n{static \u0275fac=function(e){return new(e||n)};static \u0275cmp=t({type:n,selectors:[["app-comunidad-hub"]],decls:2,vars:0,template:function(e,u){e&1&&(a(0,"p"),i(1,"comunidad-hub works!"),o())},encapsulation:2})};export{d as ComunidadHub};
