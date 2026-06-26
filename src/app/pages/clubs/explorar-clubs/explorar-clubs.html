@@ -72,8 +72,9 @@
 
     @else {
       <div class="clubs-lista">
-        @for (club of clubsFiltrados(); track club.id) {
-          <div class="club-card" (click)="verClub(club.id)">
+        @for (club of clubsFiltrados(); track $index) {
+
+          <div class="club-card" (click)="verClub(club.nombre)">
 
             <div class="club-avatar">
               <span class="club-avatar-iniciales">{{ iniciales(club) }}</span>

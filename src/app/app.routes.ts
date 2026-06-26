@@ -79,6 +79,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/clubs/crear-club/crear-club').then(m => m.CrearClub)
       },
+            {
+        path        : 'clubs/:id',
+        loadComponent: () =>
+          import('./pages/clubs/club-publico/club-publico').then(m => m.ClubPublico)
+      },
       {
         path        : 'clubs/:id',
         loadComponent: () =>

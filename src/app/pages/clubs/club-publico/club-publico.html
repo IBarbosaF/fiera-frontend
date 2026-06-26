@@ -1,0 +1,239 @@
+<!-- ============================================================
+     Club Público — Vista pública del club
+============================================================ -->
+<div class="club-publico-layout">
+
+  @if (cargando()) {
+    <div class="estado-pantalla">
+      <p class="estado-texto">Cargando club...</p>
+    </div>
+  }
+
+  @else if (error()) {
+    <div class="estado-pantalla">
+      <p class="estado-texto">No se pudo cargar el club.</p>
+      <button class="btn-volver" (click)="volver()">← Volver</button>
+    </div>
+  }
+
+  @else if (club(); as c) {
+
+    <!-- ── HEADER ── -->
+    <div class="club-header">
+      <button class="btn-back" (click)="volver()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+
+      <div class="club-header-avatar">
+        <span>{{ inicialesClub(c) }}</span>
+      </div>
+
+      <div class="club-header-info">
+        <h1 class="club-header-nombre">{{ c.nombre }}</h1>
+        <p class="club-header-siglas">{{ c.siglas }} · {{ c.institucion }}</p>
+      </div>
+
+      <!-- Botón solicitar unirse -->
+      @if (!solicitado()) {
+        <button class="btn-unirse" (click)="solicitarUnirse()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          Solicitar unirse
+        </button>
+      } @else {
+        <div class="btn-solicitado">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Solicitud enviada
+        </div>
+      }
+    </div>
+
+    <!-- ── STATS RÁPIDAS ── -->
+    <div class="club-stats">
+      <div class="club-stat-item">
+        <p class="club-stat-num">{{ c.usuarios?.length ?? 0 }}</p>
+        <p class="club-stat-lbl">Debatientes</p>
+      </div>
+      <div class="club-stat-sep"></div>
+      <div class="club-stat-item">
+        <p class="club-stat-num">{{ contacto(c.nombre).fundacion ?? '—' }}</p>
+        <p class="club-stat-lbl">Fundación</p>
+      </div>
+      <div class="club-stat-sep"></div>
+      <div class="club-stat-item">
+        <p class="club-stat-num">{{ contacto(c.nombre).ciudad ?? '—' }}</p>
+        <p class="club-stat-lbl">Ciudad</p>
+      </div>
+    </div>
+
+    <!-- ── TABS ── -->
+    <div class="tabs-wrapper">
+      <button class="tab-btn" [class.activo]="tabActivo() === 'info'" (click)="tabActivo.set('info')">
+        Información
+      </button>
+      <button class="tab-btn" [class.activo]="tabActivo() === 'miembros'" (click)="tabActivo.set('miembros')">
+        Debatientes
+        <span class="tab-badge">{{ c.usuarios?.length ?? 0 }}</span>
+      </button>
+      <button class="tab-btn" [class.activo]="tabActivo() === 'contacto'" (click)="tabActivo.set('contacto')">
+        Contacto
+      </button>
+    </div>
+
+    <!-- ── CONTENIDO TABS ── -->
+    <div class="tab-contenido">
+
+      <!-- TAB: INFORMACIÓN -->
+      @if (tabActivo() === 'info') {
+        <div class="info-seccion">
+          <p class="info-seccion-titulo">SOBRE EL CLUB</p>
+          <p class="info-descripcion">{{ contacto(c.nombre).descripcion }}</p>
+        </div>
+
+        <div class="info-seccion">
+          <p class="info-seccion-titulo">DETALLES</p>
+          <div class="info-filas">
+            <div class="info-fila">
+              <span class="info-fila-label">Institución</span>
+              <span class="info-fila-valor">{{ c.institucion }}</span>
+            </div>
+            @if (contacto(c.nombre).ciudad) {
+              <div class="info-fila">
+                <span class="info-fila-label">Ciudad</span>
+                <span class="info-fila-valor">{{ contacto(c.nombre).ciudad }}</span>
+              </div>
+            }
+            @if (contacto(c.nombre).fundacion) {
+              <div class="info-fila">
+                <span class="info-fila-label">Fundación</span>
+                <span class="info-fila-valor">Desde {{ contacto(c.nombre).fundacion }}</span>
+              </div>
+            }
+            <div class="info-fila">
+              <span class="info-fila-label">Miembros</span>
+              <span class="info-fila-valor">{{ c.usuarios?.length ?? 0 }} debatientes</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- TAB: DEBATIENTES -->
+      @if (tabActivo() === 'miembros') {
+        @if (c.usuarios?.length === 0) {
+          <div class="vacio">
+            <div class="vacio-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <p class="vacio-titulo">Sin debatientes aún</p>
+            <p class="vacio-desc">Sé el primero en unirte a este club.</p>
+          </div>
+        } @else {
+          <div class="miembros-lista">
+            @for (u of c.usuarios; track u.id) {
+              <div class="miembro-fila">
+                <div class="miembro-avatar">
+                  {{ iniciales(u.nombre ?? 'Usuario') }}
+                </div>
+                <div class="miembro-info">
+                  <p class="miembro-nombre">{{ u.nombre ?? 'Usuario' }}</p>
+                  <p class="miembro-rol">Miembro</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- TAB: CONTACTO -->
+      @if (tabActivo() === 'contacto') {
+        <div class="contacto-lista">
+
+          @if (contacto(c.nombre).email) {
+            <div class="contacto-item">
+              <div class="contacto-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="contacto-info">
+                <p class="contacto-label">Email</p>
+                <p class="contacto-valor">{{ contacto(c.nombre).email }}</p>
+              </div>
+            </div>
+          }
+
+          @if (contacto(c.nombre).telefono) {
+            <div class="contacto-item">
+              <div class="contacto-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.41a16 16 0 0 0 5.68 5.68l1.21-1.21a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </div>
+              <div class="contacto-info">
+                <p class="contacto-label">Teléfono</p>
+                <p class="contacto-valor">{{ contacto(c.nombre).telefono }}</p>
+              </div>
+            </div>
+          }
+
+          @if (contacto(c.nombre).direccion) {
+            <div class="contacto-item">
+              <div class="contacto-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div class="contacto-info">
+                <p class="contacto-label">Dirección</p>
+                <p class="contacto-valor">{{ contacto(c.nombre).direccion }}</p>
+              </div>
+            </div>
+          }
+
+          @if (contacto(c.nombre).instagram) {
+            <div class="contacto-item">
+              <div class="contacto-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+              </div>
+              <div class="contacto-info">
+                <p class="contacto-label">Instagram</p>
+                <p class="contacto-valor">{{ contacto(c.nombre).instagram }}</p>
+              </div>
+            </div>
+          }
+
+          @if (contacto(c.nombre).twitter) {
+            <div class="contacto-item">
+              <div class="contacto-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+              </div>
+              <div class="contacto-info">
+                <p class="contacto-label">Twitter</p>
+                <p class="contacto-valor">{{ contacto(c.nombre).twitter }}</p>
+              </div>
+            </div>
+          }
+
+          @if (contacto(c.nombre).web) {
+            <div class="contacto-item">
+              <div class="contacto-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <div class="contacto-info">
+                <p class="contacto-label">Web</p>
+                <p class="contacto-valor">{{ contacto(c.nombre).web }}</p>
+              </div>
+            </div>
+          }
+
+          @if (!contacto(c.nombre).email && !contacto(c.nombre).telefono && !contacto(c.nombre).instagram && !contacto(c.nombre).web) {
+            <div class="vacio">
+              <div class="vacio-icono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg>
+              </div>
+              <p class="vacio-titulo">Sin información de contacto</p>
+              <p class="vacio-desc">Este club aún no ha añadido datos de contacto.</p>
+            </div>
+          }
+
+        </div>
+      }
+
+    </div>
+
+  }
+
+</div>

@@ -70,8 +70,9 @@ export class ExplorarClubs {
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────
-  verClub(id: number): void {
-    this.router.navigate(['/clubs', id]);
+  verClub(nombre: string): void {
+    if (!nombre) return;
+    this.router.navigate(['/clubs', nombre]);
   }
 
   irACrear(): void {

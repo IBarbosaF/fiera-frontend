@@ -15,12 +15,26 @@ export interface Miembro {
   avatar   : string | null;
 }
 
+export interface ContactoClub {
+  email    : string | null;
+  telefono : string | null;
+  direccion: string | null;
+  instagram: string | null;
+  twitter  : string | null;
+  web      : string | null;
+}
+
 export interface Club {
   id         : number;
   nombre     : string;
   siglas     : string;
   institucion: string;
   usuarios   : any[];
+    // Campos opcionales — TODO: añadir al backend
+  descripcion?: string | null;
+  ciudad?     : string | null;
+  fundacion?  : number | null;
+  contacto?   : ContactoClub | null;
 }
 
 // ── Servicio ───────────────────────────────────────────────────────────────
@@ -37,5 +51,9 @@ export class ClubsService {
 
   crearClub(club: Partial<Club>) {
     return this.http.post<Club>(`${API_BASE}/api/app/clubs/new`, club);
+  }
+
+  getClubById(id: number) {
+    return this.http.get<Club>(`${API_BASE}/api/app/clubs/${id}`);
   }
 }
