@@ -1,1 +1,262 @@
-<p>formaciones-youtube works!</p>
+<!-- ============================================================
+     FormacionesYoutube — Vídeos de formación en debate
+============================================================ -->
+<div class="formaciones-page">
+
+  <!-- ══ HEADER ══ -->
+  <div class="formaciones-header">
+    <div class="header-texto">
+      <div class="header-titulo-row">
+        <span class="header-emoji">🎓</span>
+        <h1 class="header-titulo">Formación YouTube</h1>
+      </div>
+      <p class="header-subtitulo">Aprende, practica y mejora tus habilidades de debate con los mejores contenidos.</p>
+    </div>
+
+    <!-- Buscador + filtros -->
+    <div class="buscador-filtros">
+
+      <div class="buscador-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text"
+               class="buscador-input"
+               placeholder="Buscar formación..."
+               [value]="busqueda()"
+               (input)="busqueda.set($any($event.target).value)" />
+        @if (busqueda()) {
+          <button class="buscador-clear" (click)="busqueda.set('')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        }
+      </div>
+
+      <!-- Filtro año -->
+      <select class="filtro-select"
+              [value]="anioFiltro() ?? ''"
+              (change)="anioFiltro.set($any($event.target).value ? +$any($event.target).value : null)">
+        <option value="">Año</option>
+        @for (anio of anios; track anio) {
+          <option [value]="anio">{{ anio }}</option>
+        }
+      </select>
+
+      <!-- Filtro me gusta -->
+      <button class="filtro-likes-btn"
+              [class.activo]="soloMegusta()"
+              (click)="soloMegusta.set(!soloMegusta())">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" width="15" height="15"
+             [style.fill]="soloMegusta() ? '#ff3a72' : 'none'"
+             [style.stroke]="soloMegusta() ? '#ff3a72' : 'currentColor'">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        Mis favoritos
+      </button>
+
+      @if (busqueda() || anioFiltro() || seccionActiva() || soloMegusta()) {
+        <button class="filtro-limpiar" (click)="limpiarFiltros()">Limpiar</button>
+      }
+
+    </div>
+  </div>
+
+  <!-- ══ SECCIONES ══ -->
+  <div class="secciones-bloque">
+    <h2 class="bloque-titulo">Explora por secciones</h2>
+    <div class="secciones-grid">
+      @for (seccion of secciones; track seccion.id) {
+        <div class="seccion-card"
+             [class.activa]="seccionActiva() === seccion.id"
+             [style.--color-seccion]="seccion.color"
+             (click)="seleccionarSeccion(seccion.id)">
+          <div class="seccion-emoji">{{ seccion.emoji }}</div>
+          <div class="seccion-texto">
+            <p class="seccion-titulo">{{ seccion.titulo }}</p>
+            @if (seccion.desc) {
+              <p class="seccion-desc">({{ seccion.desc }})</p>
+            }
+            <p class="seccion-conteo">{{ conteoPorSeccion(seccion.id) }} vídeos</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ══ VÍDEOS DESTACADOS ══ -->
+  @if (!seccionActiva() && !busqueda() && !soloMegusta()) {
+    <div class="destacados-bloque">
+      <div class="bloque-header">
+        <h2 class="bloque-titulo">Vídeos destacados</h2>
+        <button class="ver-todos-btn" (click)="limpiarFiltros()">
+          Ver todos
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="destacados-scroll">
+        @for (video of videosDestacados(); track video.id) {
+          <div class="destacado-card" (click)="abrirYoutube(video.youtubeId, $event)">
+
+            <div class="destacado-thumb">
+              <img [src]="thumbnail(video.youtubeId)"
+                   [alt]="video.titulo"
+                   loading="lazy" />
+              <div class="thumb-overlay">
+                <div class="thumb-play">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="thumb-duracion">{{ video.duracion }}</span>
+              <div class="thumb-seccion-dot"
+                   [style.background]="colorSeccion(video.seccion)"></div>
+            </div>
+
+            <div class="destacado-info">
+              <p class="destacado-titulo">{{ video.titulo }}</p>
+              <p class="destacado-canal">{{ video.canal }}</p>
+              <div class="destacado-footer">
+                <button class="like-btn"
+                        [class.liked]="tieneLike(video.id)"
+                        (click)="toggleLike(video.id, $event)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" width="14" height="14"
+                       [style.fill]="tieneLike(video.id) ? '#ff3a72' : 'none'"
+                       [style.stroke]="tieneLike(video.id) ? '#ff3a72' : 'currentColor'">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </button>
+                <div class="ver-youtube-btn">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                  Ver en YouTube
+                </div>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ══ LISTA COMPLETA ══ -->
+  <div class="lista-bloque">
+    <div class="bloque-header">
+      <h2 class="bloque-titulo">
+        @if (seccionActiva() === 'coleccion') { Tu colección }
+        @else if (seccionActiva()) { {{ seccionTitulo(seccionActiva()!) }} }
+        @else { Todas las formaciones }
+        <span class="bloque-conteo">{{ videosFiltrados().length }}</span>
+      </h2>
+    </div>
+
+    @if (videosFiltrados().length === 0) {
+      <div class="lista-vacia">
+        <p class="lista-vacia-titulo">No se encontraron vídeos</p>
+        <p class="lista-vacia-desc">Prueba con otro término o limpia los filtros.</p>
+        <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+    } @else {
+      <div class="lista-videos">
+        @for (video of videosFiltrados(); track video.id) {
+          <div class="video-row" (click)="abrirYoutube(video.youtubeId, $event)">
+
+            <!-- Thumbnail -->
+            <div class="video-thumb">
+              <img [src]="thumbnail(video.youtubeId)"
+                   [alt]="video.titulo"
+                   loading="lazy" />
+              <div class="thumb-overlay">
+                <div class="thumb-play thumb-play--sm">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="thumb-duracion thumb-duracion--sm">{{ video.duracion }}</span>
+            </div>
+
+            <!-- Info -->
+            <div class="video-info">
+              <p class="video-titulo">{{ video.titulo }}</p>
+              <p class="video-desc">{{ video.descripcion }}</p>
+              <div class="video-tags">
+                @for (tag of video.tags; track tag) {
+                  <span class="video-tag">{{ tag }}</span>
+                }
+              </div>
+            </div>
+
+            <!-- Meta -->
+            <div class="video-meta">
+              <span class="video-anio">{{ video.anio }}</span>
+            </div>
+
+            <!-- Acciones -->
+            <div class="video-acciones">
+              <button class="like-btn"
+                      [class.liked]="tieneLike(video.id)"
+                      (click)="toggleLike(video.id, $event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16"
+                     [style.fill]="tieneLike(video.id) ? '#ff3a72' : 'none'"
+                     [style.stroke]="tieneLike(video.id) ? '#ff3a72' : 'currentColor'">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </button>
+              <button class="ver-yt-btn" (click)="abrirYoutube(video.youtubeId, $event)">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                Ver en YouTube
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ══ FOOTER INFO ══ -->
+  <div class="footer-info">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <p>Al hacer clic en cualquier vídeo serás redirigido a YouTube para verlo en su plataforma oficial.</p>
+    <button class="ir-youtube-btn" (click)="abrirYoutube('', $event)">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+      IR A YOUTUBE
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15 3 21 3 21 9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    </button>
+  </div>
+
+</div>

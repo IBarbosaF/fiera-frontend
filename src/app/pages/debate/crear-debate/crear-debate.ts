@@ -345,7 +345,7 @@ export class CrearDebate implements OnInit {
   seleccionarTema(tema: TemaApi): void {
     this.temaSeleccionado.set(tema);
     this.debateService.actualizarConfig({
-      tema: { id: tema.id, enunciado: tema.enunciado, categoria: tema.categoria }
+      tema: { enunciado: tema.enunciado, categoria: tema.categoria }
     });
   }
 
@@ -416,6 +416,7 @@ export class CrearDebate implements OnInit {
         nombre  : t.nombre,
         postura : t.postura as 'favor' | 'contra',
         minutos : this.tiempoCareo() / 60,
+        segundos: this.tiempoCareo(),
         activo  : true,
         asignado: t.postura === 'favor'
           ? (this.config.postura === 'contra' ? 'fiera' : 'yo')
@@ -425,8 +426,8 @@ export class CrearDebate implements OnInit {
 
     const subturnos: SubTurnoConfig[] = [];
     this.intervenciones().filter(t => t.activo).forEach(t => {
-      subturnos.push({ id: `${t.id}-f`, nombre: t.nombre, postura: 'favor',  minutos: Math.ceil(t.segundos / 60), activo: true, asignado: t.asignadoF });
-      subturnos.push({ id: `${t.id}-c`, nombre: t.nombre, postura: 'contra', minutos: Math.ceil(t.segundos / 60), activo: true, asignado: t.asignadoC });
+      subturnos.push({ id: `${t.id}-f`, nombre: t.nombre, postura: 'favor',  minutos: Math.ceil(t.segundos / 60), segundos: t.segundos, activo: true, asignado: t.asignadoF });
+      subturnos.push({ id: `${t.id}-c`, nombre: t.nombre, postura: 'contra', minutos: Math.ceil(t.segundos / 60), segundos: t.segundos, activo: true, asignado: t.asignadoC });
     });
     return subturnos;
   }

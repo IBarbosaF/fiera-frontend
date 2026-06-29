@@ -434,9 +434,9 @@
                 } @else if (temasFiltrados().length === 0) {
                   <p class="estado-texto">No hay temas en esta categoría.</p>
                 } @else {
-                  @for (tema of temasFiltrados(); track tema.id) {
+                  @for (tema of temasFiltrados(); track tema.enunciado) {
                     <div class="tema-item"
-                         [class.selected]="temaSeleccionado()?.id === tema.id"
+                         [class.selected]="temaSeleccionado()?.enunciado === tema.enunciado"
                          (click)="seleccionarTema(tema)">
                       <div class="tema-punto"></div>
                       <p class="tema-enunciado">{{ tema.enunciado }}</p>

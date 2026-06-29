@@ -61,7 +61,7 @@ export class RecursosHub {
       cta   : 'Explorar',
     },
     {
-      id    : 'formaciones',
+      id    : 'formaciones-youtube',
       titulo: 'Formaciones en YouTube',
       desc  : 'Masterclasses de debate académico, técnica oratoria y argumentación de la mano de expertos de Retorika.',
       icono : 'ti-brand-youtube',

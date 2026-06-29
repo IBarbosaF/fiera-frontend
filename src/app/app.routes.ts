@@ -101,6 +101,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/recursos/calendario-torneo/calendario-torneo').then(m => m.CalendarioTorneo)
       },
+      {
+        path        : 'recursos/formaciones-youtube',
+        loadComponent: () =>
+          import('./pages/recursos/formaciones-youtube/formaciones-youtube')
+            .then(m => m.FormacionesYoutube)
+      },
 
       /* Perfil */
       {

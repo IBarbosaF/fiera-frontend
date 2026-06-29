@@ -11,7 +11,7 @@ const API_BASE = 'https://fiera.retorika.es';
 /* ── Interfaces de la API ── */
 
 export interface TemaApi {
-  id       : number;
+  id?      : number;
   categoria: string;
   enunciado: string;
   torneo   : string;
@@ -67,6 +67,7 @@ export interface SubTurnoConfig {
   nombre  : string;
   postura : 'favor' | 'contra';
   minutos : number;
+  segundos: number;
   activo  : boolean;
   asignado: 'yo' | 'fiera' | 'companero';
 }
@@ -311,14 +312,50 @@ export class DebateService {
      la respuesta de FIERA.
      Usa FormData porque el endpoint acepta también audio.
   ---------------------------------------------------------- */
-  procesarTurno(debateId: number, turnId: number, texto: string) {
+  procesarTurno(debateId: number, turnId: number, texto: string, audio?: Blob | null) {
     const formData = new FormData();
-    formData.append('text', texto);
+
+    if (audio) {
+      /* Enviar audio grabado — el backend lo transcribe */
+      formData.append('file', audio, 'intervencion.mp3');
+    } else if (texto.trim()) {
+      /* Fallback: enviar texto si no hay audio */
+      formData.append('text', texto);
+    }
 
     return this.http.post<ProcesarTurnoResponse>(
       `${API_BASE}/api/app/debates/${debateId}/turnos/${turnId}`,
       formData
     );
+  }
+
+  /* ----------------------------------------------------------
+     reproducirAudioFiera()
+     Decodifica el base64 que devuelve el backend y lo
+     reproduce como audio mp3 en el navegador.
+     Devuelve la duración en segundos para sincronizar el timer.
+  ---------------------------------------------------------- */
+  reproducirAudioFiera(base64: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      try {
+        const binary  = atob(base64);
+        const bytes   = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'audio/mp3' });
+        const url  = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+
+        audio.onloadedmetadata = () => resolve(audio.duration);
+        audio.onended          = () => URL.revokeObjectURL(url);
+        audio.onerror          = () => reject(new Error('Error al reproducir audio'));
+
+        audio.play().catch(reject);
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 
   /* ----------------------------------------------------------

@@ -1,234 +1,182 @@
 /* ============================================================
-   debate.css — Estilos de la pantalla del debate en vivo
-   Se carga junto a styles.css (global)
+   partida-debate.css
+   Layout: header fijo | timer fijo | chat scrollable | footer fijo
 ============================================================ */
 
-/* ------------------------------------------------------------
-   Layout principal: sidebar | centro | historial
------------------------------------------------------------- */
-.debate-vivo-layout {
-  display    : flex;
-  min-height : 100vh;
-  position   : relative;
-  z-index    : 1;
+* { box-sizing: border-box; }
+
+/* ── Layout principal ── */
+.debate-layout {
+  display       : flex;
+  flex-direction: column;
+  height        : 100vh;
+  overflow      : hidden;
+  background    : #080e1a;
+  font-family   : 'Inter', sans-serif;
 }
 
 /* ============================================================
-   SIDEBAR IZQUIERDO
+   HEADER
 ============================================================ */
-.debate-vivo-sidebar {
-  width          : 70px;
-  background     : rgba(8, 14, 26, 0.9);
-  border-right   : 1px solid rgba(255, 255, 255, 0.06);
+.debate-header {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  padding        : 12px 24px;
+  background     : rgba(13, 26, 51, 0.97);
+  border-bottom  : 1px solid rgba(21, 111, 231, 0.15);
+  flex-shrink    : 0;
+  z-index        : 10;
+  backdrop-filter: blur(10px);
+}
+
+.debate-logo-btn {
+  width          : 40px;
+  height         : 40px;
+  background     : rgba(21, 111, 231, 0.08);
+  border         : 1px solid rgba(21, 111, 231, 0.2);
+  border-radius  : 10px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  cursor         : pointer;
+  flex-shrink    : 0;
+  transition     : all 0.2s;
+  padding        : 0;
+  overflow       : hidden;
+}
+.debate-logo-btn:hover { background: rgba(21, 111, 231, 0.18); border-color: rgba(21, 111, 231, 0.4); }
+
+.debate-logo-img {
+  width     : 180%;        /* ← ocupa todo el botón */
+  height    : 180%;
+  object-fit: contain;
+  margin   : -20%;       /* ← centrado horizontal */
+}
+
+.debate-header-centro {
+  flex      : 1;
+  text-align: center;
+  padding   : 0 20px;
+  min-width : 0;
+}
+
+.debate-header-sub {
+  font-size     : 10px;
+  color         : #8a9ab8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom : 2px;
+}
+
+.debate-header-titulo {
+  font-size    : 13px;
+  font-weight  : 600;
+  color        : #fff;
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+  max-width    : 520px;
+  margin       : 0 auto;
+}
+
+.debate-header-der {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  flex-shrink: 0;
+}
+
+.debate-turno-badge {
+  padding       : 5px 14px;
+  border-radius : 20px;
+  font-size     : 10px;
+  font-weight   : 700;
+  letter-spacing: 0.5px;
+  background    : rgba(3, 210, 110, 0.12);
+  color         : #03d26e;
+  border        : 1px solid rgba(3, 210, 110, 0.25);
+  transition    : all 0.3s;
+  white-space   : nowrap;
+}
+
+.debate-turno-badge.fiera {
+  background: rgba(255, 58, 114, 0.12);
+  color     : #ff3a72;
+  border    : 1px solid rgba(255, 58, 114, 0.25);
+}
+
+.debate-fiera-avatar {
+  position     : relative;
+  width        : 38px;
+  height       : 38px;
+  border-radius: 50%;
+  overflow     : visible;
+  flex-shrink  : 0;
+}
+
+.debate-fiera-avatar img {
+  width        : 38px;
+  height       : 38px;
+  border-radius: 50%;
+  object-fit   : cover;
+  border       : 2px solid rgba(255, 58, 114, 0.2);
+}
+
+.debate-fiera-avatar.hablando img { border-color: #ff3a72; }
+
+.fiera-avatar-ring {
+  position     : absolute;
+  inset        : -5px;
+  border-radius: 50%;
+  border       : 2px solid rgba(255, 58, 114, 0.5);
+  animation    : ring-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ring-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.8; }
+  50%       { transform: scale(1.2); opacity: 0.2; }
+}
+
+/* ============================================================
+   TIMER
+============================================================ */
+.debate-timer-zona {
   display        : flex;
   flex-direction : column;
   align-items    : center;
-  padding        : 20px 0;
+  gap            : 10px;
+  padding        : 16px 24px 12px;
   flex-shrink    : 0;
-  backdrop-filter: blur(8px);
+  background     : linear-gradient(180deg, rgba(13,26,51,0.6) 0%, transparent 100%);
 }
 
-/* Logo en el sidebar */
-.sidebar-logo-link {
-  display        : flex;
-  align-items    : center;
-  justify-content: center;
-  width          : 40px;
-  height         : 40px;
-  overflow       : visible;
-  margin-bottom  : 28px;
-  transition     : box-shadow 0.2s;
-}
-
-.sidebar-logo-link:hover { box-shadow: none; opacity: 0.8; }
-.sidebar-logo-img        { width: 72px; height: 72px; object-fit: contain; }
-
-/* Grupo de acciones */
-.sidebar-acciones {
-  display       : flex;
-  flex-direction: column;
-  gap           : 8px;
-  flex          : 1;
-}
-
-/* Botón de acción del sidebar */
-.sidebar-accion {
-  width          : 44px;
-  height         : 44px;
-  border-radius  : 10px;
-  border         : none;
-  background     : transparent;
-  color          : var(--texto-muted);
-  display        : flex;
-  align-items    : center;
-  justify-content: center;
-  cursor         : pointer;
-  transition     : background 0.2s, color 0.2s;
-}
-
-.sidebar-accion svg    { width: 20px; height: 20px; }
-.sidebar-accion:hover  { background: rgba(21,111,231,0.12); color: var(--blanco); }
-.sidebar-accion.active { background: rgba(21,111,231,0.15); color: var(--azul-principal); }
-
-/* Botón salir al fondo del sidebar */
-.sidebar-salir {
-  width          : 44px;
-  height         : 44px;
-  border-radius  : 10px;
-  border         : none;
-  background     : transparent;
-  color          : var(--texto-muted);
-  display        : flex;
-  align-items    : center;
-  justify-content: center;
-  cursor         : pointer;
-  transition     : background 0.2s, color 0.2s;
-  margin-top     : auto;
-}
-
-.sidebar-salir svg   { width: 20px; height: 20px; }
-.sidebar-salir:hover { background: rgba(255, 77, 109, 0.12); color: #ff4d6d; }
-
-/* ============================================================
-   CONTENIDO CENTRAL
-============================================================ */
-.debate-vivo-main {
-  flex          : 1;
-  display       : flex;
-  flex-direction: column;
-  align-items   : center;
-  padding       : 28px 32px 20px;
-  gap           : 24px;
-  min-width     : 0;
-}
-
-/* --- Header del turno --- */
-.turno-header {
-  display        : flex;
-  align-items    : center;
-  gap            : 16px;
-  width          : 100%;
-  background     : rgba(255, 255, 255, 0.03);
-  border         : 1px solid rgba(255, 255, 255, 0.07);
-  border-radius  : 12px;
-  padding        : 12px 20px;
-}
-
-/* Wrapper que agrupa turno + tema */
-.turno-info-wrapper {
-  flex          : 1;
-  display       : flex;
-  flex-direction: column;
-  gap           : 4px;
-}
-
-.turno-info {
-  display    : flex;
-  align-items: center;
-  gap        : 8px;
-}
-
-.turno-label {
-  font-size  : 13px;
-  color      : var(--texto-muted);
-  font-weight: 500;
-}
-
-.turno-nombre-actual {
-  font-size  : 15px;
-  font-weight: 700;
-  color      : var(--blanco);
-}
-
-/* Tema del debate visible bajo el nombre del turno */
-.turno-tema {
-  font-size  : 12px;
-  color      : var(--texto-muted);
-  font-weight: 400;
-  line-height: 1.4;
-  max-width  : 400px;
-  white-space: nowrap;
-  overflow   : hidden;
-  text-overflow: ellipsis;
-}
-
-/* Badge TU TURNO / TURNO DE FIERA */
-.turno-badge {
-  font-size    : 12px;
-  font-weight  : 700;
-  letter-spacing: 0.8px;
-  padding      : 6px 14px;
-  border-radius: 20px;
-  background   : var(--azul-principal);
-  color        : var(--blanco);
-  white-space  : nowrap;
-  transition   : background 0.3s;
-}
-
-.turno-badge.fiera {
-  background: rgba(255, 58, 114, 0.25);
-  color     : #ff3a72;
-  border    : 1px solid rgba(255, 58, 114, 0.4);
-}
-
-/* Avatar leona en el header */
-.turno-avatar {
-  width        : 42px;
-  height       : 42px;
-  border-radius: 50%;
-  object-fit   : cover;
-  border       : 2px solid rgba(21, 111, 231, 0.4);
-}
-
-/* --- Temporizador circular --- */
-.timer-wrapper {
-  display       : flex;
-  flex-direction: column;
-  align-items   : center;
-  gap           : 20px;
-  flex          : 1;
-  justify-content: center;
-}
-
-.timer-circulo {
+.debate-timer-circulo {
   position: relative;
-  width   : 200px;
-  height  : 200px;
+  width   : 120px;
+  height  : 120px;
 }
 
-.timer-svg {
-  width    : 200px;
-  height   : 200px;
-  transform: rotate(-90deg); /* Empieza desde arriba */
-}
+.timer-svg { width: 120px; height: 120px; transform: rotate(-90deg); }
 
-/* Círculo de fondo */
 .timer-track {
-  fill            : none;
-  stroke          : rgba(255, 255, 255, 0.06);
-  stroke-width    : 10;
+  fill        : none;
+  stroke      : rgba(255, 255, 255, 0.06);
+  stroke-width: 6;
 }
 
-/* Círculo de progreso */
 .timer-progress {
-  fill            : none;
-  stroke          : var(--azul-principal);
-  stroke-width    : 10;
-  stroke-linecap  : round;
-  /* Circunferencia = 2 * PI * r = 2 * 3.14159 * 85 ≈ 534 */
-  stroke-dasharray: 534;
-  stroke-dashoffset: 0;
-  transition      : stroke-dashoffset 1s linear, stroke 0.5s;
-  filter          : drop-shadow(0 0 8px rgba(21,111,231,0.6));
+  fill              : none;
+  stroke            : #156fe7;
+  stroke-width      : 6;
+  stroke-linecap    : round;
+  stroke-dasharray  : 314;
+  stroke-dashoffset : 0;
+  transition        : stroke-dashoffset 0.9s linear, stroke 0.3s ease;
 }
 
-/* Cuando queda poco tiempo: cambiar a rojo */
-.timer-progress.urgente {
-  stroke: #ff4d6d;
-  filter: drop-shadow(0 0 8px rgba(255,77,109,0.6));
-}
+.timer-progress.urgente { stroke: #ff3a72; }
 
-/* Tiempo en el centro del círculo */
 .timer-centro {
   position       : absolute;
   inset          : 0;
@@ -236,350 +184,466 @@
   flex-direction : column;
   align-items    : center;
   justify-content: center;
-  gap            : 4px;
 }
 
-.timer-tiempo {
-  font-size  : 42px;
-  font-weight: 700;
-  color      : var(--blanco);
-  letter-spacing: -1px;
-  line-height: 1;
-}
+.timer-tiempo { font-size: 26px; font-weight: 700; color: #fff; font-family: monospace; line-height: 1; }
+.timer-total  { font-size: 10px; color: #8a9ab8; margin-top: 3px; }
 
-.timer-total {
-  font-size : 13px;
-  color     : var(--texto-muted);
-}
-
-
-
-/* --- Footer del debate --- */
-.debate-footer {
-  display    : flex;
-  align-items: center;
-  gap        : 12px;
-  width      : 100%;
-}
-
-/* Botón LEVANTAR MANO / ENVIAR */
-.btn-accion-turno {
-  display        : flex;
-  align-items    : center;
-  gap            : 8px;
-  padding        : 12px 20px;
-  background     : var(--azul-principal);
-  border         : none;
-  border-radius  : var(--radio-btn);
-  color          : var(--blanco);
-  font-size      : 13px;
-  font-weight    : 700;
-  letter-spacing : 0.8px;
-  white-space    : nowrap;
-  cursor         : pointer;
-  transition     : background 0.2s, transform 0.1s;
-  flex-shrink    : 0;
-}
-
-.btn-accion-turno svg  { width: 18px; height: 18px; }
-.btn-accion-turno:hover  { background: var(--azul-oscuro); }
-.btn-accion-turno:active { transform: scale(0.97); }
-
-/* Cuando es turno de FIERA: botón deshabilitado */
-.btn-accion-turno:disabled {
-  background: rgba(255,255,255,0.06);
-  color     : var(--texto-muted);
-  cursor    : not-allowed;
-}
-
-/* Input de argumento */
-.argumento-input-wrapper {
-  flex          : 1;
-  display       : flex;
-  align-items   : center;
-  gap           : 10px;
-  background    : rgba(255, 255, 255, 0.05);
-  border        : 1px solid rgba(255, 255, 255, 0.1);
-  border-radius : var(--radio-btn);
-  padding       : 12px 16px;
-  transition    : border-color 0.2s;
-}
-
-.argumento-input-wrapper:focus-within {
-  border-color: var(--azul-principal);
-  box-shadow  : 0 0 0 3px rgba(21,111,231,0.12);
-}
-
-.argumento-input {
-  flex      : 1;
-  background: none;
-  border    : none;
-  outline   : none;
-  font-size : 14px;
-  color     : var(--blanco);
-}
-
-.argumento-input::placeholder { color: var(--texto-muted); }
-
-/* Botón micrófono */
-.btn-micro {
-  background: none;
-  border    : none;
-  color     : var(--texto-muted);
-  display   : flex;
-  cursor    : pointer;
-  transition: color 0.2s;
-  flex-shrink: 0;
-}
-
-.btn-micro svg   { width: 18px; height: 18px; }
-.btn-micro:hover { color: var(--azul-principal); }
-
-/* Consejo ARE */
-.consejo-are {
+/* ── Estados bajo el timer ── */
+.debate-estado {
   display    : flex;
   align-items: center;
   gap        : 8px;
   font-size  : 12px;
-  color      : var(--texto-muted);
-  width      : 100%;
+  font-weight: 500;
+  color      : #8a9ab8;
 }
 
-.consejo-are svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--azul-principal); }
+.debate-estado.grabando   { color: #ff3a72; }
+.debate-estado.procesando { color: #156fe7; }
+.debate-estado.fiera-habla { color: #ff3a72; }
+.debate-estado.turno-info  { color: #e2e8f0; gap: 6px; }
 
-/* ============================================================
-   PANEL DERECHO: HISTORIAL
-============================================================ */
-.debate-historial {
-  width          : 240px;
-  background     : rgba(8, 14, 26, 0.85);
-  border-left    : 1px solid rgba(255, 255, 255, 0.06);
-  padding        : 24px 16px;
-  flex-shrink    : 0;
-  backdrop-filter: blur(8px);
-  overflow-y     : auto;
+.estado-dot {
+  width        : 7px;
+  height       : 7px;
+  border-radius: 50%;
+  flex-shrink  : 0;
+}
+.estado-dot.rojo { background: #ff3a72; animation: dot-pulso 1s ease-in-out infinite; }
+.estado-dot.azul { background: #156fe7; }
+.estado-dot.parpadeando { animation: dot-pulso 0.8s ease-in-out infinite; }
+
+@keyframes dot-pulso {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
 }
 
-.historial-titulo {
-  font-size    : 13px;
-  font-weight  : 700;
-  color        : var(--blanco);
-  margin-bottom: 16px;
-  letter-spacing: 0.5px;
-}
-
-.historial-lista {
-  display       : flex;
-  flex-direction: column;
-  gap           : 12px;
-}
-
-.historial-vacio {
-  font-size: 13px;
-  color    : var(--texto-muted);
-}
-
-/* Ítem del historial */
-.historial-item {
-  display       : flex;
-  flex-direction: column;
-  gap           : 4px;
-  padding-bottom: 12px;
-  border-bottom : 1px solid rgba(255,255,255,0.05);
-}
-
-.historial-item:last-child { border-bottom: none; }
-
-.historial-item-titulo {
-  font-size  : 12px;
-  font-weight: 600;
-  color      : var(--azul-principal);
-}
-
-.historial-item-texto {
-  font-size  : 12px;
-  color      : var(--texto-muted);
-  line-height: 1.5;
-  display    : -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow   : hidden;
-}
-
-.historial-item-texto.expandido {
-  -webkit-line-clamp : unset;
-  overflow           : visible;
-}
-
-.historial-ver-mas {
-  font-size  : 11px;
-  color      : var(--azul-principal);
-  background : none;
-  border     : none;
-  cursor     : pointer;
-  padding    : 0;
-  text-align : left;
-  transition : color 0.2s;
-}
-
-.historial-ver-mas:hover { color: var(--blanco); }
-
-/* ============================================================
-   MODAL SALIR
-============================================================ */
-.modal-salir-botones {
-  display        : flex;
-  gap            : 12px;
-  justify-content: flex-end;
-  margin-top     : 8px;
-}
-
-/* Botón cancelar con estilo correcto */
-.modal-salir-botones .btn-secondary {
-  font-family  : 'Inter', sans-serif;
-  font-size    : 14px;
+.postura-chip {
+  font-size    : 10px;
   font-weight  : 600;
-  color        : var(--texto-muted);
-  background   : transparent;
-  border       : 1.5px solid rgba(138, 154, 184, 0.3);
-  border-radius: var(--radio-btn);
-  padding      : 12px 24px;
-  cursor       : pointer;
-  transition   : color 0.2s, border-color 0.2s;
+  padding      : 2px 8px;
+  border-radius: 10px;
 }
+.postura-chip.favor  { background: rgba(3,210,110,0.12);  color: #03d26e; }
+.postura-chip.contra { background: rgba(255,58,114,0.12); color: #ff3a72; }
 
-.modal-salir-botones .btn-secondary:hover {
-  color       : var(--blanco);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.modal-salir-botones .btn-primary {
-  font-family  : 'Inter', sans-serif;
-  font-size    : 14px;
-  font-weight  : 700;
-  letter-spacing: 1px;
-  padding      : 12px 28px;
-}
-
-/* ============================================================
-   RESPONSIVE — 768px
-============================================================ */
-@media (max-width: 768px) {
-
-  .debate-vivo-layout { flex-direction: column; }
-
-  /* Sidebar horizontal arriba */
-  .debate-vivo-sidebar {
-    width         : 100%;
-    flex-direction: row;
-    padding       : 10px 16px;
-    border-right  : none;
-    border-bottom : 1px solid rgba(255,255,255,0.06);
-    gap           : 8px;
-  }
-
-  .sidebar-logo-link { margin-bottom: 0; margin-right: 8px; }
-  .sidebar-acciones  { flex-direction: row; flex: 1; }
-  .sidebar-salir     { margin-top: 0; margin-left: auto; }
-
-  /* Panel historial oculto en móvil (accesible por sidebar) */
-  .debate-historial { display: none; }
-
-  .debate-vivo-main { padding: 16px; gap: 16px; }
-
-  .timer-circulo { width: 160px; height: 160px; }
-  .timer-svg     { width: 160px; height: 160px; }
-  .timer-tiempo  { font-size: 34px; }
-
-  /* Circunferencia para r=68: 2*PI*68 ≈ 427 */
-  .timer-progress { stroke-dasharray: 427; }
-
-  .debate-footer { flex-wrap: wrap; }
-
-  .btn-accion-turno {
-    width     : 100%;
-    justify-content: center;
-  }
-}
-
-
-/* ============================================================
-   MODALES DE INTERRUPCIÓN
-   FIERA levanta la mano / Tú levantas la mano
-============================================================ */
-
-/* Tarjeta modal de interrupción: centrada y con imagen */
-.modal-interrupcion {
+/* ── Ondas FIERA hablando ── */
+.ondas-fiera {
+  display    : flex;
   align-items: center;
-  text-align : center;
-  gap        : 12px;
+  gap        : 3px;
+  height     : 18px;
 }
 
-/* Badge de tipo de interrupción */
+.onda-barra {
+  width        : 3px;
+  background   : #ff3a72;
+  border-radius: 2px;
+  animation    : onda-animar 0.9s ease-in-out infinite;
+}
+.onda-barra:nth-child(1) { height: 5px;  animation-delay: 0s;     }
+.onda-barra:nth-child(2) { height: 13px; animation-delay: 0.12s;  }
+.onda-barra:nth-child(3) { height: 9px;  animation-delay: 0.24s;  }
+.onda-barra:nth-child(4) { height: 16px; animation-delay: 0.36s;  }
+.onda-barra:nth-child(5) { height: 7px;  animation-delay: 0.48s;  }
+
+@keyframes onda-animar {
+  0%, 100% { transform: scaleY(0.4); }
+  50%       { transform: scaleY(1);   }
+}
+
+/* ============================================================
+   CHAT
+============================================================ */
+.debate-chat {
+  flex           : 1;
+  overflow-y     : auto;
+  padding        : 12px 28px 16px;
+  display        : flex;
+  flex-direction : column;
+  gap            : 12px;
+  scroll-behavior: smooth;
+}
+
+.debate-chat::-webkit-scrollbar       { width: 4px; }
+.debate-chat::-webkit-scrollbar-track { background: transparent; }
+.debate-chat::-webkit-scrollbar-thumb { background: rgba(21,111,231,0.25); border-radius: 2px; }
+
+.chat-vacio {
+  flex           : 1;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  color          : #3a4d6b;
+  font-size      : 13px;
+}
+
+/* ── Burbuja ── */
+.burbuja-wrapper {
+  display  : flex;
+  gap      : 10px;
+  max-width: 72%;
+}
+
+.burbuja-wrapper.yo    { align-self: flex-end;   flex-direction: row-reverse; }
+.burbuja-wrapper.fiera { align-self: flex-start; }
+
+.burbuja-avatar {
+  width          : 32px;
+  height         : 32px;
+  border-radius  : 50%;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+  margin-top     : 18px;
+  overflow       : hidden;
+}
+
+.burbuja-avatar.fiera-av {
+  background: rgba(255,58,114,0.1);
+  border    : 1px solid rgba(255,58,114,0.25);
+}
+.burbuja-avatar.fiera-av img { width: 28px; height: 28px; object-fit: cover; border-radius: 50%; }
+
+.burbuja-avatar.yo-av {
+  background : rgba(21,111,231,0.12);
+  border     : 1px solid rgba(21,111,231,0.25);
+  color      : #156fe7;
+  font-size  : 9px;
+  font-weight: 700;
+}
+
+.burbuja-contenido { display: flex; flex-direction: column; }
+
+.burbuja-label {
+  font-size     : 10px;
+  color         : #8a9ab8;
+  font-weight   : 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom : 4px;
+}
+.burbuja-label.label-yo { text-align: right; }
+
+.burbuja {
+  padding      : 10px 14px;
+  border-radius: 14px;
+  font-size    : 13px;
+  line-height  : 1.55;
+  color        : #e2e8f0;
+}
+
+.burbuja-fiera {
+  background          : rgba(255,58,114,0.07);
+  border              : 1px solid rgba(255,58,114,0.15);
+  border-bottom-left-radius: 4px;
+}
+
+.burbuja-yo {
+  background           : rgba(21,111,231,0.1);
+  border               : 1px solid rgba(21,111,231,0.2);
+  border-bottom-right-radius: 4px;
+  text-align           : left;
+}
+
+.burbuja-audio {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  font-style : italic;
+  color      : #8a9ab8;
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+.debate-footer {
+  padding        : 12px 24px 16px;
+  background     : rgba(13, 26, 51, 0.97);
+  border-top     : 1px solid rgba(21, 111, 231, 0.15);
+  flex-shrink    : 0;
+  backdrop-filter: blur(10px);
+}
+
+.error-micro {
+  display      : flex;
+  align-items  : center;
+  gap          : 6px;
+  font-size    : 11px;
+  color        : #ff3a72;
+  margin-bottom: 8px;
+  background   : rgba(255,58,114,0.08);
+  border       : 1px solid rgba(255,58,114,0.2);
+  border-radius: 8px;
+  padding      : 6px 12px;
+}
+
+.footer-fila {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+}
+
+/* ── Botón micrófono ── */
+.btn-micro {
+  width          : 46px;
+  height         : 46px;
+  border-radius  : 50%;
+  background     : rgba(21,111,231,0.12);
+  border         : 1.5px solid rgba(21,111,231,0.35);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  cursor         : pointer;
+  flex-shrink    : 0;
+  transition     : all 0.2s;
+  color          : #156fe7;
+}
+
+.btn-micro:hover:not(:disabled) {
+  background  : rgba(21,111,231,0.2);
+  border-color: #156fe7;
+}
+
+.btn-micro:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-micro.grabando {
+  background  : rgba(255,58,114,0.18);
+  border-color: #ff3a72;
+  color       : #ff3a72;
+  animation   : micro-pulso 1s ease-in-out infinite;
+}
+
+@keyframes micro-pulso {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(255,58,114,0.4); }
+  50%       { box-shadow: 0 0 0 10px rgba(255,58,114,0);   }
+}
+
+/* ── Input wrapper ── */
+.input-wrapper {
+  flex          : 1;
+  display       : flex;
+  align-items   : center;
+  background    : rgba(255,255,255,0.04);
+  border        : 1px solid rgba(255,255,255,0.1);
+  border-radius : 24px;
+  padding       : 0 16px;
+  transition    : border-color 0.2s;
+}
+
+.input-wrapper:focus-within:not(.disabled) { border-color: rgba(21,111,231,0.5); }
+.input-wrapper.disabled { opacity: 0.5; }
+
+.footer-input {
+  flex       : 1;
+  background : transparent;
+  border     : none;
+  outline    : none;
+  color      : #fff;
+  font-size  : 13px;
+  padding    : 12px 0;
+  font-family: inherit;
+}
+
+.footer-input::placeholder { color: #3a4d6b; }
+.footer-input:disabled { cursor: not-allowed; }
+
+/* ── Botones footer ── */
+.btn-enviar {
+  padding      : 10px 20px;
+  background   : #156fe7;
+  border       : none;
+  border-radius: 22px;
+  color        : #fff;
+  font-size    : 12px;
+  font-weight  : 700;
+  cursor       : pointer;
+  flex-shrink  : 0;
+  letter-spacing: 0.3px;
+  transition   : background 0.2s;
+}
+.btn-enviar:hover:not(:disabled) { background: #105cb1; }
+.btn-enviar:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-mano {
+  display      : flex;
+  align-items  : center;
+  gap          : 6px;
+  padding      : 10px 16px;
+  background   : transparent;
+  border       : 1px solid rgba(240,167,66,0.35);
+  border-radius: 22px;
+  color        : #f0a742;
+  font-size    : 11px;
+  font-weight  : 700;
+  cursor       : pointer;
+  flex-shrink  : 0;
+  letter-spacing: 0.3px;
+  transition   : all 0.2s;
+}
+.btn-mano:hover { background: rgba(240,167,66,0.1); border-color: #f0a742; }
+
+.footer-hint {
+  text-align: center;
+  font-size : 11px;
+  color     : #3a4d6b;
+  margin-top: 8px;
+  min-height: 16px;
+}
+
+/* ============================================================
+   MODALES
+============================================================ */
+.modal-overlay {
+  position       : fixed;
+  inset          : 0;
+  background     : rgba(0, 0, 0, 0.72);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  z-index        : 100;
+  backdrop-filter: blur(4px);
+}
+
+.modal-card {
+  background   : #0d1a33;
+  border       : 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding      : 28px;
+  width        : 100%;
+  max-width    : 360px;
+  margin       : 0 16px;
+  text-align   : center;
+}
+
+.modal-title    { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.modal-subtitle { font-size: 13px; color: #8a9ab8; margin-bottom: 22px; line-height: 1.5; }
+
+.modal-btns {
+  display: flex;
+  gap    : 10px;
+}
+
+.btn-primary {
+  flex           : 1;
+  padding        : 11px;
+  background     : #156fe7;
+  border         : none;
+  border-radius  : 10px;
+  color          : #fff;
+  font-size      : 13px;
+  font-weight    : 600;
+  cursor         : pointer;
+  font-family    : inherit;
+  transition     : background 0.2s;
+}
+.btn-primary:hover { background: #105cb1; }
+
+.btn-secondary {
+  flex          : 1;
+  padding       : 11px;
+  background    : rgba(255,255,255,0.05);
+  border        : 1px solid rgba(255,255,255,0.1);
+  border-radius : 10px;
+  color         : #8a9ab8;
+  font-size     : 13px;
+  cursor        : pointer;
+  font-family   : inherit;
+  transition    : all 0.2s;
+}
+.btn-secondary:hover { border-color: rgba(255,255,255,0.25); color: #fff; }
+
+.btn-danger {
+  flex         : 1;
+  padding      : 11px;
+  background   : rgba(255,58,114,0.15);
+  border       : 1px solid rgba(255,58,114,0.3);
+  border-radius: 10px;
+  color        : #ff3a72;
+  font-size    : 13px;
+  font-weight  : 600;
+  cursor       : pointer;
+  font-family  : inherit;
+  transition   : all 0.2s;
+}
+.btn-danger:hover { background: rgba(255,58,114,0.25); }
+
+.btn-full { width: 100%; margin-top: 10px; }
+
+/* ── Modal interrupción ── */
+.modal-interrupcion { max-width: 380px; }
+
 .interrupcion-badge {
-  font-size     : 11px;
-  font-weight   : 700;
-  letter-spacing: 1px;
-  padding       : 5px 14px;
-  border-radius : 20px;
-  background    : rgba(255, 58, 114, 0.2);
-  color         : #ff3a72;
-  border        : 1px solid rgba(255, 58, 114, 0.35);
+  display      : inline-block;
+  font-size    : 10px;
+  font-weight  : 700;
+  letter-spacing: 0.6px;
+  padding      : 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
 }
 
-/* Badge cuando es el usuario quien levanta la mano */
-.tu-badge {
-  background: rgba(21, 111, 231, 0.2);
-  color     : var(--azul-principal);
-  border    : 1px solid rgba(21, 111, 231, 0.35);
+.fiera-badge-modal {
+  background: rgba(255,58,114,0.12);
+  color     : #ff3a72;
+  border    : 1px solid rgba(255,58,114,0.3);
 }
 
-/* Avatar de FIERA en el modal */
+.tu-badge-modal {
+  background: rgba(21,111,231,0.12);
+  color     : #156fe7;
+  border    : 1px solid rgba(21,111,231,0.3);
+}
+
 .interrupcion-avatar {
-  width        : 80px;
-  height       : 80px;
+  width        : 56px;
+  height       : 56px;
   border-radius: 50%;
   object-fit   : cover;
-  border       : 2px solid rgba(21, 111, 231, 0.4);
+  margin-bottom: 12px;
+  border       : 2px solid rgba(255,58,114,0.3);
 }
 
-/* Pregunta de FIERA */
 .interrupcion-pregunta {
-  font-size  : 16px;
-  font-weight: 600;
-  color      : var(--blanco);
-  line-height: 1.5;
-}
-
-/* Nota informativa */
-.interrupcion-nota {
-  font-size : 12px;
-  color     : var(--texto-muted);
-  line-height: 1.5;
-}
-
-/* Input dentro del modal de interrupción */
-.modal-interrupcion .form-group {
-  width: 100%;
-}
-
-.modal-interrupcion .form-group input {
-  width        : 100%;
-  background   : rgba(255, 255, 255, 0.05);
-  border       : 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding      : 12px 14px;
   font-size    : 14px;
-  color        : var(--blanco);
+  color        : #e2e8f0;
+  line-height  : 1.6;
+  margin-bottom: 10px;
+  font-style   : italic;
+}
+
+.interrupcion-nota {
+  font-size    : 11px;
+  color        : #8a9ab8;
+  margin-bottom: 16px;
+}
+
+.form-group input {
+  width        : 100%;
+  background   : rgba(255,255,255,0.05);
+  border       : 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding      : 11px 14px;
+  color        : #e2e8f0;
+  font-size    : 13px;
+  font-family  : inherit;
   outline      : none;
+  margin-bottom: 12px;
   transition   : border-color 0.2s;
 }
+.form-group input:focus { border-color: #156fe7; }
+.form-group input::placeholder { color: #3a4d6b; }
 
-.modal-interrupcion .form-group input:focus {
-  border-color: var(--azul-principal);
-  box-shadow  : 0 0 0 3px rgba(21, 111, 231, 0.15);
-}
-
-.modal-interrupcion .form-group input::placeholder {
-  color: var(--texto-muted);
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 600px) {
+  .debate-header-titulo { font-size: 12px; max-width: 220px; }
+  .debate-chat          { padding: 10px 14px; }
+  .debate-footer        { padding: 10px 14px 14px; }
+  .burbuja-wrapper      { max-width: 88%; }
+  .btn-mano span        { display: none; }
+  .debate-header        { padding: 10px 14px; }
 }
