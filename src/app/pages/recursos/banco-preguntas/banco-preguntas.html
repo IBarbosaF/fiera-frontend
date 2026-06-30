@@ -1,0 +1,395 @@
+<!-- ============================================================
+     BancoPreguntas — Repositorio de preguntas de debate
+============================================================ -->
+<div class="preguntas-page">
+
+  <!-- ══ HEADER ══ -->
+  <div class="preguntas-header">
+    <div class="header-titulo-row">
+      <span class="header-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="28" height="28">
+          <line x1="3" y1="21" x2="21" y2="21"/>
+          <line x1="5" y1="21" x2="5" y2="9"/>
+          <line x1="19" y1="21" x2="19" y2="9"/>
+          <polygon points="12 3 21 9 3 9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+          <line x1="15" y1="21" x2="15" y2="9"/>
+        </svg>
+      </span>
+      <h1 class="header-titulo">Banco de preguntas</h1>
+    </div>
+    <p class="header-subtitulo">El repositorio de todas las preguntas de debate de los torneos y de la comunidad.</p>
+  </div>
+
+  <!-- ══ STATS ══ -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="15" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <p class="stat-valor">{{ totalPreguntas.toLocaleString('es-ES') }}</p>
+        <p class="stat-label">Preguntas disponibles</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <circle cx="12" cy="8" r="6"/>
+          <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+        </svg>
+      </div>
+      <div>
+        <p class="stat-valor">{{ totalTorneos }}</p>
+        <p class="stat-label">Torneos registrados</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8"  y1="2" x2="8"  y2="6"/>
+          <line x1="3"  y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div>
+        <p class="stat-valor">{{ aniosHistorial }}</p>
+        <p class="stat-label">Años de historial</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TABS ══ -->
+  <div class="tabs-row">
+    <div class="tab-item"
+         [class.activo]="tab() === 'oficiales'"
+         (click)="setTab('oficiales')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <div>
+        <p class="tab-titulo">OFICIALES</p>
+        <p class="tab-desc">De torneos de debate</p>
+      </div>
+    </div>
+
+    <div class="tab-item"
+         [class.activo]="tab() === 'comunidad'"
+         (click)="setTab('comunidad')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <div>
+        <p class="tab-titulo">COMUNIDAD</p>
+        <p class="tab-desc">Creadas por usuarios</p>
+      </div>
+    </div>
+
+    <div class="tab-item"
+      [class.activo]="tab() === 'coleccion'"
+      (click)="setTab('coleccion')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+    <div>
+      <p class="tab-titulo">TU COLECCIÓN</p>
+      <p class="tab-desc">Tus preguntas favoritas ({{ totalColeccion() }})</p>
+    </div>
+  </div>
+  </div>
+
+  <!-- ══ BUSCADOR + FILTROS ══ -->
+  <div class="filtros-row">
+
+    <div class="buscador-wrapper">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text"
+             class="buscador-input"
+             placeholder="Buscar pregunta, torneo, temática..."
+             [value]="busqueda()"
+             (input)="onBuscar($any($event.target).value)" />
+    </div>
+
+    <select class="filtro-select"
+            [value]="anioFiltro() ?? ''"
+            (change)="setAnio($any($event.target).value)">
+      <option value="">Año</option>
+      @for (anio of anios(); track anio) {
+        <option [value]="anio">{{ anio }}</option>
+      }
+    </select>
+
+    <select class="filtro-select"
+            [value]="tematicaFiltro() ?? ''"
+            (change)="setTematica($any($event.target).value)">
+      <option value="">Temática</option>
+      @for (tematica of tematicas(); track tematica) {
+        <option [value]="tematica">{{ tematica }}</option>
+      }
+    </select>
+
+    @if (busqueda() || anioFiltro() || tematicaFiltro()) {
+      <button class="filtro-limpiar" (click)="limpiarFiltros()">Limpiar</button>
+    }
+
+    <button class="btn-pregunta-nueva" (click)="abrirModalNueva()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <span>
+        <span class="btn-pn-titulo">Pregunta nueva</span>
+        <span class="btn-pn-sub">y gana 50 Rtk ⚡</span>
+      </span>
+    </button>
+
+  </div>
+
+  <!-- ══ TABLA ══ -->
+  <div class="tabla-wrapper">
+
+    <!-- Cabecera tabla -->
+    <div class="tabla-header" [class.tabla-header--comunidad]="tab() === 'comunidad'">
+      <span class="th-pregunta">PREGUNTA</span>
+      @if (tab() === 'oficiales') {
+        <span class="th-torneo">TORNEO</span>
+      } @else if (tab() === 'comunidad') {
+        <span class="th-torneo">USUARIO</span>
+      } @else {
+        <span class="th-torneo">ORIGEN</span>
+      }
+      <span class="th-anio">AÑO</span>
+      <span class="th-tematica">TEMÁTICA</span>
+      <span class="th-origen">ORIGEN</span>
+      <span class="th-like"></span>
+    </div>
+
+    <!-- Filas -->
+    @if (preguntasPagina().length === 0) {
+      <div class="tabla-vacia">
+        <p class="tabla-vacia-titulo">No se encontraron preguntas</p>
+        <p class="tabla-vacia-desc">Prueba con otro término o limpia los filtros.</p>
+      </div>
+    } @else {
+      @for (p of preguntasPagina(); track p.id) {
+        <div class="tabla-row" [class.tabla-row--comunidad]="tab() === 'comunidad'">
+
+          <div class="td-pregunta">{{ p.pregunta }}</div>
+
+          @if (esOficial(p)) {
+            <div class="td-torneo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <circle cx="12" cy="8" r="6"/>
+                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+              </svg>
+              <div>
+                <p class="td-torneo-nombre">{{ p.torneo }}</p>
+                <p class="td-torneo-club">{{ p.club }}</p>
+              </div>
+            </div>
+          } @else {
+            <div class="td-usuario">
+              <img [src]="p.avatar" [alt]="p.usuario" class="td-avatar" />
+              <p class="td-usuario-nombre">{{ p.usuario }}</p>
+            </div>
+          }
+
+          <div class="td-anio">{{ p.anio }}</div>
+
+          <div class="td-tematica">
+            <span class="tematica-chip">{{ p.tematica }}</span>
+          </div>
+
+          <div class="td-origen">
+            <span class="origen-badge"
+                  [class.origen-badge--oficial]="esOficial(p)"
+                  [class.origen-badge--comunidad]="!esOficial(p)">
+              {{ esOficial(p) ? 'OFICIAL' : 'COMUNIDAD' }}
+            </span>
+          </div>
+
+          <div class="td-acciones">
+            <button class="compartir-btn" (click)="abrirCompartir(p.pregunta, $event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <circle cx="18" cy="5" r="3"/>
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </button>
+            <button class="like-btn"
+                    [class.liked]="p.likedPorMi"
+                    (click)="toggleLike(p, $event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" width="16" height="16"
+                   [style.fill]="p.likedPorMi ? '#ff3a72' : 'none'"
+                   [style.stroke]="p.likedPorMi ? '#ff3a72' : 'currentColor'">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span class="like-count">{{ p.likes }}</span>
+            </button>
+          </div>
+
+        </div>
+      }
+    }
+
+  </div>
+
+  <!-- ══ PAGINACIÓN ══ -->
+  @if (totalPaginas() > 1) {
+    <div class="paginacion-row">
+      <button class="pag-btn pag-btn--texto" [disabled]="paginaActual() === 1" (click)="anterior()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Anterior
+      </button>
+
+      @for (p of paginasVisibles(); track $index) {
+        @if (p === '...') {
+          <span class="pag-dots">...</span>
+        } @else {
+          <button class="pag-btn"
+                  [class.activo]="paginaActual() === p"
+                  (click)="irAPagina(p)">
+            {{ p }}
+          </button>
+        }
+      }
+
+      <button class="pag-btn pag-btn--texto" [disabled]="paginaActual() === totalPaginas()" (click)="siguiente()">
+        Siguiente
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+  }
+
+</div>
+
+<!-- ══ MODAL PREGUNTA NUEVA (visual) ══ -->
+@if (modalNuevaAbierto()) {
+  <div class="modal-overlay" (click)="cerrarModalNuevaFuera($event)">
+    <div class="modal-card modal-pregunta-nueva">
+
+      <button class="modal-close" (click)="cerrarModalNueva()">&times;</button>
+
+      <h2 class="modal-titulo">Crear pregunta de debate</h2>
+      <p class="modal-subtitulo">Comparte una pregunta con la comunidad de Retorika.</p>
+
+      <div class="form-group">
+        <label class="form-label">PREGUNTA</label>
+        <textarea class="form-textarea"
+                  placeholder="Ej: ¿Debería regularse el uso de la inteligencia artificial?"
+                  rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">TEMÁTICA</label>
+        <select class="form-select-full">
+          <option value="">Selecciona una temática</option>
+          <option>Tecnología</option>
+          <option>Política</option>
+          <option>Economía</option>
+          <option>Sociedad</option>
+          <option>Educación</option>
+          <option>Ética</option>
+        </select>
+      </div>
+
+      <div class="modal-aviso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>Tu pregunta la revisará el equipo de FIERA. Te avisaremos cuando esté disponible.</p>
+      </div>
+
+      <button class="btn-primary btn-full" (click)="cerrarModalNueva()">Enviar pregunta</button>
+
+    </div>
+  </div>
+}
+
+<!-- ══ MODAL COMPARTIR ══ -->
+@if (modalCompartirAbierto()) {
+  <div class="modal-overlay" (click)="cerrarCompartirFuera($event)">
+    <div class="modal-card modal-compartir">
+
+      <button class="modal-close" (click)="cerrarCompartir()">&times;</button>
+
+      <h2 class="modal-titulo">Compartir pregunta</h2>
+      <p class="modal-pregunta-preview">"{{ preguntaCompartir() }}"</p>
+
+      <div class="compartir-opciones">
+        <button class="compartir-opcion" (click)="compartirEn('whatsapp')">
+          <span class="compartir-icono compartir-icono--whatsapp">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2z"/>
+            </svg>
+          </span>
+          WhatsApp
+        </button>
+        <button class="compartir-opcion" (click)="compartirEn('telegram')">
+          <span class="compartir-icono compartir-icono--telegram">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <path d="M21.94 4.5 18.6 20.06c-.25 1.14-.91 1.42-1.84.89l-5.1-3.76-2.46 2.37c-.27.27-.5.5-1.02.5l.36-5.16 9.4-8.49c.41-.36-.09-.57-.63-.2L7.07 13.09l-5.04-1.58c-1.1-.34-1.12-1.1.23-1.63L20.6 3.3c.91-.34 1.71.21 1.34 1.2z"/>
+            </svg>
+          </span>
+          Telegram
+        </button>
+        <button class="compartir-opcion" (click)="compartirEn('gmail')">
+          <span class="compartir-icono compartir-icono--gmail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </span>
+          Gmail
+        </button>
+        <button class="compartir-opcion" (click)="compartirEn('outlook')">
+          <span class="compartir-icono compartir-icono--outlook">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <polyline points="3 7 12 13 21 7"/>
+            </svg>
+          </span>
+          Outlook
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

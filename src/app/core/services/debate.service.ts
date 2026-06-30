@@ -55,6 +55,26 @@ export interface ConfigDebate {
   turnos       : TurnosDebate;
 }
 
+/* ----------------------------------------------------------
+   ResultadoApi
+   Estructura real que devuelve el backend al finalizar
+   el debate. Hay UN resultado por cada usuario participante
+   (preparado para debates con varios debatientes humanos).
+---------------------------------------------------------- */
+export interface ResultadoApi {
+  id                : number | null;
+  scoreTotal        : number;
+  scoreRefutacion   : number;
+  scoreArgumentacion: number;
+  scoreEvidence     : number;
+  scoreClarity      : number;
+  feedback          : string;
+  debateId          : number;
+  usuarioId         : number;
+}
+
+/* @deprecated — formato antiguo simulado, se mantiene temporalmente
+   por compatibilidad mientras se migra el componente de resultados */
 export interface Resultados {
   argumentacion: number;
   claridad     : number;
@@ -102,12 +122,13 @@ export interface RespuestaFiera {
 }
 
 export interface ProcesarTurnoResponse {
-  debateResponse: any;
+  debateResponse: DebateApi;
   respuestaFiera: RespuestaFiera;
 }
 
 export interface IntervencionApi {
   id              : number;
+  usuarioId       : number | null;
   nombre          : string;
   duracion        : string;
   speaker         : string;
@@ -117,11 +138,25 @@ export interface IntervencionApi {
   speakerInputType: string;
 }
 
+/* Usuario participante en el debate (preparado para varios) */
+export interface UsuarioDebate {
+  id        : number;
+  nombre    : string;
+  username  : string;
+  imgPerfil?: string | null;
+}
+
 export interface DebateApi {
   id            : number;
+  modo?         : string;
+  dificultad?   : string;
+  status?       : string;
+  temaElegido?  : string;
+  posturaFiera? : string | null;
+  usuarios      : UsuarioDebate[];
   intervenciones: IntervencionApi[];
   fiera         : { id: number; personalidad: string };
-  resultado     : any;
+  resultados?   : ResultadoApi[];  /* uno por usuario, lo rellena el backend al finalizar */
 }
 
 /* ── Constantes de almacenamiento ── */
@@ -174,6 +209,7 @@ export class DebateService {
   private _fieras       = signal<FieraApi[]>([]);
   private _subturnos    = signal<SubTurnoConfig[]>([]);
   private _debateActivo = signal<DebateApi | null>(null);
+  private _resultados   = signal<ResultadoApi[]>([]);
 
   /* ── Señales públicas de solo lectura ── */
   config       = this._config.asReadonly();
@@ -181,6 +217,7 @@ export class DebateService {
   fieras       = this._fieras.asReadonly();
   subturnos    = this._subturnos.asReadonly();
   debateActivo = this._debateActivo.asReadonly();
+  resultados   = this._resultados.asReadonly();
 
   /* ----------------------------------------------------------
      getFieras()
@@ -194,8 +231,11 @@ export class DebateService {
 
   /* Devuelve el id de la FIERA según la personalidad elegida */
   getFieraId(personalidad: string): number | null {
+    const normalizar = (s: string) =>
+      s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
     const fiera = this._fieras().find(
-      f => f.personalidad.toLowerCase() === personalidad.toLowerCase()
+      f => normalizar(f.personalidad) === normalizar(personalidad)
     );
     return fiera?.id ?? null;
   }
@@ -273,7 +313,7 @@ export class DebateService {
       resultado    : null
     };
 
-    return this.http.post<any>(`${API_BASE}/api/app/debates/new-debate`, body);
+    return this.http.post<DebateApi>(`${API_BASE}/api/app/debates/new-debate`, body);
   }
 
   /* ----------------------------------------------------------
@@ -293,11 +333,16 @@ export class DebateService {
   /* ----------------------------------------------------------
      setDebateActivo() / getDebateActivo()
      Guarda el debate completo con intervenciones y sus ids
-     para poder referenciarlos durante la partida
+     para poder referenciarlos durante la partida.
+     Si el backend incluye `resultados`, también se cachean.
   ---------------------------------------------------------- */
   setDebateActivo(debate: DebateApi): void {
     this._debateActivo.set(debate);
     localStorage.setItem(STORAGE_DEBATE_ACT, JSON.stringify(debate));
+
+    if (debate.resultados?.length) {
+      this.guardarResultadosApi(debate.resultados);
+    }
   }
 
   getDebateActivo(): DebateApi | null {
@@ -308,32 +353,37 @@ export class DebateService {
 
   /* ----------------------------------------------------------
      procesarTurno()
-     Envía el texto del usuario al backend y recibe
-     la respuesta de FIERA.
-     Usa FormData porque el endpoint acepta también audio.
+     Envía el texto/audio del usuario al backend y recibe
+     la respuesta de FIERA. Si es el último turno, el backend
+     incluye los resultados finales dentro de debateResponse.
   ---------------------------------------------------------- */
   procesarTurno(debateId: number, turnId: number, texto: string, audio?: Blob | null) {
     const formData = new FormData();
 
     if (audio) {
-      /* Enviar audio grabado — el backend lo transcribe */
-      formData.append('file', audio, 'intervencion.mp3');
+      const extension = audio.type.includes('webm') ? 'webm'
+                  : audio.type.includes('mp4')  ? 'mp4'
+                  : audio.type.includes('mpeg')  ? 'mp3'
+                  : 'webm';
+      formData.append('file', audio, `intervencion.${extension}`);
     } else if (texto.trim()) {
-      /* Fallback: enviar texto si no hay audio */
       formData.append('text', texto);
     }
 
     return this.http.post<ProcesarTurnoResponse>(
       `${API_BASE}/api/app/debates/${debateId}/turnos/${turnId}`,
       formData
+    ).pipe(
+      tap(res => {
+        if (res?.debateResponse) {
+          this.setDebateActivo(res.debateResponse);
+        }
+      })
     );
   }
 
   /* ----------------------------------------------------------
      reproducirAudioFiera()
-     Decodifica el base64 que devuelve el backend y lo
-     reproduce como audio mp3 en el navegador.
-     Devuelve la duración en segundos para sincronizar el timer.
   ---------------------------------------------------------- */
   reproducirAudioFiera(base64: string): Promise<number> {
     return new Promise((resolve, reject) => {
@@ -382,14 +432,49 @@ export class DebateService {
   }
 
   /* ----------------------------------------------------------
-     guardarResultados() / obtenerResultados()
+     guardarResultadosApi() / obtenerResultadosApi()
+     Persiste el array de ResultadoApi que devuelve el backend
+     (uno por cada usuario participante en el debate).
   ---------------------------------------------------------- */
-  guardarResultados(resultados: Resultados): void {
+  guardarResultadosApi(resultados: ResultadoApi[]): void {
+    this._resultados.set(resultados);
     localStorage.setItem(STORAGE_RESULTADOS, JSON.stringify(resultados));
   }
 
-  obtenerResultados(): Resultados | null {
+  obtenerResultadosApi(): ResultadoApi[] {
+    if (this._resultados().length) return this._resultados();
     const datos = localStorage.getItem(STORAGE_RESULTADOS);
+    if (datos) {
+      const lista = JSON.parse(datos) as ResultadoApi[];
+      this._resultados.set(lista);
+      return lista;
+    }
+    return [];
+  }
+
+  /* Devuelve el resultado del usuario actual.
+     TODO: filtrar por usuarioId real cuando haya login completo;
+     de momento devuelve el primero del array. */
+  obtenerResultadoUsuario(usuarioId?: number): ResultadoApi | null {
+    const lista = this.obtenerResultadosApi();
+    if (!lista.length) return null;
+    if (usuarioId != null) {
+      return lista.find(r => r.usuarioId === usuarioId) ?? lista[0];
+    }
+    return lista[0];
+  }
+
+  /* ----------------------------------------------------------
+     @deprecated guardarResultados() / obtenerResultados()
+     Formato antiguo simulado — se mantiene temporalmente
+     hasta migrar el componente de resultados al formato real.
+  ---------------------------------------------------------- */
+  guardarResultados(resultados: Resultados): void {
+    localStorage.setItem('fiera_resultados_legacy', JSON.stringify(resultados));
+  }
+
+  obtenerResultados(): Resultados | null {
+    const datos = localStorage.getItem('fiera_resultados_legacy');
     return datos ? JSON.parse(datos) : null;
   }
 }

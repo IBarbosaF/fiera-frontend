@@ -107,6 +107,11 @@ export const routes: Routes = [
           import('./pages/recursos/formaciones-youtube/formaciones-youtube')
             .then(m => m.FormacionesYoutube)
       },
+      {
+        path        : 'recursos/preguntas',
+        loadComponent: () =>
+          import('./pages/recursos/banco-preguntas/banco-preguntas').then(m => m.BancoPreguntas)
+      },
 
       /* Perfil */
       {
@@ -133,7 +138,7 @@ export const routes: Routes = [
       {
         path        : 'resultados',
         loadComponent: () =>
-          import('./pages/resultados/resultados').then(m => m.Resultados)
+          import('./pages/debate/resultados/resultados').then(m => m.Resultados)
       },
       /* Careo */
       {

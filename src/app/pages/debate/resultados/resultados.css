@@ -253,6 +253,86 @@
   100% { top: 110%;  opacity: 0; transform: rotate(720deg) translateX(40px); }
 }
 
+/* ── Estado sin resultados ── */
+.sin-resultados {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  gap           : 14px;
+  padding       : 40px 20px;
+  color         : var(--texto-muted, #8a9ab8);
+  text-align    : center;
+}
+.sin-resultados svg { color: rgba(255,255,255,0.2); }
+.sin-resultados p   { font-size: 14px; line-height: 1.5; }
+
+/* ── Modal detalle ── */
+.modal-overlay {
+  position       : fixed;
+  inset          : 0;
+  background     : rgba(0, 0, 0, 0.72);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  z-index        : 100;
+  backdrop-filter: blur(4px);
+}
+
+.modal-detalle {
+  background   : #0d1a33;
+  border       : 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding      : 26px;
+  width        : 100%;
+  max-width    : 480px;
+  margin       : 0 16px;
+  max-height   : 80vh;
+  display      : flex;
+  flex-direction: column;
+}
+
+.modal-detalle-header {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  margin-bottom  : 16px;
+  flex-shrink    : 0;
+}
+
+.modal-detalle-header h3 {
+  font-size  : 17px;
+  font-weight: 700;
+  color      : #fff;
+}
+
+.modal-cerrar {
+  background   : transparent;
+  border       : none;
+  color        : var(--texto-muted, #8a9ab8);
+  cursor       : pointer;
+  display      : flex;
+  align-items  : center;
+  padding      : 4px;
+  border-radius: 6px;
+  transition   : color 0.2s;
+}
+.modal-cerrar:hover { color: #fff; }
+
+.modal-detalle-texto {
+  font-size    : 13.5px;
+  line-height  : 1.7;
+  color        : #c5d0e0;
+  overflow-y   : auto;
+  margin-bottom: 20px;
+  padding-right: 4px;
+}
+
+.modal-detalle-texto::-webkit-scrollbar       { width: 4px; }
+.modal-detalle-texto::-webkit-scrollbar-track { background: transparent; }
+.modal-detalle-texto::-webkit-scrollbar-thumb { background: rgba(21,111,231,0.3); border-radius: 4px; }
+
+.btn-full { width: 100%; flex-shrink: 0; }
+
 /* ============================================================
    RESPONSIVE
 ============================================================ */

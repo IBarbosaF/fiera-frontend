@@ -1,15 +1,13 @@
 import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DebateService } from '../../core/services/debate.service';
+import { DebateService } from '../../../core/services/debate.service';
 
 /* ============================================================
    ResultadosComponent — Pantalla de resultados del debate
 
-   Muestra las puntuaciones del debate finalizado con
-   animaciones de contador y círculo SVG.
-
-   TODO: obtener puntuaciones reales del backend cuando
-         esté disponible en lugar de las simuladas.
+   Muestra las puntuaciones reales generadas por el backend
+   al finalizar el debate, con animaciones de contador y
+   círculo SVG. Incluye modal con el feedback textual completo.
 ============================================================ */
 
 /* Circunferencia SVG (r=68): 2 * PI * 68 ≈ 427 */
@@ -37,36 +35,40 @@ export class Resultados implements OnInit {
   /* ── SVG círculo ── */
   svgOffset = signal(CIRCUNFERENCIA);
 
-  /* ── Mensaje motivacional ── */
-  mensaje = signal('');
+  /* ── Mensaje motivacional + feedback real ── */
+  mensaje  = signal('');
+  feedback = signal('');
+
+  /* ── Modal de detalle ── */
+  modalDetalleAbierto = signal(false);
+
+  /* ── Estado: hay resultados reales o no ── */
+  sinResultados = signal(false);
 
   /* ----------------------------------------------------------
-     ngOnInit — Cargar resultados y arrancar animaciones
-     TODO: obtener resultados del backend cuando esté listo
+     ngOnInit — Cargar resultados reales del backend y
+     arrancar animaciones
   ---------------------------------------------------------- */
   ngOnInit(): void {
-    const resultados = this.debateService.obtenerResultados();
+    const resultado = this.debateService.obtenerResultadoUsuario();
 
-    const vals = resultados ?? {
-      argumentacion: Math.floor(Math.random() * 8) + 17,
-      claridad     : Math.floor(Math.random() * 8) + 16,
-      refutacion   : Math.floor(Math.random() * 8) + 16,
-      evidencia    : Math.floor(Math.random() * 8) + 15,
-    };
+    if (!resultado) {
+      this.sinResultados.set(true);
+      this.mensaje.set('No se encontraron resultados para este debate.');
+      return;
+    }
 
-    const totalVal = vals.argumentacion + vals.claridad
-                   + vals.refutacion   + vals.evidencia;
-
-    this.mensaje.set(this.obtenerMensaje(totalVal));
+    this.feedback.set(resultado.feedback ?? '');
+    this.mensaje.set(this.obtenerMensaje(resultado.scoreTotal));
 
     /* Animar tras un pequeño delay para que la entrada sea suave */
     setTimeout(() => {
-      this.animarNumero(this.argumentacion, vals.argumentacion, 1200);
-      this.animarNumero(this.claridad,      vals.claridad,      1200);
-      this.animarNumero(this.refutacion,    vals.refutacion,    1200);
-      this.animarNumero(this.evidencia,     vals.evidencia,     1200);
-      this.animarNumero(this.total,         totalVal,           1500);
-      this.animarCirculo(totalVal);
+      this.animarNumero(this.argumentacion, resultado.scoreArgumentacion, 1200);
+      this.animarNumero(this.claridad,      resultado.scoreClarity,       1200);
+      this.animarNumero(this.refutacion,    resultado.scoreRefutacion,    1200);
+      this.animarNumero(this.evidencia,     resultado.scoreEvidence,      1200);
+      this.animarNumero(this.total,         resultado.scoreTotal,         1500);
+      this.animarCirculo(resultado.scoreTotal);
     }, 300);
   }
 
@@ -118,10 +120,15 @@ export class Resultados implements OnInit {
   }
 
   /* ----------------------------------------------------------
-     verDetalle()
-     TODO: navegar a página de detalle cuando esté disponible
+     verDetalle() / cerrarDetalle()
+     Abre/cierra el modal con el feedback completo de FIERA
   ---------------------------------------------------------- */
   verDetalle(): void {
-    alert('Próximamente: análisis detallado de tu debate.');
+    if (!this.feedback()) return;
+    this.modalDetalleAbierto.set(true);
+  }
+
+  cerrarDetalle(): void {
+    this.modalDetalleAbierto.set(false);
   }
 }

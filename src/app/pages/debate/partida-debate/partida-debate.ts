@@ -15,7 +15,8 @@ import { DebateService } from '../../../core/services/debate.service';
    - Reproducción del audio de FIERA (base64 → mp3)
    - Historial de intervenciones
    - Interrupciones (FIERA levanta la mano / Tú levantas la mano)
-   - Navegación a resultados al finalizar
+   - Navegación a resultados al finalizar, esperando a que la
+     última petición pendiente al backend se resuelva primero
 ============================================================ */
 
 export interface SubTurno {
@@ -61,6 +62,9 @@ const RESPUESTAS_A_PREGUNTA = [
   'Agradezco la pregunta. Mi postura se sostiene incluso bajo ese supuesto.',
 ];
 
+/* Tiempo máximo de espera por la última petición pendiente (ms) */
+const TIMEOUT_ESPERA_FINAL = 12000;
+
 @Component({
   selector        : 'app-partida-debate',
   standalone      : true,
@@ -91,6 +95,12 @@ export class PartidaDebate implements OnInit, OnDestroy {
   procesandoAudio   = signal(false);  /* esperando respuesta del backend */
   errorMicrofono    = signal(false);
   fieraHablando     = signal(false);  /* FIERA reproduciendo audio */
+
+  /* Marca si hay una petición a procesarTurno() en curso. Se usa
+     para que finalizarDebate() no navegue hasta que se resuelva,
+     evitando perder los resultados del último turno del usuario. */
+  peticionPendiente = signal(false);
+  finalizandoDebate = signal(false); /* muestra un loader al cerrar el debate */
 
   private mediaRecorder  : MediaRecorder | null = null;
   private audioChunks    : Blob[]        = [];
@@ -190,6 +200,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
 
     if (debateActivo && sub.intervencionId) {
       this.fieraHablando.set(true);
+      this.peticionPendiente.set(true);
       this.cdr.markForCheck();
 
       this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, '').subscribe({
@@ -199,6 +210,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
           const titulo = `${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — FIERA`;
 
           this.añadirAlHistorial(titulo, texto || '(FIERA está argumentando...)', false);
+          this.peticionPendiente.set(false);
 
           if (audio) {
             this.reproducirAudioFiera(audio).finally(() => {
@@ -214,6 +226,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
           const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
           this.añadirAlHistorial(`${sub.nombre} — FIERA (simulado)`, texto, false);
           this.fieraHablando.set(false);
+          this.peticionPendiente.set(false);
           this.cdr.markForCheck();
         }
       });
@@ -325,6 +338,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
     const debateActivo = this.debateService.getDebateActivo();
 
     this.procesandoAudio.set(true);
+    this.peticionPendiente.set(true);
     this.cdr.markForCheck();
 
     this.añadirAlHistorial(
@@ -351,15 +365,18 @@ export class PartidaDebate implements OnInit, OnDestroy {
             }
 
             this.procesandoAudio.set(false);
+            this.peticionPendiente.set(false);
             this.cdr.markForCheck();
           },
           error: () => {
             this.procesandoAudio.set(false);
+            this.peticionPendiente.set(false);
             this.cdr.markForCheck();
           }
         });
     } else {
       this.procesandoAudio.set(false);
+      this.peticionPendiente.set(false);
       this.cdr.markForCheck();
     }
   }
@@ -393,10 +410,11 @@ export class PartidaDebate implements OnInit, OnDestroy {
     input.value = '';
 
     if (debateActivo && sub.intervencionId) {
+      this.peticionPendiente.set(true);
       this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, texto.trim())
         .subscribe({
-          next : (res) => console.log('Texto registrado:', res),
-          error: (err) => console.warn('Error al registrar texto:', err)
+          next : () => this.peticionPendiente.set(false),
+          error: () => this.peticionPendiente.set(false)
         });
     }
   }
@@ -502,19 +520,44 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   /* ----------------------------------------------------------
-     Finalizar debate
+     Finalizar debate.
+     Espera a que la última petición pendiente al backend se
+     resuelva (con un timeout de seguridad) antes de navegar,
+     para asegurarnos de que los resultados ya estén guardados
+     en el servicio cuando lleguemos a /resultados.
   ---------------------------------------------------------- */
   private finalizarDebate(): void {
     this.limpiarTimers();
     this.detenerAudioFiera();
-    const resultados = {
-      argumentacion: Math.floor(Math.random() * 8) + 17,
-      claridad     : Math.floor(Math.random() * 8) + 16,
-      refutacion   : Math.floor(Math.random() * 8) + 16,
-      evidencia    : Math.floor(Math.random() * 8) + 15,
-    };
-    this.debateService.guardarResultados(resultados);
-    setTimeout(() => this.router.navigate(['/resultados']), 800);
+    this.finalizandoDebate.set(true);
+    this.cdr.markForCheck();
+
+    this.esperarPeticionPendiente().finally(() => {
+      this.router.navigate(['/resultados']);
+    });
+  }
+
+  /* Espera con polling a que peticionPendiente() sea false,
+     con un timeout máximo para no bloquear indefinidamente
+     si el backend no responde. */
+  private esperarPeticionPendiente(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.peticionPendiente()) {
+        resolve();
+        return;
+      }
+
+      const inicio = Date.now();
+      const intervalo = setInterval(() => {
+        const sinPendientes = !this.peticionPendiente();
+        const tiempoAgotado = Date.now() - inicio >= TIMEOUT_ESPERA_FINAL;
+
+        if (sinPendientes || tiempoAgotado) {
+          clearInterval(intervalo);
+          resolve();
+        }
+      }, 200);
+    });
   }
 
   /* ----------------------------------------------------------
