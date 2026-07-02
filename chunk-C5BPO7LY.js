@@ -1,0 +1,1 @@
+import{Ba as n,Va as t,Wa as a,lb as s}from"./chunk-ZKUVQTPT.js";var r=class i{static \u0275fac=function(e){return new(e||i)};static \u0275cmp=n({type:i,selectors:[["app-unirse-liga"]],decls:2,vars:0,template:function(e,l){e&1&&(t(0,"p"),s(1,"unirme-liga works!"),a())},encapsulation:2})};export{r as UnirseLiga};

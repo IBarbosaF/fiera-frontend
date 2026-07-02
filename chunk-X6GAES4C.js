@@ -1,0 +1,1 @@
+import{Ba as n,Va as a,Wa as s,lb as i}from"./chunk-ZKUVQTPT.js";var r=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=n({type:t,selectors:[["app-unirse-debate"]],decls:2,vars:0,template:function(e,p){e&1&&(a(0,"p"),i(1,"unirse-debate works!"),s())},encapsulation:2})};export{r as UnirseDebate};

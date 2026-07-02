@@ -1,1 +1,0 @@
-import{Ba as t,Ua as s,Va as n,ib as r}from"./chunk-SASVVDOS.js";var a=class o{static \u0275fac=function(e){return new(e||o)};static \u0275cmp=t({type:o,selectors:[["app-logros"]],decls:2,vars:0,template:function(e,p){e&1&&(s(0,"p"),r(1,"logros works!"),n())},encapsulation:2})};export{a as Logros};

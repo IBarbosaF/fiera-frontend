@@ -1,1 +1,0 @@
-import{Ba as t,Ua as r,Va as i,ib as n}from"./chunk-SASVVDOS.js";var o=class a{static \u0275fac=function(e){return new(e||a)};static \u0275cmp=t({type:a,selectors:[["app-crear-liga"]],decls:2,vars:0,template:function(e,c){e&1&&(r(0,"p"),n(1,"crear-liga works!"),i())},encapsulation:2})};export{o as CrearLiga};

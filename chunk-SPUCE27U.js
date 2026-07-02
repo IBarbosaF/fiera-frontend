@@ -1,1 +1,0 @@
-import{Ba as t,Ua as a,Va as i,ib as o}from"./chunk-SASVVDOS.js";var r=class e{static \u0275fac=function(n){return new(n||e)};static \u0275cmp=t({type:e,selectors:[["app-ranking"]],decls:2,vars:0,template:function(n,p){n&1&&(a(0,"p"),o(1,"ranking works!"),i())},encapsulation:2})};export{r as Ranking};

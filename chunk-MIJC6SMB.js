@@ -1,0 +1,1 @@
+import{Ba as o,Va as i,Wa as r,lb as t}from"./chunk-ZKUVQTPT.js";var n=class a{static \u0275fac=function(e){return new(e||a)};static \u0275cmp=o({type:a,selectors:[["app-careo-diario"]],decls:2,vars:0,template:function(e,s){e&1&&(i(0,"p"),t(1,"careo-diario works!"),r())},encapsulation:2})};export{n as CareoDiario};

@@ -1,0 +1,1 @@
+import{Ba as t,Va as a,Wa as i,lb as o}from"./chunk-ZKUVQTPT.js";var r=class e{static \u0275fac=function(n){return new(n||e)};static \u0275cmp=t({type:e,selectors:[["app-ranking"]],decls:2,vars:0,template:function(n,p){n&1&&(a(0,"p"),o(1,"ranking works!"),i())},encapsulation:2})};export{r as Ranking};
