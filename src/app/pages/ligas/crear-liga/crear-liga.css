@@ -1,0 +1,1155 @@
+/* ============================================================
+   Crear Liga — Wizard de 8 pasos
+
+   Índice de este archivo (busca el comentario para saltar):
+   1. Layout general y cabecera
+   2. Stepper de 8 pasos
+   3. Card contenedora de cada paso
+   4. Formulario genérico (inputs, textarea, contador, error)
+   5. Subida de imagen (Paso 1)
+   6. Opciones tipo radio-card (Pasos 2, 3, 6)
+   7. Turnos de estructura (Paso 4)
+   8. Opción expandible + radios pequeños (Paso 5, 7)
+   9. Select, chips de días, fecha fin (Paso 7)
+   10. Resumen: filas, tabla, insignias (Paso 8)
+   11. Navegación (Atrás / Continuar / Crear liga)
+   12. Responsive
+============================================================ */
+
+
+/* ────────────────────────────────────────────────────────────
+   1. LAYOUT GENERAL Y CABECERA
+──────────────────────────────────────────────────────────── */
+
+.crear-liga-layout {
+  min-height : 100vh;
+  background : #080e1a;
+  padding    : 32px 40px 60px;
+}
+
+.cl-header {
+  display      : flex;
+  align-items  : center;
+  gap          : 16px;
+  margin-bottom: 32px;
+}
+
+.cl-btn-volver {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  width          : 40px;
+  height         : 40px;
+  border-radius  : 50%;
+  background     : #0d1a33;
+  border         : 1px solid #1e2d47;
+  color          : #ffffff;
+  cursor         : pointer;
+  flex-shrink    : 0;
+  transition     : border-color 0.2s ease;
+}
+
+.cl-btn-volver:hover {
+  border-color: rgba(21,111,231,0.5);
+}
+
+.cl-btn-volver svg {
+  width : 20px;
+  height: 20px;
+}
+
+.cl-header-icono {
+  width          : 36px;
+  height         : 36px;
+  border-radius  : 10px;
+  background     : rgba(21,111,231,0.12);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.cl-header-icono svg {
+  width : 20px;
+  height: 20px;
+  color : #156fe7;
+}
+
+.cl-titulo {
+  font-size  : 1.4rem;
+  font-weight: 700;
+  color      : #ffffff;
+  line-height: 1.2;
+}
+
+.cl-subtitulo {
+  font-size : 0.85rem;
+  color     : #8a9ab8;
+  margin-top: 2px;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   2. STEPPER DE 8 PASOS
+──────────────────────────────────────────────────────────── */
+
+.cl-stepper {
+  display        : flex;
+  align-items    : flex-start;
+  gap            : 0;
+  margin-bottom  : 36px;
+  overflow-x     : auto;
+  padding-bottom : 4px;
+}
+
+.cl-stepper-paso {
+  display    : flex;
+  align-items: flex-start;
+  flex       : 1;
+  min-width  : 76px;
+}
+
+.cl-stepper-item {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  gap            : 8px;
+  cursor         : pointer;
+  flex-shrink    : 0;
+}
+
+.cl-stepper-circulo {
+  width          : 34px;
+  height         : 34px;
+  border-radius  : 50%;
+  border         : 2px solid #1e2d47;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 0.85rem;
+  font-weight    : 600;
+  color          : #8a9ab8;
+  background     : #0d1a33;
+  transition     : all 0.2s ease;
+  flex-shrink    : 0;
+}
+
+.cl-stepper-item.activo .cl-stepper-circulo {
+  border-color: #156fe7;
+  background  : #156fe7;
+  color       : #ffffff;
+  box-shadow  : 0 0 16px rgba(21,111,231,0.4);
+}
+
+.cl-stepper-item.completado .cl-stepper-circulo {
+  border-color: #156fe7;
+  background  : rgba(21,111,231,0.15);
+  color       : #156fe7;
+}
+
+.cl-stepper-item.completado .cl-stepper-circulo svg {
+  width : 14px;
+  height: 14px;
+  stroke: #156fe7;
+}
+
+.cl-stepper-label {
+  font-size  : 0.7rem;
+  font-weight: 600;
+  color      : #8a9ab8;
+  text-align : center;
+  white-space: nowrap;
+}
+
+.cl-stepper-item.activo .cl-stepper-label {
+  color: #ffffff;
+}
+
+.cl-stepper-linea {
+  width      : 100%;
+  height     : 2px;
+  background : #1e2d47;
+  margin-top : 17px;
+  transition : background 0.3s ease;
+}
+
+.cl-stepper-linea.completada {
+  background: #156fe7;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   3. CARD CONTENEDORA DE CADA PASO
+──────────────────────────────────────────────────────────── */
+
+.cl-contenido {
+  max-width: 640px;
+  margin   : 0 auto;
+}
+
+.cl-paso {
+  margin-bottom: 24px;
+  display      : flex;
+  flex-direction: column;
+  gap          : 20px;
+}
+
+.cl-card {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 14px;
+  padding      : 28px;
+}
+
+.cl-card-header {
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+  margin-bottom: 24px;
+}
+
+.cl-card-icono {
+  width          : 34px;
+  height         : 34px;
+  border-radius  : 8px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.cl-card-icono svg {
+  width : 18px;
+  height: 18px;
+  color : #156fe7;
+}
+
+.cl-card-titulo {
+  font-size  : 1.1rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+.cl-card-subtitulo {
+  font-size : 0.82rem;
+  color     : #8a9ab8;
+  margin-top: 2px;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   4. FORMULARIO GENÉRICO
+──────────────────────────────────────────────────────────── */
+
+.form-group {
+  display       : flex;
+  flex-direction: column;
+  gap           : 6px;
+  margin-bottom : 20px;
+  position      : relative;
+}
+
+.form-label {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  color         : #8a9ab8;
+  letter-spacing: 0.08em;
+}
+
+.form-input-wrapper {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  background   : #080e1a;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 0 16px;
+  transition   : border-color 0.2s ease;
+}
+
+.form-input-wrapper:focus-within {
+  border-color: #156fe7;
+}
+
+.form-input {
+  flex      : 1;
+  background: transparent;
+  border    : none;
+  outline   : none;
+  color     : #ffffff;
+  font-size : 0.95rem;
+  padding   : 13px 0;
+  font-family: inherit;
+  color-scheme: dark;
+}
+
+.form-input::placeholder {
+  color: #3a4d6b;
+}
+
+/* Fix del "borde doble" en <input type="date"/"time">:
+   Chrome dibuja su propio recuadro interno (datetime-edit) que
+   no hereda border:none del padre. Lo neutralizamos a mano y
+   forzamos el tema oscuro nativo del control. */
+.form-input[type="date"],
+.form-input[type="time"] {
+  color-scheme: dark;
+}
+
+.form-input[type="date"]::-webkit-datetime-edit,
+.form-input[type="time"]::-webkit-datetime-edit {
+  padding: 0;
+}
+
+.form-input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+.form-input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  background: transparent;
+}
+
+.form-input[type="date"]::-webkit-inner-spin-button,
+.form-input[type="time"]::-webkit-inner-spin-button {
+  display: none;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator,
+.form-input[type="time"]::-webkit-calendar-picker-indicator {
+  filter    : invert(0.7);
+  opacity   : 0.7;
+  cursor    : pointer;
+  background: transparent;
+}
+
+.form-textarea {
+  background   : #080e1a;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  color        : #ffffff;
+  font-size    : 0.95rem;
+  padding      : 12px 16px;
+  font-family  : inherit;
+  resize       : vertical;
+  outline      : none;
+  transition   : border-color 0.2s ease;
+  min-height   : 90px;
+}
+
+.form-textarea:focus {
+  border-color: #156fe7;
+}
+
+.form-textarea::placeholder {
+  color: #3a4d6b;
+}
+
+.form-contador {
+  align-self: flex-end;
+  font-size : 0.75rem;
+  color     : #3a4d6b;
+}
+
+.form-error {
+  color        : #ef4444;
+  font-size    : 0.85rem;
+  margin-bottom: 16px;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   5. SUBIDA DE IMAGEN (Paso 1)
+──────────────────────────────────────────────────────────── */
+
+.cl-imagen-upload {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  background     : #080e1a;
+  border         : 1px dashed #1e2d47;
+  border-radius  : 10px;
+  padding        : 24px;
+  color          : #8a9ab8;
+  font-size      : 0.88rem;
+  font-weight    : 600;
+  cursor         : pointer;
+  transition     : border-color 0.2s ease, color 0.2s ease;
+}
+
+.cl-imagen-upload:hover {
+  border-color: rgba(21,111,231,0.5);
+  color       : #ffffff;
+}
+
+.cl-imagen-upload svg {
+  width : 18px;
+  height: 18px;
+}
+
+.cl-imagen-preview {
+  position     : relative;
+  border-radius: 10px;
+  overflow     : hidden;
+  border       : 1px solid #1e2d47;
+}
+
+.cl-imagen-preview img {
+  width     : 100%;
+  height    : 160px;
+  object-fit: cover;
+  display   : block;
+}
+
+.cl-imagen-quitar {
+  position       : absolute;
+  top            : 10px;
+  right          : 10px;
+  width          : 30px;
+  height         : 30px;
+  border-radius  : 50%;
+  background     : rgba(8,14,26,0.8);
+  border         : 1px solid rgba(255,255,255,0.15);
+  color          : #ffffff;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  cursor         : pointer;
+}
+
+.cl-imagen-quitar svg {
+  width : 15px;
+  height: 15px;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   6. OPCIONES TIPO RADIO-CARD (Pasos 2, 3, 6)
+──────────────────────────────────────────────────────────── */
+
+.cl-opciones-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+}
+
+.cl-opcion {
+  display       : flex;
+  align-items   : center;
+  gap           : 14px;
+  background    : #080e1a;
+  border        : 1px solid #1e2d47;
+  border-radius : 10px;
+  padding       : 16px;
+  cursor        : pointer;
+  transition    : border-color 0.2s ease, background 0.2s ease;
+}
+
+.cl-opcion:hover {
+  border-color: rgba(21,111,231,0.4);
+}
+
+.cl-opcion.selected {
+  border-color: #156fe7;
+  background  : rgba(21,111,231,0.08);
+}
+
+.cl-opcion-icono {
+  width          : 38px;
+  height         : 38px;
+  border-radius  : 8px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.cl-opcion-icono svg {
+  width : 19px;
+  height: 19px;
+  color : #156fe7;
+}
+
+.cl-opcion-texto {
+  flex: 1;
+}
+
+.cl-opcion-nombre {
+  font-size    : 0.95rem;
+  font-weight  : 600;
+  color        : #ffffff;
+  margin-bottom: 2px;
+}
+
+.cl-opcion-desc {
+  font-size: 0.82rem;
+  color    : #8a9ab8;
+}
+
+.cl-opcion-check {
+  width          : 22px;
+  height         : 22px;
+  border-radius  : 6px;
+  border         : 2px solid #1e2d47;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+  transition     : all 0.2s ease;
+}
+
+.cl-opcion-check.marcado {
+  background  : #156fe7;
+  border-color: #156fe7;
+}
+
+.cl-opcion-check svg {
+  width : 13px;
+  height: 13px;
+  stroke: #ffffff;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   7. TURNOS DE ESTRUCTURA (Paso 4)
+──────────────────────────────────────────────────────────── */
+
+.cl-turnos-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+  margin-bottom : 20px;
+}
+
+.cl-turno-item {
+  display       : flex;
+  align-items   : center;
+  gap           : 14px;
+  background    : #080e1a;
+  border        : 1px solid #1e2d47;
+  border-radius : 10px;
+  padding       : 14px 16px;
+  transition    : opacity 0.2s ease;
+}
+
+.cl-turno-item.inactivo {
+  opacity: 0.5;
+}
+
+.cl-turno-checkbox {
+  width          : 22px;
+  height         : 22px;
+  border-radius  : 6px;
+  border         : 2px solid #1e2d47;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+  cursor         : pointer;
+  transition     : all 0.2s ease;
+}
+
+.cl-turno-checkbox.marcado {
+  background  : #156fe7;
+  border-color: #156fe7;
+}
+
+.cl-turno-checkbox svg {
+  width : 13px;
+  height: 13px;
+  stroke: #ffffff;
+}
+
+.cl-turno-nombre {
+  flex       : 1;
+  font-size  : 0.92rem;
+  font-weight: 600;
+  color      : #ffffff;
+}
+
+.cl-turno-stepper {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 8px;
+  padding      : 4px 8px;
+}
+
+.cl-stepper-standalone {
+  width: fit-content;
+}
+
+.cl-turno-btn {
+  width          : 24px;
+  height         : 24px;
+  border-radius  : 6px;
+  border         : none;
+  background     : #1e2d47;
+  color          : #ffffff;
+  font-size      : 1rem;
+  font-weight    : 700;
+  line-height    : 1;
+  cursor         : pointer;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  transition     : background 0.2s ease;
+}
+
+.cl-turno-btn:hover {
+  background: #156fe7;
+}
+
+.cl-turno-valor {
+  font-size  : 0.85rem;
+  font-weight: 600;
+  color      : #ffffff;
+  min-width  : 42px;
+  text-align : center;
+}
+
+.cl-info-box {
+  display      : flex;
+  align-items  : flex-start;
+  gap          : 12px;
+  background   : rgba(21,111,231,0.08);
+  border       : 1px solid rgba(21,111,231,0.2);
+  border-radius: 10px;
+  padding      : 14px 16px;
+}
+
+.cl-info-box svg {
+  width      : 18px;
+  height     : 18px;
+  color      : #156fe7;
+  flex-shrink: 0;
+  margin-top : 1px;
+}
+
+.cl-info-box p {
+  font-size  : 0.82rem;
+  color      : #8a9ab8;
+  line-height: 1.5;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   8. OPCIÓN EXPANDIBLE + RADIOS PEQUEÑOS (Pasos 5, 7)
+──────────────────────────────────────────────────────────── */
+
+.cl-opcion-expandible {
+  background   : #080e1a;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 16px;
+  transition   : border-color 0.2s ease;
+}
+
+.cl-opcion-expandible.selected {
+  border-color: #156fe7;
+}
+
+.cl-opcion-cabecera {
+  display    : flex;
+  align-items: flex-start;
+  gap        : 14px;
+  cursor     : pointer;
+}
+
+.cl-radio-circulo {
+  width         : 20px;
+  height        : 20px;
+  border-radius : 50%;
+  border        : 2px solid #1e2d47;
+  display       : flex;
+  align-items   : center;
+  justify-content: center;
+  flex-shrink   : 0;
+  margin-top    : 2px;
+  transition    : border-color 0.2s ease;
+}
+
+.cl-radio-circulo.marcado {
+  border-color: #156fe7;
+}
+
+.cl-radio-inner {
+  width        : 10px;
+  height       : 10px;
+  border-radius: 50%;
+  background   : #156fe7;
+}
+
+.cl-radio-sm {
+  width : 16px;
+  height: 16px;
+  margin-top: 0;
+}
+
+.cl-radio-sm .cl-radio-inner {
+  width : 8px;
+  height: 8px;
+}
+
+.cl-opcion-detalle {
+  margin-top : 16px;
+  padding-top: 16px;
+  border-top : 1px solid #1e2d47;
+  display    : flex;
+  flex-direction: column;
+  gap        : 10px;
+}
+
+.cl-detalle-label {
+  font-size    : 0.78rem;
+  font-weight  : 700;
+  color        : #8a9ab8;
+  letter-spacing: 0.04em;
+  margin-top   : 6px;
+}
+
+.cl-detalle-label:first-child {
+  margin-top: 0;
+}
+
+.cl-radio-fila {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  cursor     : pointer;
+  padding    : 4px 0;
+}
+
+.cl-radio-fila span {
+  font-size: 0.88rem;
+  color    : #ffffff;
+}
+
+.cl-detalle-input {
+  margin: 4px 0 4px 26px;
+  width : calc(100% - 26px);
+}
+
+.cl-detalle-hint {
+  font-size : 0.78rem;
+  color     : #8a9ab8;
+  margin-left: 26px;
+}
+
+.cl-radio-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   9. DROPDOWN PROPIO DE FRECUENCIA, CHIPS DE DÍAS,
+      FECHA FIN, BANCO DE PREGUNTAS (Pasos 5, 7)
+──────────────────────────────────────────────────────────── */
+
+/* Dropdown propio (sustituye al <select> nativo, que no se
+   puede tematizar en oscuro de forma consistente entre
+   navegadores — ver captura del fallo reportado). */
+.cl-dropdown {
+  position: relative;
+}
+
+.cl-dropdown-trigger {
+  width          : 100%;
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  background     : #080e1a;
+  border         : 1px solid #1e2d47;
+  border-radius  : 10px;
+  padding        : 13px 16px;
+  color          : #ffffff;
+  font-size      : 0.95rem;
+  font-family    : inherit;
+  cursor         : pointer;
+  transition     : border-color 0.2s ease;
+}
+
+.cl-dropdown.abierto .cl-dropdown-trigger,
+.cl-dropdown-trigger:hover {
+  border-color: #156fe7;
+}
+
+.cl-dropdown-trigger svg {
+  width      : 16px;
+  height     : 16px;
+  color      : #8a9ab8;
+  flex-shrink: 0;
+  transition : transform 0.2s ease;
+}
+
+.cl-dropdown.abierto .cl-dropdown-trigger svg {
+  transform: rotate(180deg);
+}
+
+.cl-dropdown-lista {
+  position     : absolute;
+  top          : calc(100% + 6px);
+  left         : 0;
+  right        : 0;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  overflow     : hidden;
+  z-index      : 20;
+  box-shadow   : 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.cl-dropdown-item {
+  padding    : 12px 16px;
+  font-size  : 0.9rem;
+  color      : #8a9ab8;
+  cursor     : pointer;
+  transition : background 0.15s ease, color 0.15s ease;
+}
+
+.cl-dropdown-item:hover {
+  background: rgba(21,111,231,0.1);
+  color     : #ffffff;
+}
+
+.cl-dropdown-item.selected {
+  background: rgba(21,111,231,0.15);
+  color     : #156fe7;
+  font-weight: 600;
+}
+
+.cl-dias-lista {
+  display : flex;
+  gap     : 6px;
+  flex-wrap: wrap;
+}
+
+.cl-dia-chip {
+  width          : 42px;
+  height         : 40px;
+  border-radius  : 8px;
+  border         : 1px solid #1e2d47;
+  background     : #080e1a;
+  color          : #8a9ab8;
+  font-size      : 0.78rem;
+  font-weight    : 700;
+  cursor         : pointer;
+  transition     : all 0.2s ease;
+}
+
+.cl-dia-chip:hover {
+  border-color: rgba(21,111,231,0.4);
+}
+
+.cl-dia-chip.active {
+  background  : #156fe7;
+  border-color: #156fe7;
+  color       : #ffffff;
+}
+
+.cl-fecha-fin-info {
+  font-size    : 0.82rem;
+  color        : #8a9ab8;
+  margin-bottom: 20px;
+}
+
+.cl-fecha-fin-info strong {
+  color: #ffffff;
+}
+
+/* Banco de preguntas real (Paso 5) */
+.cl-banco-preguntas {
+  margin-top: 6px;
+}
+
+.cl-banco-buscador {
+  margin-left: 0;
+  width      : 100%;
+  margin-bottom: 10px;
+}
+
+.cl-banco-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 6px;
+  max-height    : 220px;
+  overflow-y    : auto;
+}
+
+.cl-banco-lista::-webkit-scrollbar        { width: 4px; }
+.cl-banco-lista::-webkit-scrollbar-track  { background: transparent; }
+.cl-banco-lista::-webkit-scrollbar-thumb  { background: #1e2d47; border-radius: 2px; }
+
+.cl-banco-item {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 8px;
+  padding      : 10px 12px;
+  cursor       : pointer;
+  transition   : border-color 0.2s ease, background 0.2s ease;
+}
+
+.cl-banco-item:hover {
+  border-color: rgba(21,111,231,0.4);
+}
+
+.cl-banco-item.selected {
+  border-color: #156fe7;
+  background  : rgba(21,111,231,0.08);
+}
+
+.cl-banco-categoria {
+  display      : inline-block;
+  font-size    : 0.68rem;
+  font-weight  : 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color        : #156fe7;
+  background   : rgba(21,111,231,0.12);
+  border-radius: 4px;
+  padding      : 2px 7px;
+  margin-bottom: 5px;
+}
+
+.cl-banco-enunciado {
+  font-size  : 0.85rem;
+  color      : #ffffff;
+  line-height: 1.4;
+}
+
+.cl-detalle-error {
+  color: #ef4444;
+}
+
+.cl-detalle-error a {
+  color         : #156fe7;
+  cursor        : pointer;
+  text-decoration: underline;
+  margin-left   : 4px;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   10. RESUMEN: FILAS, TABLA, INSIGNIAS (Paso 8)
+──────────────────────────────────────────────────────────── */
+
+.cl-paso-resumen {
+  max-width: 100%;
+}
+
+.cl-resumen-filas {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+}
+
+.cl-resumen-fila {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 12px;
+  padding        : 8px 0;
+  border-bottom  : 1px solid #1e2d47;
+  font-size      : 0.85rem;
+}
+
+.cl-resumen-fila:last-child {
+  border-bottom: none;
+}
+
+.cl-resumen-fila span {
+  color: #8a9ab8;
+}
+
+.cl-resumen-fila strong {
+  color     : #ffffff;
+  font-weight: 600;
+  text-align: right;
+}
+
+.cl-resumen-descripcion {
+  margin-top : 16px;
+  padding-top: 16px;
+  border-top : 1px solid #1e2d47;
+  font-size  : 0.85rem;
+  color      : #8a9ab8;
+  line-height: 1.6;
+}
+
+.cl-tabla {
+  width          : 100%;
+  border-collapse: collapse;
+  margin-bottom  : 14px;
+}
+
+.cl-tabla th {
+  text-align   : left;
+  font-size    : 0.7rem;
+  font-weight  : 700;
+  letter-spacing: 0.05em;
+  color        : #8a9ab8;
+  padding      : 8px 10px;
+  border-bottom: 1px solid #1e2d47;
+  text-transform: uppercase;
+}
+
+.cl-tabla td {
+  font-size    : 0.85rem;
+  color        : #ffffff;
+  padding      : 10px;
+  border-bottom: 1px solid #1e2d47;
+}
+
+.cl-tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cl-tabla-nota {
+  font-size    : 0.75rem;
+  color        : #3a4d6b;
+  margin-bottom: 20px;
+}
+
+.cl-insignias-label {
+  font-size    : 0.72rem;
+  font-weight  : 700;
+  color        : #8a9ab8;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.cl-insignias-lista {
+  display : flex;
+  gap     : 12px;
+  flex-wrap: wrap;
+}
+
+.cl-insignia {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  gap           : 6px;
+  width         : 84px;
+}
+
+.cl-insignia-icono {
+  width          : 48px;
+  height         : 48px;
+  border-radius  : 50%;
+  background     : rgba(21,111,231,0.1);
+  border         : 1px solid rgba(21,111,231,0.25);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+}
+
+.cl-insignia-icono svg {
+  width : 22px;
+  height: 22px;
+  color : #156fe7;
+}
+
+.cl-insignia span {
+  font-size  : 0.72rem;
+  color      : #8a9ab8;
+  text-align : center;
+  line-height: 1.3;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   11. NAVEGACIÓN (Atrás / Continuar / Crear liga)
+──────────────────────────────────────────────────────────── */
+
+.btn-group {
+  display: flex;
+  gap    : 12px;
+}
+
+.btn-atras {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  background     : transparent;
+  border         : 1px solid #1e2d47;
+  border-radius  : 10px;
+  padding        : 16px 22px;
+  font-size      : 0.9rem;
+  font-weight    : 700;
+  letter-spacing : 0.05em;
+  color          : #8a9ab8;
+  cursor         : pointer;
+  transition     : all 0.2s ease;
+}
+
+.btn-atras:hover {
+  border-color: rgba(21,111,231,0.4);
+  color       : #ffffff;
+}
+
+.btn-atras svg {
+  width : 14px;
+  height: 14px;
+}
+
+.btn-continuar {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 10px;
+  background     : #156fe7;
+  color          : #ffffff;
+  border         : none;
+  border-radius  : 10px;
+  padding        : 16px;
+  font-size      : 0.95rem;
+  font-weight    : 700;
+  letter-spacing : 0.05em;
+  cursor         : pointer;
+  transition     : background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-continuar-flex {
+  flex: 1;
+}
+
+.btn-continuar:hover {
+  background: #105cb1;
+}
+
+.btn-continuar:active {
+  transform: scale(0.98);
+}
+
+.btn-continuar svg {
+  width : 16px;
+  height: 16px;
+}
+
+.btn-crear-liga {
+  background: #156fe7;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   12. RESPONSIVE
+──────────────────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .crear-liga-layout {
+    padding: 24px 20px 48px;
+  }
+
+  .cl-stepper-label {
+    display: none;
+  }
+
+  .cl-dia-chip {
+    width : 38px;
+    height: 38px;
+  }
+}

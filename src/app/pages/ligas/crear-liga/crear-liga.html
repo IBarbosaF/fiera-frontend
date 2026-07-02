@@ -1,1 +1,631 @@
-<p>crear-liga works!</p>
+<!-- ============================================================
+     Crear Liga — Wizard de 8 pasos
+
+     Cada paso vive en su propio bloque @if (pasoActual() === N)
+     comentado abajo. Para editar un paso, busca su comentario
+     "PASO N — ..." y modifica solo ese bloque.
+============================================================ -->
+<div class="crear-liga-layout">
+
+  <!-- ── Cabecera ── -->
+  <div class="cl-header">
+    <button class="cl-btn-volver" (click)="salir()" aria-label="Volver">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="cl-header-icono">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+    </div>
+    <div>
+      <h1 class="cl-titulo">Crear liga de debate</h1>
+      <p class="cl-subtitulo">Configura todos los detalles para crear tu liga</p>
+    </div>
+  </div>
+
+  <!-- ── Stepper (8 pasos) ── -->
+  <div class="cl-stepper">
+    @for (paso of [1,2,3,4,5,6,7,8]; track paso) {
+      <div class="cl-stepper-paso">
+        <div class="cl-stepper-item"
+             [class.activo]="pasoActual() === paso"
+             [class.completado]="pasoActual() > paso"
+             (click)="irAPaso(paso)">
+          <div class="cl-stepper-circulo">
+            @if (pasoActual() > paso) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            } @else {
+              {{ paso }}
+            }
+          </div>
+          <span class="cl-stepper-label">{{ NOMBRES_PASO[paso - 1] }}</span>
+        </div>
+        @if (paso < 8) {
+          <div class="cl-stepper-linea" [class.completada]="pasoActual() > paso"></div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ── Contenido del paso ── -->
+  <div class="cl-contenido">
+
+    <!-- ==========================================
+         PASO 1 — Información básica
+         Campos: nombre, descripción, imagen/banner
+    ========================================== -->
+    @if (pasoActual() === 1) {
+      <div class="cl-paso">
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <h2 class="cl-card-titulo">Información básica</h2>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">NOMBRE DE LA LIGA</label>
+            <div class="form-input-wrapper">
+              <input type="text"
+                     class="form-input"
+                     placeholder="Ej. Liga Retorika Verano 2026"
+                     [value]="nombre()"
+                     (input)="setNombre($any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">DESCRIPCIÓN (OPCIONAL)</label>
+            <textarea class="form-textarea"
+                      rows="4"
+                      placeholder="Cuenta de qué trata tu liga..."
+                      [value]="descripcion()"
+                      (input)="setDescripcion($any($event.target).value)"></textarea>
+            <span class="form-contador">{{ descripcionLength() }}/{{ DESCRIPCION_MAX }}</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">IMAGEN O BANNER DE LA LIGA</label>
+
+            @if (imagen()) {
+              <div class="cl-imagen-preview">
+                <img [src]="imagen()" alt="Banner de la liga" />
+                <button class="cl-imagen-quitar" (click)="eliminarImagen()" aria-label="Quitar imagen">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            } @else {
+              <label class="cl-imagen-upload">
+                <input type="file" accept="image/*" hidden (change)="onImagenSeleccionada($event)" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                Subir imagen
+              </label>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 2 — Acceso
+         ¿Quién puede participar en la liga?
+    ========================================== -->
+    @if (pasoActual() === 2) {
+      <div class="cl-paso">
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <h2 class="cl-card-titulo">Acceso</h2>
+              <p class="cl-card-subtitulo">¿Quién puede participar?</p>
+            </div>
+          </div>
+
+          <div class="cl-opciones-lista">
+            @for (op of OPCIONES_ACCESO; track op.valor) {
+              <div class="cl-opcion"
+                   [class.selected]="acceso() === op.valor"
+                   (click)="setAcceso(op.valor)">
+                <div class="cl-opcion-icono">
+                  @if (op.icono === 'globo') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  }
+                  @if (op.icono === 'candado') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  }
+                  @if (op.icono === 'grupo') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  }
+                </div>
+                <div class="cl-opcion-texto">
+                  <p class="cl-opcion-nombre">{{ op.nombre }}</p>
+                  <p class="cl-opcion-desc">{{ op.desc }}</p>
+                </div>
+                <div class="cl-opcion-check" [class.marcado]="acceso() === op.valor">
+                  @if (acceso() === op.valor) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 3 — Tipo de competición
+         Formato de los debates: académico o careo
+    ========================================== -->
+    @if (pasoActual() === 3) {
+      <div class="cl-paso">
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <div>
+              <h2 class="cl-card-titulo">Tipo de competición</h2>
+              <p class="cl-card-subtitulo">Selecciona el formato</p>
+            </div>
+          </div>
+
+          <div class="cl-opciones-lista">
+            @for (op of OPCIONES_TIPO_COMPETICION; track op.valor) {
+              <div class="cl-opcion"
+                   [class.selected]="tipoCompeticion() === op.valor"
+                   (click)="setTipoCompeticion(op.valor)">
+                <div class="cl-opcion-icono">
+                  @if (op.icono === 'grupo') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  }
+                  @if (op.icono === 'vs') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="4"/><circle cx="17" cy="12" r="4"/></svg>
+                  }
+                </div>
+                <div class="cl-opcion-texto">
+                  <p class="cl-opcion-nombre">{{ op.nombre }}</p>
+                  <p class="cl-opcion-desc">{{ op.desc }}</p>
+                </div>
+                <div class="cl-opcion-check" [class.marcado]="tipoCompeticion() === op.valor">
+                  @if (tipoCompeticion() === op.valor) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 4 — Estructura del debate
+         Partes del debate y duración de cada turno
+    ========================================== -->
+    @if (pasoActual() === 4) {
+      <div class="cl-paso">
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <h2 class="cl-card-titulo">Estructura del debate</h2>
+              <p class="cl-card-subtitulo">Selecciona qué partes tendrá cada debate y configura la duración de cada turno.</p>
+            </div>
+          </div>
+
+          <div class="cl-turnos-lista">
+            @for (turno of estructura(); track turno.id) {
+              <div class="cl-turno-item" [class.inactivo]="!turno.activo">
+                <div class="cl-turno-checkbox"
+                     [class.marcado]="turno.activo"
+                     (click)="toggleTurnoActivo(turno.id)">
+                  @if (turno.activo) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  }
+                </div>
+                <span class="cl-turno-nombre">{{ turno.nombre }}</span>
+                <div class="cl-turno-stepper">
+                  <button class="cl-turno-btn" (click)="decrementarMinutos(turno.id)" aria-label="Restar medio minuto">−</button>
+                  <span class="cl-turno-valor">{{ formatMinutos(turno.minutos) }}</span>
+                  <button class="cl-turno-btn" (click)="incrementarMinutos(turno.id)" aria-label="Sumar medio minuto">+</button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="cl-info-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>Cada participante hará un turno por cada parte seleccionada en el orden establecido.</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 5 — Pregunta a debatir
+         Fija (misma o distinta por ronda) o aleatoria
+    ========================================== -->
+    @if (pasoActual() === 5) {
+      <div class="cl-paso">
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <h2 class="cl-card-titulo">Pregunta a debatir</h2>
+              <p class="cl-card-subtitulo">Elige cómo se definirá el tema de cada debate.</p>
+            </div>
+          </div>
+
+          <!-- Opción: Pregunta fija -->
+          <div class="cl-opcion-expandible" [class.selected]="modoPregunta() === 'fija'">
+            <div class="cl-opcion-cabecera" (click)="setModoPregunta('fija')">
+              <div class="cl-radio-circulo" [class.marcado]="modoPregunta() === 'fija'">
+                @if (modoPregunta() === 'fija') { <div class="cl-radio-inner"></div> }
+              </div>
+              <div class="cl-opcion-texto">
+                <p class="cl-opcion-nombre">Pregunta fija</p>
+                <p class="cl-opcion-desc">Todos los debates serán sobre la misma pregunta (o diferente en cada ronda).</p>
+              </div>
+            </div>
+
+            @if (modoPregunta() === 'fija') {
+              <div class="cl-opcion-detalle">
+
+                <p class="cl-detalle-label">¿La misma pregunta en todos los debates?</p>
+                <div class="cl-radio-fila" (click)="setMismaPreguntaTodasRondas(true)">
+                  <div class="cl-radio-circulo cl-radio-sm" [class.marcado]="mismaPreguntaTodasRondas()">
+                    @if (mismaPreguntaTodasRondas()) { <div class="cl-radio-inner"></div> }
+                  </div>
+                  <span>Sí, siempre la misma pregunta</span>
+                </div>
+                <div class="cl-radio-fila" (click)="setMismaPreguntaTodasRondas(false)">
+                  <div class="cl-radio-circulo cl-radio-sm" [class.marcado]="!mismaPreguntaTodasRondas()">
+                    @if (!mismaPreguntaTodasRondas()) { <div class="cl-radio-inner"></div> }
+                  </div>
+                  <span>No, una pregunta diferente por ronda</span>
+                </div>
+
+                <p class="cl-detalle-label">¿Cómo quieres definir la pregunta?</p>
+                <div class="cl-radio-fila" (click)="setOrigenPregunta('manual')">
+                  <div class="cl-radio-circulo cl-radio-sm" [class.marcado]="origenPregunta() === 'manual'">
+                    @if (origenPregunta() === 'manual') { <div class="cl-radio-inner"></div> }
+                  </div>
+                  <span>Escribir mi propia pregunta</span>
+                </div>
+
+                @if (origenPregunta() === 'manual') {
+                  <div class="form-input-wrapper cl-detalle-input">
+                    <input type="text"
+                           class="form-input"
+                           placeholder="¿Debería implementarse una renta básica universal en toda España?"
+                           [value]="pregunta()"
+                           (input)="setPreguntaManual($any($event.target).value)" />
+                  </div>
+                }
+
+                <div class="cl-radio-fila" (click)="setOrigenPregunta('banco')">
+                  <div class="cl-radio-circulo cl-radio-sm" [class.marcado]="origenPregunta() === 'banco'">
+                    @if (origenPregunta() === 'banco') { <div class="cl-radio-inner"></div> }
+                  </div>
+                  <span>Elegir del banco de preguntas</span>
+                </div>
+
+                @if (origenPregunta() === 'banco') {
+                  <div class="cl-banco-preguntas">
+
+                    <div class="form-input-wrapper cl-detalle-input cl-banco-buscador">
+                      <input type="text"
+                             class="form-input"
+                             placeholder="Buscar por tema o categoría..."
+                             [value]="busquedaTema()"
+                             (input)="busquedaTema.set($any($event.target).value)" />
+                    </div>
+
+                    @if (cargandoTemas()) {
+                      <p class="cl-detalle-hint">Cargando banco de preguntas...</p>
+                    } @else if (errorTemas()) {
+                      <p class="cl-detalle-hint cl-detalle-error">
+                        No se pudo cargar el banco de preguntas.
+                        <a (click)="cargarTemasBanco()">Reintentar</a>
+                      </p>
+                    } @else {
+                      <div class="cl-banco-lista">
+                        @for (tema of temasFiltrados(); track tema.id) {
+                          <div class="cl-banco-item"
+                               [class.selected]="temaId() === tema.id"
+                               (click)="seleccionarTemaBanco(tema)">
+                            <span class="cl-banco-categoria">{{ tema.categoria }}</span>
+                            <p class="cl-banco-enunciado">{{ tema.enunciado }}</p>
+                          </div>
+                        } @empty {
+                          <p class="cl-detalle-hint">No se encontraron preguntas para esa búsqueda.</p>
+                        }
+                      </div>
+                    }
+
+                  </div>
+                }
+
+              </div>
+            }
+          </div>
+
+          <!-- Opción: Pregunta aleatoria -->
+          <div class="cl-opcion-expandible" [class.selected]="modoPregunta() === 'aleatoria'">
+            <div class="cl-opcion-cabecera" (click)="setModoPregunta('aleatoria')">
+              <div class="cl-radio-circulo" [class.marcado]="modoPregunta() === 'aleatoria'">
+                @if (modoPregunta() === 'aleatoria') { <div class="cl-radio-inner"></div> }
+              </div>
+              <div class="cl-opcion-texto">
+                <p class="cl-opcion-nombre">Pregunta aleatoria</p>
+                <p class="cl-opcion-desc">Las preguntas se asignan automáticamente al momento del debate desde el banco.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 6 — Papel de FIERA
+         FIERA como juez o como rival de debate
+    ========================================== -->
+    @if (pasoActual() === 6) {
+      <div class="cl-paso">
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <div>
+              <h2 class="cl-card-titulo">Papel de FIERA</h2>
+              <p class="cl-card-subtitulo">Selecciona qué papel tendrá FIERA en la liga.</p>
+            </div>
+          </div>
+
+          <div class="cl-opciones-lista">
+            @for (op of OPCIONES_ROL_FIERA; track op.valor) {
+              <div class="cl-opcion"
+                   [class.selected]="rolFiera() === op.valor"
+                   (click)="setRolFiera(op.valor)">
+                <div class="cl-opcion-icono">
+                  @if (op.icono === 'balanza') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 7l-3 7a4 4 0 0 0 6 0z"/><path d="M19 7l-3 7a4 4 0 0 0 6 0z"/><path d="M5 7h14"/></svg>
+                  }
+                  @if (op.icono === 'vs') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="4"/><circle cx="17" cy="12" r="4"/></svg>
+                  }
+                </div>
+                <div class="cl-opcion-texto">
+                  <p class="cl-opcion-nombre">{{ op.nombre }}</p>
+                  <p class="cl-opcion-desc">{{ op.desc }}</p>
+                </div>
+                <div class="cl-opcion-check" [class.marcado]="rolFiera() === op.valor">
+                  @if (rolFiera() === op.valor) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="cl-info-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>FIERA siempre estará presente en la liga en el papel seleccionado.</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 7 — Reglas y fechas
+         Nº de debates, frecuencia, calendario y aforo
+    ========================================== -->
+    @if (pasoActual() === 7) {
+      <div class="cl-paso">
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h2 class="cl-card-titulo">Reglas y fechas</h2>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">NÚMERO DE DEBATES</label>
+            <div class="cl-turno-stepper cl-stepper-standalone">
+              <button class="cl-turno-btn" (click)="decrementarDebates()" aria-label="Restar debate">−</button>
+              <span class="cl-turno-valor">{{ numeroDebates() }}</span>
+              <button class="cl-turno-btn" (click)="incrementarDebates()" aria-label="Sumar debate">+</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">FRECUENCIA</label>
+            <div class="cl-dropdown" [class.abierto]="frecuenciaAbierta()">
+              <button type="button" class="cl-dropdown-trigger" (click)="toggleFrecuenciaDropdown()">
+                <span>{{ frecuenciaLabel() }}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              @if (frecuenciaAbierta()) {
+                <div class="cl-dropdown-lista">
+                  @for (op of OPCIONES_FRECUENCIA; track op.valor) {
+                    <div class="cl-dropdown-item"
+                         [class.selected]="frecuencia() === op.valor"
+                         (click)="seleccionarFrecuencia(op.valor)">
+                      {{ op.label }}
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">DÍA DE LA SEMANA</label>
+            <div class="cl-dias-lista">
+              @for (dia of DIAS_SEMANA; track dia) {
+                <button class="cl-dia-chip"
+                        [class.active]="diasSemana().includes(dia)"
+                        (click)="toggleDia(dia)">
+                  {{ dia }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">HORA</label>
+            <div class="form-input-wrapper">
+              <input type="time"
+                     class="form-input"
+                     [value]="hora()"
+                     (input)="setHora($any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">FECHA DE INICIO</label>
+            <div class="form-input-wrapper">
+              <input type="date"
+                     class="form-input"
+                     [value]="fechaInicio()"
+                     (input)="setFechaInicio($any($event.target).value)" />
+            </div>
+          </div>
+
+          @if (fechaFinEstimada()) {
+            <p class="cl-fecha-fin-info">
+              Fecha de fin aprox.: <strong>{{ fechaFinEstimada() | date:'dd/MM/yyyy' }}</strong>
+              — Duración aproximada: {{ duracionAproxTexto() }}
+            </p>
+          }
+
+          <div class="form-group">
+            <label class="form-label">NÚMERO MÁXIMO DE PARTICIPANTES</label>
+            <div class="cl-radio-lista">
+              @for (op of OPCIONES_MAX_PARTICIPANTES; track op.valor) {
+                <div class="cl-radio-fila" (click)="setMaxParticipantes(op.valor)">
+                  <div class="cl-radio-circulo cl-radio-sm" [class.marcado]="maxParticipantes() === op.valor">
+                    @if (maxParticipantes() === op.valor) { <div class="cl-radio-inner"></div> }
+                  </div>
+                  <span>{{ op.label }}</span>
+                </div>
+              }
+              @if (maxParticipantes() === 'personalizado') {
+                <div class="form-input-wrapper cl-detalle-input">
+                  <input type="number"
+                         class="form-input"
+                         placeholder="Ej. 20"
+                         min="1"
+                         [value]="maxParticipantesCustom()"
+                         (input)="setMaxParticipantesCustom($any($event.target).value)" />
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="cl-info-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>Los participantes podrán unirse hasta 3 días antes del inicio de la liga.</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ==========================================
+         PASO 8 — Resumen
+         Solo lectura. Tabla de clasificación e insignias
+         son datos mock (hardcodeados) — ver CLASIFICACION_MOCK
+         e INSIGNIAS_MOCK en crear-liga.ts.
+    ========================================== -->
+    @if (pasoActual() === 8) {
+      <div class="cl-paso cl-paso-resumen">
+
+        <!-- Resumen de datos -->
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </div>
+            <h2 class="cl-card-titulo">Resumen de la liga</h2>
+          </div>
+
+          <div class="cl-resumen-filas">
+            <div class="cl-resumen-fila"><span>Nombre</span><strong>{{ nombre() || '—' }}</strong></div>
+            <div class="cl-resumen-fila"><span>Tipo</span><strong>{{ tipoCompeticionLabel() }}</strong></div>
+            <div class="cl-resumen-fila"><span>Acceso</span><strong>{{ accesoLabel() }}</strong></div>
+            <div class="cl-resumen-fila"><span>FIERA</span><strong>{{ rolFieraLabel() }}</strong></div>
+            <div class="cl-resumen-fila"><span>Pregunta</span><strong>{{ preguntaLabel() }}</strong></div>
+            <div class="cl-resumen-fila"><span>Estructura</span><strong>{{ estructuraLabel() }}</strong></div>
+            <div class="cl-resumen-fila"><span>Debates</span><strong>{{ numeroDebates() }} debates</strong></div>
+            <div class="cl-resumen-fila"><span>Frecuencia</span><strong>{{ frecuenciaLabel() }} · {{ hora() }}</strong></div>
+            <div class="cl-resumen-fila"><span>Fechas</span><strong>{{ fechaInicio() | date:'dd/MM/yyyy' }} – {{ fechaFinEstimada() | date:'dd/MM/yyyy' }}</strong></div>
+            <div class="cl-resumen-fila"><span>Participantes máx.</span><strong>{{ maxParticipantesLabel() }}</strong></div>
+          </div>
+
+          @if (descripcion()) {
+            <p class="cl-resumen-descripcion">{{ descripcion() }}</p>
+          }
+        </div>
+
+        <!-- Insignias de liga (mock) -->
+        <div class="cl-card">
+          <div class="cl-card-header">
+            <div class="cl-card-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M7 4H4a2 2 0 0 0-2 2v1a5 5 0 0 0 10 0V6a2 2 0 0 0-2-2H7z"/><path d="M17 4h3a2 2 0 0 1 2 2v1a5 5 0 0 1-10 0V6a2 2 0 0 1 2-2h3z"/></svg>
+            </div>
+            <h2 class="cl-card-titulo">Insignias de liga</h2>
+          </div>
+
+          <div class="cl-insignias-lista">
+            @for (ins of INSIGNIAS_MOCK; track ins.nombre) {
+              <div class="cl-insignia">
+                <div class="cl-insignia-icono">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M7 4H4a2 2 0 0 0-2 2v1a5 5 0 0 0 10 0V6a2 2 0 0 0-2-2H7z"/><path d="M17 4h3a2 2 0 0 1 2 2v1a5 5 0 0 1-10 0V6a2 2 0 0 1 2-2h3z"/></svg>
+                </div>
+                <span>{{ ins.nombre }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+    }
+
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
+
+    <!-- ── Navegación ──
+         En el paso 8 el botón "Continuar" se convierte en
+         "Crear liga" y llama a finalizarCreacion(). -->
+    <div class="btn-group">
+      <button class="btn-atras" (click)="anterior()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 3 5 12 19 21 19 3"/></svg>
+        ATRÁS
+      </button>
+
+      @if (pasoActual() < TOTAL_PASOS) {
+        <button class="btn-continuar btn-continuar-flex" (click)="siguiente()">
+          CONTINUAR
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+      } @else {
+        <button class="btn-continuar btn-continuar-flex btn-crear-liga" (click)="finalizarCreacion()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+          CREAR LIGA
+        </button>
+      }
+    </div>
+
+  </div>
+
+</div>

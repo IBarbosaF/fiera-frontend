@@ -94,6 +94,7 @@ export interface SubTurnoConfig {
 
 export interface IntervencionRequest {
   nombre          : string;
+  usuario         : { id: number } | null;
   duracion        : string;
   speaker         : string;
   postura         : string;
@@ -277,22 +278,31 @@ export class DebateService {
     const config    = this._config();
     const subturnos = this.cargarSubturnos();
 
-    /* Calcular postura del usuario y de FIERA */
+    /* Calcular postura del usuario (solo se usa como fallback,
+       ya no determina la postura de cada intervención) */
     const posturaUsuario = config.postura === 'aleatoria'
       ? (Math.random() > 0.5 ? 'pro' : 'contra')
       : config.postura === 'favor' ? 'pro' : 'contra';
-    const posturaFiera = posturaUsuario === 'pro' ? 'contra' : 'pro';
 
-    /* Construir intervenciones desde los subturnos del wizard */
+    /* Construir intervenciones desde los subturnos del wizard.
+       La postura de cada fila depende del LADO del debate
+       (favor/contra), no de quién la interpreta ni de la
+       postura elegida por el usuario. */
     const intervenciones: IntervencionRequest[] = subturnos.map(t => ({
       nombre          : NOMBRE_MAP[t.nombre] ?? t.nombre.toLowerCase(),
+      usuario         : t.asignado === 'yo' ? { id: 4 } : null,
       duracion        : `00:${String(t.minutos).padStart(2, '0')}:00`,
       speaker         : t.asignado === 'fiera' ? 'fiera' : 'usuario',
-      postura         : t.postura === 'favor' ? posturaUsuario : posturaFiera,
+      postura         : t.postura === 'favor' ? 'pro' : 'contra',
       mensaje         : '',
       estado          : 'PENDING',
       speakerInputType: 'text'
     }));
+
+    /* posturaFiera (campo top-level) = la postura real de la
+       fila que efectivamente interpreta FIERA */
+    const filaFiera    = intervenciones.find(i => i.speaker === 'fiera');
+    const posturaFiera = filaFiera?.postura ?? (posturaUsuario === 'pro' ? 'contra' : 'pro');
 
     /* Obtener fiera_id dinámicamente */
     const fieraId = config.personalidad
@@ -339,6 +349,8 @@ export class DebateService {
   setDebateActivo(debate: DebateApi): void {
     this._debateActivo.set(debate);
     localStorage.setItem(STORAGE_DEBATE_ACT, JSON.stringify(debate));
+
+    console.log('🔵 setDebateActivo — resultados recibidos:', debate.resultados);
 
     if (debate.resultados?.length) {
       this.guardarResultadosApi(debate.resultados);

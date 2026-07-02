@@ -35,8 +35,8 @@ export interface ItemHistorial {
   esAudio  : boolean;  /* true si fue una intervención de voz */
 }
 
-/* Circunferencia SVG (r=85): 2 * PI * 85 ≈ 534 */
-const CIRCUNFERENCIA = 534;
+/* Circunferencia  2 * PI * 50 ≈ 314, coincide con r=50 del SVG */
+const CIRCUNFERENCIA = 314;
 
 /* Fallbacks simulados */
 const RESPUESTAS_FIERA = [

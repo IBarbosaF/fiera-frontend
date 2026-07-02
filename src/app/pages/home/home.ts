@@ -1,43 +1,34 @@
-import { Component, inject, signal, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CareoInfo } from '../careo/careo-info/careo-info';
-
-export interface ProximoDebate {
-  dia    : string;
-  mes    : string;
-  titulo : string;
-  detalle: string;
-  enDias : string;
-  urgente: boolean;
-}
-
-export interface JugadorRanking {
-  posicion: number;
-  nombre  : string;
-  puntos  : number;
-  avatar  : string;
-  eres_tu : boolean;
-}
+import {
+  EventosService,
+  EventoDebate,
+  DiaCalendario
+} from '../../core/services/eventos.service';
+import { CommonModule, SlicePipe } from '@angular/common';
 
 @Component({
   selector        : 'app-home',
   standalone      : true,
-  imports         : [RouterLink, CareoInfo],
+  imports         : [RouterLink, CareoInfo, CommonModule, SlicePipe],
   templateUrl     : './home.html',
   styleUrl        : './home.css',
   changeDetection : ChangeDetectionStrategy.OnPush
 })
 
-
 export class Home {
 
-  auth   = inject(AuthService);
-  router = inject(Router);
+  auth           = inject(AuthService);
+  router         = inject(Router);
+  eventosService = inject(EventosService);
 
   /* ── Modales ── */
-  modalLoginAbierto    = signal(false);
-  dropdownNotifAbierto = signal(false);
+  modalLoginAbierto     = signal(false);
+  modalCareoInfoAbierto = signal(false);
+  dropdownNotifAbierto  = signal(false);
+  dropdownCalAbierto    = signal(false);
 
   /* ── Errores ── */
   errorLogin = signal('');
@@ -60,30 +51,13 @@ export class Home {
     { texto: 'Subiste al puesto #18 en el ranking',      tiempo: 'Ayer',        leida: true  },
   ];
 
-  @ViewChild('careoInfo') careoInfoRef!: CareoInfo;
-
-  /* ── Próximos debates hardcodeados ── */
-  readonly proximosDebates: ProximoDebate[] = [
-    {
-      dia    : '21',
-      mes    : 'MAY',
-      titulo : 'Liga Universitaria Madrid',
-      detalle: 'Ronda 3 • 18:00',
-      enDias : 'En 2 días',
-      urgente: true,
-    },
-    {
-      dia    : '24',
-      mes    : 'MAY',
-      titulo : 'Entrenamiento con compañeros',
-      detalle: 'Sala privada • 17:00',
-      enDias : 'En 5 días',
-      urgente: false,
-    },
-  ];
+  /* ── Próximos debates — desde EventosService ── */
+  proximosDebates = computed<EventoDebate[]>(() =>
+    this.eventosService.getProximos(2)
+  );
 
   /* ── Ranking hardcodeado ── */
-  readonly topRanking: JugadorRanking[] = [
+  readonly topRanking = [
     { posicion: 2, nombre: 'Ana Pastor', puntos: 2350, avatar: 'AP', eres_tu: false },
     { posicion: 1, nombre: 'Marcos L.',  puntos: 2980, avatar: 'ML', eres_tu: false },
     { posicion: 3, nombre: 'Lucía R.',   puntos: 2150, avatar: 'LR', eres_tu: false },
@@ -100,18 +74,97 @@ export class Home {
     return this.notificaciones.some(n => !n.leida);
   }
 
+  /* ============================================================
+     MINI CALENDARIO — dropdown
+  ============================================================ */
+  mesActual  = signal(new Date().getMonth());
+  anioActual = signal(new Date().getFullYear());
+
+  readonly diasSemana = this.eventosService.diasSemana;
+
+  tituloMes = computed(() =>
+    this.eventosService.tituloMes(this.mesActual(), this.anioActual())
+  );
+
+  diasCalendario = computed<DiaCalendario[]>(() =>
+    this.eventosService.buildCalendario(this.mesActual(), this.anioActual())
+  );
+
+  mesAnteriorCal(event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.mesActual() === 0) {
+      this.mesActual.set(11);
+      this.anioActual.update(a => a - 1);
+    } else {
+      this.mesActual.update(m => m - 1);
+    }
+  }
+
+  mesSiguienteCal(event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.mesActual() === 11) {
+      this.mesActual.set(0);
+      this.anioActual.update(a => a + 1);
+    } else {
+      this.mesActual.update(m => m + 1);
+    }
+  }
+
+  /* ── Modal evento (desde mini calendario) ── */
+  eventoSeleccionado = signal<EventoDebate | null>(null);
+  modalEventoAbierto  = signal(false);
+
+  abrirModalEvento(evento: EventoDebate, event: MouseEvent): void {
+    event.stopPropagation();
+    this.eventoSeleccionado.set(evento);
+    this.modalEventoAbierto.set(true);
+  }
+
+  abrirModalEventoDirecto(evento: EventoDebate): void {
+    this.eventoSeleccionado.set(evento);
+    this.modalEventoAbierto.set(true);
+  }
+
+  cerrarModalEvento(): void {
+    this.modalEventoAbierto.set(false);
+    this.eventoSeleccionado.set(null);
+  }
+
+  cerrarModalEventoFuera(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
+      this.cerrarModalEvento();
+    }
+  }
+
+  formatearFecha(fecha: string): string {
+    return this.eventosService.formatearFecha(fecha);
+  }
+
+  plazasLibres(evento: EventoDebate): number {
+    return this.eventosService.plazasLibres(evento);
+  }
 
   /* ----------------------------------------------------------
-     Dropdown notificaciones
+     Dropdowns — notificaciones y calendario
   ---------------------------------------------------------- */
   toggleNotif(event: MouseEvent): void {
     event.stopPropagation();
     this.dropdownNotifAbierto.update(v => !v);
+    this.dropdownCalAbierto.set(false);
   }
+
+  toggleCalendario(event: MouseEvent): void {
+    event.stopPropagation();
+    this.dropdownCalAbierto.update(v => !v);
+    this.dropdownNotifAbierto.set(false);
+  }
+
+  @ViewChild(CareoInfo) careoInfo!: CareoInfo;
 
   @HostListener('document:click')
   onDocumentClick(): void {
     this.dropdownNotifAbierto.set(false);
+    this.dropdownCalAbierto.set(false);
   }
 
   /* ----------------------------------------------------------
@@ -159,8 +212,20 @@ export class Home {
     }
   }
 
+  /* ----------------------------------------------------------
+     Modal Careo Info
+  ---------------------------------------------------------- */
   abrirCareoInfo(): void {
-  this.careoInfoRef.abrir();
-}
+    this.careoInfo.abrir();
+  }
 
+  cerrarCareoInfo(): void {
+    this.modalCareoInfoAbierto.set(false);
+  }
+
+  cerrarCareoInfoFuera(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
+      this.cerrarCareoInfo();
+    }
+  }
 }

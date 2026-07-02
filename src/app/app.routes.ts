@@ -14,11 +14,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/debate/partida-debate/partida-debate').then(m => m.PartidaDebate)
   },
-  {
-    path        : 'crear-liga',
-    loadComponent: () =>
-      import('./pages/ligas/crear-liga/crear-liga').then(m => m.CrearLiga)
-  },
 
   /* ── Rutas con MainLayout — sidebar global ─────────────── */
   {
@@ -46,6 +41,11 @@ export const routes: Routes = [
           import('./pages/ligas/liga-hub/liga-hub').then(m => m.LigaHub)
       },
       {
+        path        : 'crear-liga',
+        loadComponent: () =>
+          import('./pages/ligas/crear-liga/crear-liga').then(m => m.CrearLiga)
+      },
+      {
         path        : 'ligas/unirse',
         loadComponent: () =>
           import('./pages/ligas/unirse-liga/unirse-liga').then(m => m.UnirseLiga)
@@ -55,6 +55,11 @@ export const routes: Routes = [
         path        : 'crear-debate',
         loadComponent: () =>
           import('./pages/debate/crear-debate/crear-debate').then(m => m.CrearDebate)
+      },
+      {
+        path        : 'unirse-debate',
+        loadComponent: () =>
+          import('./pages/debate/unirse-debate/unirse-debate').then(m => m.UnirseDebate)
       },
       /* Ranking */
       {
