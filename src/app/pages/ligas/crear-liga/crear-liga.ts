@@ -362,6 +362,110 @@ export class CrearLiga {
     this.ligaService.actualizarConfig({ fechaInicio: valor });
   }
 
+  /* ── Selector de fecha propio (sustituye a <input type="date">) ──
+    El popup del calendario nativo del navegador es UI del sistema
+    operativo y no se puede tematizar en oscuro, así que montamos
+    uno propio con el mismo estilo que el resto de la app. */
+  fechaInicioAbierta = signal(false);
+  mesVisible         = signal<Date>(new Date());
+
+  readonly DIAS_SEMANA_CORTO = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  private readonly NOMBRES_MES = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+  ];
+
+  mesVisibleLabel = computed(() => {
+    const fecha = this.mesVisible();
+    return `${this.NOMBRES_MES[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+  });
+
+  fechaInicioDate = computed<Date | null>(() => {
+    const iso = this.fechaInicio();
+    return iso ? new Date(iso + 'T00:00:00') : null;
+  });
+
+  fechaInicioLabel = computed(() => {
+    const d = this.fechaInicioDate();
+    if (!d) return 'dd/mm/aaaa';
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  });
+
+  diasCalendario = computed<Date[]>(() => {
+    const mes = this.mesVisible();
+    const primerDiaMes = new Date(mes.getFullYear(), mes.getMonth(), 1);
+    const offset = (primerDiaMes.getDay() + 6) % 7; // lunes = 0 ... domingo = 6
+
+    const inicio = new Date(primerDiaMes);
+    inicio.setDate(inicio.getDate() - offset);
+
+    return Array.from({ length: 42 }, (_, i) => {
+      const dia = new Date(inicio);
+      dia.setDate(inicio.getDate() + i);
+      return dia;
+    });
+  });
+
+  toggleFechaInicioPicker(): void {
+    if (!this.fechaInicioAbierta()) {
+      this.mesVisible.set(this.fechaInicioDate() ?? new Date());
+    }
+    this.fechaInicioAbierta.update(v => !v);
+  }
+
+  mesAnterior(): void {
+    const m = this.mesVisible();
+    this.mesVisible.set(new Date(m.getFullYear(), m.getMonth() - 1, 1));
+  }
+
+  mesSiguiente(): void {
+    const m = this.mesVisible();
+    this.mesVisible.set(new Date(m.getFullYear(), m.getMonth() + 1, 1));
+  }
+
+  esMesActual(dia: Date): boolean {
+    return dia.getMonth() === this.mesVisible().getMonth();
+  }
+
+  esHoy(dia: Date): boolean {
+    return this.mismoDia(dia, new Date());
+  }
+
+  esSeleccionado(dia: Date): boolean {
+    const sel = this.fechaInicioDate();
+    return sel ? this.mismoDia(dia, sel) : false;
+  }
+
+  private mismoDia(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+  }
+
+  seleccionarDia(dia: Date): void {
+    this.setFechaInicio(this.formatearISO(dia));
+    this.fechaInicioAbierta.set(false);
+  }
+
+  irAHoy(): void {
+    const hoy = new Date();
+    this.mesVisible.set(hoy);
+    this.setFechaInicio(this.formatearISO(hoy));
+    this.fechaInicioAbierta.set(false);
+  }
+
+  borrarFechaInicio(): void {
+    this.setFechaInicio('');
+    this.fechaInicioAbierta.set(false);
+  }
+
+  private formatearISO(d: Date): string {
+    const y   = d.getFullYear();
+    const m   = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   setMaxParticipantes(valor: LimiteParticipantes): void {
     this.ligaService.actualizarConfig({ maxParticipantes: valor });
   }

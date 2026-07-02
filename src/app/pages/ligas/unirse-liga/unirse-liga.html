@@ -1,1 +1,59 @@
-<p>unirme-liga works!</p>
+<!-- ============================================================
+     Unirse a una liga — box de código
+============================================================ -->
+<div class="ul-layout">
+  <div class="ul-card">
+
+    @if (!exito()) {
+
+      <!-- ── Estado: formulario de código ── -->
+      <div class="ul-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+
+      <h1 class="ul-titulo">{{ TITULO }}</h1>
+      <p class="ul-subtitulo">{{ SUBTITULO }}</p>
+
+      <div class="ul-form-group">
+        <div class="ul-input-wrapper" [class.error]="error()">
+          <input type="text"
+                 class="ul-input"
+                 [placeholder]="PLACEHOLDER"
+                 [value]="codigo()"
+                 (input)="setCodigo($any($event.target).value)"
+                 (keydown.enter)="validarCodigo()" />
+        </div>
+        @if (error()) {
+          <p class="ul-error">{{ error() }}</p>
+        }
+      </div>
+
+      <button class="ul-btn-unirse" [disabled]="cargando()" (click)="validarCodigo()">
+        @if (cargando()) {
+          <span class="ul-spinner"></span>
+          Comprobando...
+        } @else {
+          UNIRSE
+        }
+      </button>
+
+      <a class="ul-link-explorar" [routerLink]="RUTA_EXPLORAR">{{ TEXTO_EXPLORAR }}</a>
+
+    } @else {
+
+      <!-- ── Estado: éxito ── -->
+      <div class="ul-icono ul-icono-exito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+
+      <h1 class="ul-titulo">{{ EXITO_TITULO }}</h1>
+      <p class="ul-subtitulo">{{ EXITO_DESC }}</p>
+
+      <button class="ul-btn-unirse" (click)="continuar()">
+        {{ CTA_EXITO }}
+      </button>
+
+    }
+
+  </div>
+</div>

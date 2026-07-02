@@ -1,0 +1,139 @@
+/* ============================================================
+   Retos Hub — dentro del MainLayout
+============================================================ */
+
+* { box-sizing: border-box; }
+
+.hub-layout {
+  position  : relative;
+  max-width : 720px;
+  margin    : 0 auto;
+  padding   : 48px 24px 64px;
+}
+
+/* ── Header ── */
+.hub-header {
+  margin-bottom: 24px;
+}
+
+.hub-titulo {
+  font-size    : 24px;
+  font-weight  : 700;
+  color        : var(--blanco, #fff);
+  margin-bottom: 5px;
+}
+
+.hub-subtitulo {
+  font-size  : 13px;
+  color      : var(--texto-muted, #8a9ab8);
+  line-height: 1.5;
+}
+
+/* ── Cards ── */
+.hub-opciones {
+  display       : flex;
+  flex-direction: column;
+  gap           : 12px;
+}
+
+.hub-card {
+  display        : flex;
+  align-items    : center;
+  gap            : 20px;
+  background     : #0f1930;
+  border         : 1.5px solid rgba(255,255,255,0.08);
+  border-radius  : 14px;
+  padding        : 18px 22px;
+  cursor         : pointer;
+  transition     : border-color 0.2s, background 0.2s, transform 0.2s;
+  position       : relative;
+  overflow       : hidden;
+}
+
+.hub-card:hover {
+  background: #111e38;
+  transform : translateX(4px);
+}
+
+.hub-card.color-azul:hover   { border-color: #156fe7; }
+.hub-card.color-verde:hover  { border-color: #03d26e; }
+.hub-card.color-fucsia:hover { border-color: #ff3a72; }
+
+/* Icono */
+.hub-card-icono {
+  width          : 46px;
+  height         : 46px;
+  border-radius  : 12px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+  transition     : transform 0.2s;
+}
+
+.hub-card:hover .hub-card-icono { transform: scale(1.05); }
+
+.hub-card-icono svg {
+  width : 22px;
+  height: 22px;
+}
+
+.hub-card.color-azul   .hub-card-icono { background: rgba(21,111,231,0.15); color: #156fe7; }
+.hub-card.color-verde  .hub-card-icono { background: rgba(3,210,110,0.12);  color: #03d26e; }
+.hub-card.color-fucsia .hub-card-icono { background: rgba(255,58,114,0.12); color: #ff3a72; }
+
+/* Texto */
+.hub-card-texto { flex: 1; min-width: 0; }
+
+.hub-card-titulo {
+  font-size    : 15px;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 3px;
+}
+
+.hub-card-desc {
+  font-size  : 12px;
+  color      : #8a9ab8;
+  line-height: 1.5;
+}
+
+/* Tags */
+.hub-card-tags {
+  display   : flex;
+  gap       : 6px;
+  margin-top: 8px;
+  flex-wrap : wrap;
+}
+
+.tag {
+  font-size    : 11px;
+  font-weight  : 500;
+  padding      : 2px 8px;
+  border-radius: 5px;
+}
+
+.hub-card.color-azul   .tag { background: rgba(21,111,231,0.12); color: #6fa9f5; }
+.hub-card.color-verde  .tag { background: rgba(3,210,110,0.1);   color: #03d26e; }
+.hub-card.color-fucsia .tag { background: rgba(255,58,114,0.1);  color: #ff3a72; }
+
+/* Flecha */
+.hub-card-flecha {
+  color      : #8a9ab8;
+  flex-shrink: 0;
+  transition : color 0.2s, transform 0.2s;
+  width      : 18px;
+  height     : 18px;
+}
+
+.hub-card.color-azul:hover   .hub-card-flecha { color: #156fe7; transform: translateX(3px); }
+.hub-card.color-verde:hover  .hub-card-flecha { color: #03d26e; transform: translateX(3px); }
+.hub-card.color-fucsia:hover .hub-card-flecha { color: #ff3a72; transform: translateX(3px); }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hub-layout      { padding: 28px 16px 48px; }
+  .hub-card        { padding: 14px 16px; gap: 14px; }
+  .hub-card-icono  { width: 40px; height: 40px; }
+  .hub-card-titulo { font-size: 14px; }
+}

@@ -34,6 +34,13 @@ export const routes: Routes = [
           import('./pages/comunidad/comunidad-hub/comunidad-hub').then(m => m.ComunidadHub)
       },
 
+      /* Retos */
+      {
+        path        : 'retos',
+        loadComponent: () =>
+          import('./pages/retos/retos-hub/retos-hub').then(m => m.RetosHub)
+      },
+
       /* Ligas */
       {
         path        : 'ligas',
@@ -148,7 +155,7 @@ export const routes: Routes = [
       /* Careo */
       {
         path: 'careo-diario',
-        loadComponent: () => import('./pages/careo/careo-diario/careo-diario').then(m => m.CareoDiario)
+        loadComponent: () => import('./pages/retos/retos-careo/careo-diario/careo-diario').then(m => m.CareoDiario)
       }
     ]
   },

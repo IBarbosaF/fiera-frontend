@@ -1,0 +1,168 @@
+/* ============================================================
+   Unirse a una liga — box de código centrado
+============================================================ */
+
+.ul-layout {
+  min-height     : 100%;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  padding        : 48px 24px;
+}
+
+.ul-card {
+  width        : 100%;
+  max-width    : 400px;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 16px;
+  padding      : 36px 32px;
+  text-align   : center;
+}
+
+.ul-icono {
+  width          : 56px;
+  height         : 56px;
+  border-radius  : 14px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  margin         : 0 auto 20px;
+}
+
+.ul-icono svg {
+  width : 26px;
+  height: 26px;
+  color : #156fe7;
+}
+
+.ul-icono-exito {
+  background: rgba(3,210,110,0.12);
+}
+
+.ul-icono-exito svg {
+  color: #0a9e5a;
+}
+
+.ul-titulo {
+  font-size    : 1.3rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 8px;
+}
+
+.ul-subtitulo {
+  font-size    : 0.88rem;
+  color        : #8a9ab8;
+  line-height  : 1.5;
+  margin-bottom: 28px;
+}
+
+.ul-form-group {
+  margin-bottom: 20px;
+  text-align   : left;
+}
+
+.ul-input-wrapper {
+  background   : #080e1a;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 4px;
+  transition   : border-color 0.2s ease;
+}
+
+.ul-input-wrapper:focus-within {
+  border-color: #156fe7;
+}
+
+.ul-input-wrapper.error {
+  border-color: #ef4444;
+}
+
+.ul-input {
+  width      : 100%;
+  background : transparent;
+  border     : none;
+  outline    : none;
+  color      : #ffffff;
+  font-size  : 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align : center;
+  padding    : 14px 0;
+  font-family: inherit;
+  text-transform: uppercase;
+}
+
+.ul-input::placeholder {
+  color         : #3a4d6b;
+  letter-spacing: 0.04em;
+  font-weight   : 500;
+  text-transform: none;
+}
+
+.ul-error {
+  color     : #ef4444;
+  font-size : 0.8rem;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.ul-btn-unirse {
+  width          : 100%;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 10px;
+  background     : #156fe7;
+  color          : #ffffff;
+  border         : none;
+  border-radius  : 10px;
+  padding        : 15px;
+  font-size      : 0.92rem;
+  font-weight    : 700;
+  letter-spacing : 0.05em;
+  cursor         : pointer;
+  transition     : background 0.2s ease, transform 0.1s ease;
+  margin-bottom  : 18px;
+}
+
+.ul-btn-unirse:hover:not(:disabled) {
+  background: #105cb1;
+}
+
+.ul-btn-unirse:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.ul-btn-unirse:disabled {
+  opacity: 0.7;
+  cursor : default;
+}
+
+.ul-spinner {
+  width        : 15px;
+  height       : 15px;
+  border       : 2px solid rgba(255,255,255,0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation    : ul-girar 0.7s linear infinite;
+}
+
+@keyframes ul-girar {
+  to { transform: rotate(360deg); }
+}
+
+.ul-link-explorar {
+  display        : block;
+  font-size      : 0.85rem;
+  color          : #156fe7;
+  text-decoration: none;
+  font-weight    : 600;
+  cursor         : pointer;
+}
+
+.ul-link-explorar:hover {
+  text-decoration: underline;
+}

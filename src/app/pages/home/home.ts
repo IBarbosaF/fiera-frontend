@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { CareoInfo } from '../careo/careo-info/careo-info';
+import { CareoInfo } from '../retos/retos-careo/careo-info/careo-info';
 import {
   EventosService,
   EventoDebate,

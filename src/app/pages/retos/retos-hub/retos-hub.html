@@ -1,0 +1,68 @@
+<!-- ============================================================
+     Retos Hub — Menú de entrada al Reto del día
+============================================================ -->
+<div class="hub-layout">
+
+  <div class="hub-inner">
+
+    <div class="hub-header">
+      <h1 class="hub-titulo">Reto del día</h1>
+      <p class="hub-subtitulo">Completa los 3 desafíos de hoy y suma puntos.</p>
+    </div>
+
+    <div class="hub-opciones">
+
+      <!-- Careo -->
+      <div class="hub-card color-azul" (click)="irACareo()">
+        <div class="hub-card-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="hub-card-texto">
+          <p class="hub-card-titulo">Careo</p>
+          <p class="hub-card-desc">Debate exprés 1vs1 contra FIERA. Tema sorpresa, postura aleatoria.</p>
+          <div class="hub-card-tags">
+            <span class="tag">4 turnos</span>
+            <span class="tag">Puntúa</span>
+          </div>
+        </div>
+        <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Clash -->
+      <div class="hub-card color-fucsia" (click)="irAClash()">
+        <div class="hub-card-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <div class="hub-card-texto">
+          <p class="hub-card-titulo">Clashes</p>
+          <p class="hub-card-desc">Detecta los 2 argumentos más fuertes de cada postura.</p>
+          <div class="hub-card-tags">
+            <span class="tag">Agilidad</span>
+            <span class="tag">Puntúa</span>
+          </div>
+        </div>
+        <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Preguntón -->
+      <div class="hub-card color-verde" (click)="irAPregunton()">
+        <div class="hub-card-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="hub-card-texto">
+          <p class="hub-card-titulo">Preguntón</p>
+          <p class="hub-card-desc">Valora la pregunta de debate del día con hasta 3 corazones.</p>
+          <div class="hub-card-tags">
+            <span class="tag">Rápido</span>
+            <span class="tag">Puntúa</span>
+          </div>
+        </div>
+        <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<app-careo-info />
