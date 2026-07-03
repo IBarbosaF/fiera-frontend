@@ -1,0 +1,469 @@
+/* ============================================================
+   pregunton-info.css — Modal informativo del Preguntón del día
+============================================================ */
+
+/* ── Overlay ── */
+.pregunton-overlay {
+  position        : fixed;
+  inset           : 0;
+  background      : rgba(0, 0, 0, 0.65);
+  backdrop-filter : blur(4px);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  z-index         : 1000;
+  padding         : 16px;
+}
+
+/* ── Modal contenedor ── */
+.pregunton-modal {
+  background    : #0d1625;
+  border        : 1px solid rgba(3, 210, 110, 0.2);
+  border-radius : 20px;
+  width         : 100%;
+  max-width     : 520px;
+  max-height    : 90vh;
+  display       : flex;
+  flex-direction: column;
+  overflow      : hidden;
+  position      : relative;
+  box-shadow    : 0 24px 64px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(3, 210, 110, 0.1);
+}
+
+/* ── Botón cerrar ── */
+.pregunton-close {
+  position  : absolute;
+  top       : 14px;
+  right     : 14px;
+  width     : 32px;
+  height    : 32px;
+  border    : none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color     : #8a9ab8;
+  cursor    : pointer;
+  display   : flex;
+  align-items    : center;
+  justify-content: center;
+  z-index   : 10;
+  transition: background 0.2s, color 0.2s;
+}
+
+.pregunton-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color     : #fff;
+}
+
+.pregunton-close svg {
+  width : 16px;
+  height: 16px;
+}
+
+/* ══════════════════════════════════════════
+   CABECERA VERDE
+══════════════════════════════════════════ */
+.pregunton-header {
+  background    : linear-gradient(135deg, #03d26e 0%, #04a558 100%);
+  padding       : 6px 28px 0 28px;
+  display       : flex;
+  align-items   : flex-end;
+  justify-content: space-between;
+  gap           : 12px;
+  flex-shrink   : 0;
+  min-height    : 130px;
+}
+
+.pregunton-header-texto {
+  padding-bottom: 24px;
+}
+
+.pregunton-header-icono {
+  width          : 34px;
+  height         : 34px;
+  border-radius  : 50%;
+  background     : rgba(255, 255, 255, 0.18);
+  color          : #fff;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  margin-bottom  : 8px;
+}
+
+.pregunton-header-titulo {
+  font-size    : 1.5rem;
+  font-weight  : 800;
+  color        : #fff;
+  line-height  : 1.2;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.pregunton-header-subtitulo {
+  font-size  : 0.88rem;
+  color      : rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+
+.pregunton-header-img {
+  width      : 110px;
+  object-fit : contain;
+  align-self : flex-end;
+  filter     : drop-shadow(0 -4px 20px rgba(0,0,0,0.3));
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   CUERPO SCROLLABLE
+══════════════════════════════════════════ */
+.pregunton-body {
+  overflow-y: auto;
+  padding   : 0 20px 4px;
+  flex      : 1;
+}
+
+.pregunton-body::-webkit-scrollbar       { width: 4px; }
+.pregunton-body::-webkit-scrollbar-track { background: transparent; }
+.pregunton-body::-webkit-scrollbar-thumb { background: rgba(3,210,110,0.3); border-radius: 4px; }
+
+/* ══════════════════════════════════════════
+   INTRO
+══════════════════════════════════════════ */
+.pregunton-intro {
+  display      : flex;
+  align-items  : center;
+  justify-content: space-between;
+  gap          : 14px;
+  border-left  : 3px solid #03d26e;
+  padding      : 14px 16px;
+  margin-top   : 14px;
+  background   : rgba(255, 255, 255, 0.03);
+  border-radius: 0 12px 12px 0;
+}
+
+.pregunton-intro-texto {
+  font-size  : 0.92rem;
+  font-weight: 600;
+  color      : #e8edf5;
+  line-height: 1.4;
+}
+
+.pregunton-intro-icono {
+  width          : 44px;
+  height         : 44px;
+  border-radius  : 12px;
+  background     : rgba(3, 210, 110, 0.12);
+  color          : #03d26e;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+/* ══════════════════════════════════════════
+   BLOQUES COMUNES
+══════════════════════════════════════════ */
+.pregunton-bloque {
+  background    : rgba(255, 255, 255, 0.03);
+  border        : 1px solid rgba(255, 255, 255, 0.07);
+  border-radius : 12px;
+  padding       : 16px;
+  margin-top    : 14px;
+}
+
+.pregunton-seccion-header {
+  display      : flex;
+  align-items  : center;
+  gap          : 8px;
+  margin-bottom: 12px;
+}
+
+.pregunton-seccion-header svg {
+  color      : #03d26e;
+  flex-shrink: 0;
+}
+
+.pregunton-seccion-icono {
+  width          : 30px;
+  height         : 30px;
+  border-radius  : 8px;
+  background     : rgba(3, 210, 110, 0.12);
+  color          : #03d26e;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.pregunton-seccion-titulo {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  letter-spacing: 1px;
+  color         : #03d26e;
+  text-transform: uppercase;
+}
+
+.pregunton-bloque-desc {
+  font-size  : 0.85rem;
+  color      : #8a9ab8;
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════════════════
+   ¿CÓMO FUNCIONA? — pasos numerados
+══════════════════════════════════════════ */
+.pregunton-pasos {
+  display       : flex;
+  flex-direction: column;
+  gap           : 14px;
+}
+
+.pregunton-paso {
+  display    : flex;
+  align-items: flex-start;
+  gap        : 12px;
+}
+
+.pregunton-paso-num {
+  width          : 26px;
+  height         : 26px;
+  border-radius  : 50%;
+  background     : #03d26e;
+  color          : #fff;
+  font-size      : 0.78rem;
+  font-weight    : 700;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.pregunton-paso-icono {
+  width          : 36px;
+  height         : 36px;
+  border-radius  : 10px;
+  background     : rgba(3, 210, 110, 0.1);
+  color          : #03d26e;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.pregunton-paso-texto { flex: 1; }
+
+.pregunton-paso-titulo {
+  font-size    : 0.88rem;
+  font-weight  : 700;
+  color        : #fff;
+  margin-bottom: 2px;
+}
+
+.pregunton-paso-desc {
+  font-size  : 0.8rem;
+  color      : #8a9ab8;
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════
+   EXPLORA EL RANKING
+══════════════════════════════════════════ */
+.pregunton-ranking {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+}
+
+.pregunton-ranking-fila {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  background : rgba(3, 210, 110, 0.05);
+  border     : 1px solid rgba(3, 210, 110, 0.15);
+  border-radius: 10px;
+  padding    : 10px 12px;
+}
+
+.pregunton-medalla {
+  width          : 22px;
+  height         : 22px;
+  border-radius  : 50%;
+  font-size      : 0.72rem;
+  font-weight    : 700;
+  color          : #0d1625;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.pregunton-medalla--oro    { background: #f5c518; }
+.pregunton-medalla--plata  { background: #c4cdd8; }
+.pregunton-medalla--bronce { background: #cd7f32; }
+
+.pregunton-ranking-avatar {
+  width          : 32px;
+  height         : 32px;
+  border-radius  : 50%;
+  background     : linear-gradient(135deg, #03d26e, #04a558);
+  color          : #fff;
+  font-size      : 0.68rem;
+  font-weight    : 700;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.pregunton-ranking-info { flex: 1; min-width: 0; }
+
+.pregunton-ranking-pregunta {
+  font-size    : 0.82rem;
+  font-weight  : 600;
+  color        : #e8edf5;
+  line-height  : 1.35;
+  margin-bottom: 4px;
+}
+
+.pregunton-ranking-meta {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+}
+
+.pregunton-ranking-corazones {
+  display: flex;
+  gap    : 2px;
+  color  : #03d26e;
+}
+
+.pregunton-ranking-usuario {
+  font-size: 0.72rem;
+  color    : #6b7f9e;
+}
+
+/* ══════════════════════════════════════════
+   RECORDATORIO FINAL
+══════════════════════════════════════════ */
+.pregunton-recordatorio {
+  display      : flex;
+  align-items  : center;
+  gap          : 14px;
+  background   : rgba(255, 255, 255, 0.03);
+  border       : 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding      : 16px;
+  margin-top   : 14px;
+}
+
+.pregunton-recordatorio-icono {
+  color      : #03d26e;
+  flex-shrink: 0;
+}
+
+.pregunton-recordatorio-texto {
+  font-size  : 0.84rem;
+  color      : #8a9ab8;
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════════════════
+   FOOTER — Checkbox + Botón (dentro del body)
+══════════════════════════════════════════ */
+.pregunton-footer {
+  padding       : 16px 0 20px;
+  display       : flex;
+  flex-direction: column;
+  gap           : 14px;
+}
+
+/* Checkbox custom */
+.pregunton-checkbox-label {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  cursor     : pointer;
+  user-select: none;
+}
+
+.pregunton-checkbox {
+  width         : 18px;
+  height        : 18px;
+  border-radius : 5px;
+  border        : 2px solid #2a3a55;
+  background    : transparent;
+  display       : flex;
+  align-items   : center;
+  justify-content: center;
+  flex-shrink   : 0;
+  transition    : border-color 0.2s, background 0.2s;
+}
+
+.pregunton-checkbox.marcado {
+  background  : #03d26e;
+  border-color: #03d26e;
+}
+
+.pregunton-checkbox svg {
+  color: #0d1625;
+}
+
+.pregunton-checkbox-label span {
+  font-size: 0.84rem;
+  color    : #8a9ab8;
+}
+
+.pregunton-checkbox-label:hover span {
+  color: #c8d4e8;
+}
+
+/* Botón comenzar */
+.pregunton-btn-comenzar {
+  width          : 100%;
+  padding        : 14px;
+  background     : #03d26e;
+  border         : none;
+  border-radius  : 10px;
+  color          : #0d1625;
+  font-size      : 0.95rem;
+  font-weight    : 700;
+  font-family    : 'Inter', sans-serif;
+  letter-spacing : 0.03em;
+  cursor         : pointer;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  transition     : background 0.2s, transform 0.1s;
+}
+
+.pregunton-btn-comenzar:hover  { background: #04a558; color: #fff; }
+.pregunton-btn-comenzar:active { transform: scale(0.98); }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — móvil
+══════════════════════════════════════════ */
+@media (max-width: 540px) {
+  .pregunton-header {
+    min-height: 110px;
+    padding   : 20px 20px 0;
+  }
+
+  .pregunton-header-titulo { font-size: 1.25rem; }
+  .pregunton-header-img    { width: 88px; }
+
+  .pregunton-body { padding: 0 14px 4px; }
+
+  .pregunton-intro {
+    flex-direction: column;
+    align-items   : flex-start;
+  }
+
+  .pregunton-ranking-fila {
+    flex-wrap: wrap;
+  }
+
+  .pregunton-footer {
+    padding: 14px 0 18px;
+  }
+}

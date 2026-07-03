@@ -1,0 +1,293 @@
+/* ============================================================
+   pregunton-diario.css — Reto: valorar la pregunta del día
+============================================================ */
+
+* { box-sizing: border-box; }
+
+.pd-layout {
+  min-height: 100%;
+  padding   : 40px 24px 64px;
+}
+
+.pd-inner {
+  max-width: 640px;
+  margin   : 0 auto;
+}
+
+/* ── Header ── */
+.pd-header {
+  margin-bottom: 28px;
+}
+
+.pd-volver {
+  display      : flex;
+  align-items  : center;
+  gap          : 6px;
+  background   : transparent;
+  border       : none;
+  color        : #8a9ab8;
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  cursor       : pointer;
+  padding      : 0;
+  margin-bottom: 16px;
+  transition   : color 0.2s;
+  font-family  : inherit;
+}
+
+.pd-volver:hover { color: #ffffff; }
+
+.pd-titulo {
+  font-size    : 1.6rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 6px;
+}
+
+.pd-subtitulo {
+  font-size  : 0.9rem;
+  color      : #8a9ab8;
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════
+   PREGUNTA DEL DÍA — card
+══════════════════════════════════════════ */
+.pd-pregunta-card {
+  background   : #0d1a33;
+  border       : 1px solid rgba(3, 210, 110, 0.2);
+  border-radius: 16px;
+  padding      : 28px 24px;
+  margin-bottom: 24px;
+}
+
+.pd-pregunta-autor {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  margin-bottom: 16px;
+}
+
+.pd-avatar {
+  width          : 32px;
+  height         : 32px;
+  border-radius  : 50%;
+  background     : linear-gradient(135deg, #03d26e, #04a558);
+  color          : #0d1625;
+  font-size      : 0.7rem;
+  font-weight    : 700;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.pd-avatar--sm {
+  width    : 28px;
+  height   : 28px;
+  font-size: 0.62rem;
+}
+
+.pd-autor-nombre {
+  font-size: 0.82rem;
+  color    : #8a9ab8;
+}
+
+.pd-pregunta-texto {
+  font-size    : 1.25rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  line-height  : 1.4;
+  margin-bottom: 24px;
+}
+
+/* ── Selector de corazones ── */
+.pd-corazones-selector {
+  display        : flex;
+  justify-content: center;
+  gap            : 12px;
+  margin-bottom  : 20px;
+}
+
+.pd-corazon-btn {
+  background : transparent;
+  border     : none;
+  color      : #03d26e;
+  cursor     : pointer;
+  padding    : 6px;
+  transition : transform 0.15s ease;
+}
+
+.pd-corazon-btn:hover:not(.deshabilitado) { transform: scale(1.15); }
+.pd-corazon-btn:active:not(.deshabilitado) { transform: scale(0.95); }
+
+.pd-corazon-btn.deshabilitado {
+  cursor: default;
+  opacity: 0.9;
+}
+
+/* ── Botón enviar ── */
+.pd-btn-enviar {
+  width          : 100%;
+  padding        : 14px;
+  background     : #03d26e;
+  border         : none;
+  border-radius  : 10px;
+  color          : #0d1625;
+  font-size      : 0.95rem;
+  font-weight    : 700;
+  font-family    : 'Inter', sans-serif;
+  letter-spacing : 0.03em;
+  cursor         : pointer;
+  transition     : background 0.2s, transform 0.1s;
+}
+
+.pd-btn-enviar:hover:not(.deshabilitado)  { background: #04a558; color: #fff; }
+.pd-btn-enviar:active:not(.deshabilitado) { transform: scale(0.98); }
+
+.pd-btn-enviar.deshabilitado {
+  background: #1e2d47;
+  color     : #5a6b85;
+  cursor    : not-allowed;
+}
+
+/* ── Estado ya votado ── */
+.pd-ya-votado {
+  display      : flex;
+  align-items  : center;
+  justify-content: center;
+  gap          : 8px;
+  background   : rgba(3, 210, 110, 0.08);
+  border       : 1px solid rgba(3, 210, 110, 0.25);
+  border-radius: 10px;
+  padding      : 12px 16px;
+  color        : #03d26e;
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  text-align   : center;
+}
+
+/* ══════════════════════════════════════════
+   RANKING COMPLETO
+══════════════════════════════════════════ */
+.pd-ranking-bloque {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 16px;
+  padding      : 24px;
+}
+
+.pd-ranking-header {
+  display      : flex;
+  align-items  : center;
+  gap          : 8px;
+  margin-bottom: 18px;
+  color        : #03d26e;
+}
+
+.pd-ranking-titulo {
+  font-size     : 0.75rem;
+  font-weight   : 700;
+  letter-spacing: 1px;
+  color         : #03d26e;
+  text-transform: uppercase;
+}
+
+.pd-ranking-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+}
+
+.pd-ranking-fila {
+  display    : flex;
+  align-items: center;
+  gap        : 12px;
+  background : rgba(3, 210, 110, 0.04);
+  border     : 1px solid rgba(3, 210, 110, 0.12);
+  border-radius: 10px;
+  padding    : 12px 14px;
+  transition : border-color 0.2s ease, background 0.2s ease;
+}
+
+.pd-ranking-fila:hover {
+  border-color: rgba(3, 210, 110, 0.3);
+  background  : rgba(3, 210, 110, 0.07);
+}
+
+.pd-medalla {
+  width          : 24px;
+  height         : 24px;
+  border-radius  : 50%;
+  font-size      : 0.75rem;
+  font-weight    : 700;
+  color          : #0d1625;
+  background     : #1e2d47;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.pd-medalla--oro    { background: #f5c518; }
+.pd-medalla--plata  { background: #c4cdd8; }
+.pd-medalla--bronce { background: #cd7f32; }
+
+.pd-ranking-info { flex: 1; min-width: 0; }
+
+.pd-ranking-pregunta {
+  font-size    : 0.88rem;
+  font-weight  : 600;
+  color        : #e8edf5;
+  line-height  : 1.4;
+  margin-bottom: 6px;
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+
+.pd-ranking-meta {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  flex-wrap  : wrap;
+}
+
+.pd-ranking-corazones {
+  display: flex;
+  gap    : 2px;
+  color  : #03d26e;
+}
+
+.pd-ranking-media {
+  font-size  : 0.78rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+.pd-ranking-usuario {
+  font-size: 0.72rem;
+  color    : #6b7f9e;
+}
+
+.pd-ranking-votos {
+  font-size    : 0.7rem;
+  color        : #5a6b85;
+  margin-left  : auto;
+  white-space  : nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .pd-layout { padding: 24px 16px 48px; }
+
+  .pd-pregunta-card,
+  .pd-ranking-bloque { padding: 20px 18px; }
+
+  .pd-pregunta-texto { font-size: 1.1rem; }
+
+  .pd-ranking-votos {
+    margin-left: 0;
+    width      : 100%;
+  }
+}

@@ -1,0 +1,466 @@
+/* ============================================================
+   clash-info.css — Modal informativo del Clash del día
+============================================================ */
+
+/* ── Overlay ── */
+.clash-overlay {
+  position        : fixed;
+  inset           : 0;
+  background      : rgba(0, 0, 0, 0.65);
+  backdrop-filter : blur(4px);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  z-index         : 1000;
+  padding         : 16px;
+}
+
+/* ── Modal contenedor ── */
+.clash-modal {
+  background    : #0d1625;
+  border        : 1px solid rgba(255, 58, 114, 0.2);
+  border-radius : 20px;
+  width         : 100%;
+  max-width     : 520px;
+  max-height    : 90vh;
+  display       : flex;
+  flex-direction: column;
+  overflow      : hidden;
+  position      : relative;
+  box-shadow    : 0 24px 64px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 58, 114, 0.1);
+}
+
+/* ── Botón cerrar ── */
+.clash-close {
+  position  : absolute;
+  top       : 14px;
+  right     : 14px;
+  width     : 32px;
+  height    : 32px;
+  border    : none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color     : #8a9ab8;
+  cursor    : pointer;
+  display   : flex;
+  align-items    : center;
+  justify-content: center;
+  z-index   : 10;
+  transition: background 0.2s, color 0.2s;
+}
+
+.clash-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color     : #fff;
+}
+
+.clash-close svg {
+  width : 16px;
+  height: 16px;
+}
+
+/* ══════════════════════════════════════════
+   CABECERA ROSA
+══════════════════════════════════════════ */
+.clash-header {
+  background    : linear-gradient(135deg, #ff3a72 0%, #c21751 100%);
+  padding       : 6px 28px 0 28px;
+  display       : flex;
+  align-items   : flex-end;
+  justify-content: space-between;
+  gap           : 12px;
+  flex-shrink   : 0;
+  min-height    : 130px;
+}
+
+.clash-header-texto {
+  padding-bottom: 24px;
+}
+
+.clash-header-titulo {
+  font-size    : 1.6rem;
+  font-weight  : 800;
+  color        : #fff;
+  line-height  : 1.2;
+  margin-bottom: 6px;
+}
+
+.clash-header-subtitulo {
+  font-size  : 0.88rem;
+  color      : rgba(255, 255, 255, 0.82);
+  line-height: 1.5;
+}
+
+.clash-header-img {
+  width      : 110px;
+  object-fit : contain;
+  align-self : flex-end;
+  filter     : drop-shadow(0 -4px 20px rgba(0,0,0,0.3));
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   CUERPO SCROLLABLE
+══════════════════════════════════════════ */
+.clash-body {
+  overflow-y: auto;
+  padding   : 0 20px 4px;
+  flex      : 1;
+}
+
+.clash-body::-webkit-scrollbar       { width: 4px; }
+.clash-body::-webkit-scrollbar-track { background: transparent; }
+.clash-body::-webkit-scrollbar-thumb { background: rgba(255,58,114,0.3); border-radius: 4px; }
+
+/* ══════════════════════════════════════════
+   BLOQUES COMUNES
+══════════════════════════════════════════ */
+.clash-bloque,
+.clash-pasos,
+.clash-ejemplo,
+.clash-recordatorio {
+  background    : rgba(255, 255, 255, 0.03);
+  border        : 1px solid rgba(255, 255, 255, 0.07);
+  border-radius : 12px;
+  padding       : 16px;
+  margin-top    : 14px;
+}
+
+/* ── Encabezado de sección (icono + título en mayús) ── */
+.clash-seccion-header {
+  display      : flex;
+  align-items  : center;
+  gap          : 8px;
+  margin-bottom: 14px;
+}
+
+.clash-seccion-header svg {
+  color      : #ff3a72;
+  flex-shrink: 0;
+}
+
+.clash-seccion-titulo {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  letter-spacing: 1px;
+  color         : #ff3a72;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   BLOQUE — Nombre "EL CLASH"
+══════════════════════════════════════════ */
+.clash-bloque-titulo {
+  display    : flex;
+  align-items: center;
+  gap        : 14px;
+  background    : rgba(255, 255, 255, 0.03);
+  border        : 1px solid rgba(255, 255, 255, 0.07);
+  border-radius : 12px;
+  padding       : 16px;
+  margin-top    : 14px;
+}
+
+.clash-bloque-icono {
+  width          : 44px;
+  height         : 44px;
+  border-radius  : 12px;
+  background     : rgba(255, 58, 114, 0.15);
+  color          : #ff3a72;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.clash-bloque-icono svg { width: 22px; height: 22px; }
+
+.clash-bloque-nombre {
+  font-size    : 1.4rem;
+  font-weight  : 800;
+  color        : #fff;
+  line-height  : 1;
+  margin-bottom: 4px;
+}
+
+.clash-bloque-desc {
+  font-size: 0.85rem;
+  color    : #8a9ab8;
+}
+
+/* ══════════════════════════════════════════
+   PASOS DEL PROCESO
+══════════════════════════════════════════ */
+.clash-pasos {
+  display        : flex;
+  align-items    : flex-start;
+  justify-content: space-between;
+  gap            : 4px;
+}
+
+.clash-paso {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  text-align    : center;
+  gap           : 8px;
+  flex          : 1;
+  min-width     : 0;
+}
+
+.clash-paso-icono {
+  width          : 32px;
+  height         : 32px;
+  border-radius  : 50%;
+  background     : #ff3a72;
+  color          : #fff;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.clash-paso-icono svg { width: 16px; height: 16px; }
+
+.clash-paso-texto {
+  font-size  : 0.75rem;
+  color      : #c8d4e8;
+  line-height: 1.4;
+}
+
+.clash-paso-flecha {
+  color      : #3a4d6b;
+  flex-shrink: 0;
+  margin-top : 16px;
+}
+
+/* ══════════════════════════════════════════
+   MODOS DE JUEGO
+══════════════════════════════════════════ */
+.clash-modos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap    : 12px;
+}
+
+.clash-modo-card {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  text-align     : center;
+  gap            : 10px;
+  background     : rgba(255, 58, 114, 0.08);
+  border         : 1px solid rgba(255, 58, 114, 0.18);
+  border-radius  : 10px;
+  padding        : 16px 12px;
+}
+
+.clash-modo-badge {
+  font-size     : 0.68rem;
+  font-weight   : 700;
+  letter-spacing: 0.05em;
+  color         : #fff;
+  background    : #ff3a72;
+  border-radius : 6px;
+  padding       : 3px 10px;
+}
+
+.clash-modo-icono { color: #ff3a72; }
+.clash-modo-icono svg { width: 22px; height: 22px; }
+
+.clash-modo-desc {
+  font-size  : 0.78rem;
+  color      : #8a9ab8;
+  line-height: 1.4;
+}
+
+/* ══════════════════════════════════════════
+   EJEMPLO DE PREGUNTA
+══════════════════════════════════════════ */
+.clash-ejemplo {
+  display    : flex;
+  align-items: center;
+  gap        : 14px;
+}
+
+.clash-ejemplo-icono {
+  width          : 34px;
+  height         : 34px;
+  border-radius  : 50%;
+  background     : #ff3a72;
+  color          : #fff;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.clash-ejemplo-icono svg { width: 18px; height: 18px; }
+
+.clash-ejemplo-texto { flex: 1; }
+
+.clash-ejemplo-label {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  letter-spacing: 1px;
+  color         : #ff3a72;
+  text-transform: uppercase;
+  display       : block;
+  margin-bottom : 4px;
+}
+
+.clash-ejemplo-pregunta {
+  font-size  : 0.92rem;
+  font-weight: 600;
+  color      : #fff;
+  line-height: 1.4;
+}
+
+.clash-ejemplo-vs {
+  width          : 36px;
+  height         : 36px;
+  border-radius  : 50%;
+  background     : rgba(255, 58, 114, 0.15);
+  color          : #ff3a72;
+  font-size      : 0.72rem;
+  font-weight    : 700;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+/* ══════════════════════════════════════════
+   RECORDATORIO DIARIO
+══════════════════════════════════════════ */
+.clash-recordatorio {
+  display      : flex;
+  align-items  : center;
+  gap          : 14px;
+  margin-bottom: 4px;
+}
+
+.clash-recordatorio-icono {
+  color      : #ff3a72;
+  flex-shrink: 0;
+}
+
+.clash-recordatorio-texto {
+  font-size  : 0.84rem;
+  color      : #8a9ab8;
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════════════════
+   FOOTER — Checkbox + Botón
+══════════════════════════════════════════ */
+.clash-footer {
+  padding       : 16px 20px 20px;
+  display       : flex;
+  flex-direction: column;
+  gap           : 14px;
+}
+
+/* Checkbox custom */
+.clash-checkbox-label {
+  display    : flex;
+  align-items: center;
+  gap        : 10px;
+  cursor     : pointer;
+  user-select: none;
+}
+
+.clash-checkbox {
+  width         : 18px;
+  height        : 18px;
+  border-radius : 5px;
+  border        : 2px solid #2a3a55;
+  background    : transparent;
+  display       : flex;
+  align-items   : center;
+  justify-content: center;
+  flex-shrink   : 0;
+  transition    : border-color 0.2s, background 0.2s;
+}
+
+.clash-checkbox.marcado {
+  background  : #ff3a72;
+  border-color: #ff3a72;
+}
+
+.clash-checkbox svg {
+  color: #fff;
+}
+
+.clash-checkbox-label span {
+  font-size: 0.84rem;
+  color    : #8a9ab8;
+}
+
+.clash-checkbox-label:hover span {
+  color: #c8d4e8;
+}
+
+/* Botón comenzar */
+.clash-btn-comenzar {
+  width          : 100%;
+  padding        : 14px;
+  background     : #ff3a72;
+  border         : none;
+  border-radius  : 10px;
+  color          : #fff;
+  font-size      : 0.95rem;
+  font-weight    : 700;
+  font-family    : 'Inter', sans-serif;
+  letter-spacing : 0.03em;
+  cursor         : pointer;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  transition     : background 0.2s, transform 0.1s;
+}
+
+.clash-btn-comenzar:hover  { background: #d81e5b; }
+.clash-btn-comenzar:active { transform: scale(0.98); }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — móvil
+══════════════════════════════════════════ */
+@media (max-width: 540px) {
+  .clash-header {
+    min-height: 110px;
+    padding   : 20px 20px 0;
+  }
+
+  .clash-header-titulo { font-size: 1.3rem; }
+  .clash-header-img    { width: 88px; }
+
+  .clash-body { padding: 0 14px 4px; }
+
+  .clash-pasos {
+    flex-wrap: wrap;
+    gap      : 14px 8px;
+  }
+
+  .clash-paso {
+    flex: 1 1 40%;
+  }
+
+  .clash-paso-flecha {
+    display: none;
+  }
+
+  .clash-modos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .clash-ejemplo {
+    flex-wrap: wrap;
+  }
+
+  .clash-footer {
+    padding: 14px 14px 18px;
+  }
+}

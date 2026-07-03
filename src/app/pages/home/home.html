@@ -378,9 +378,9 @@
       <div class="reto-contenido">
         <div class="reto-header">
           <span class="reto-label">Reto del día</span>
-          <span class="reto-badge">{{ retoDia.duracion }}</span>
+          <span class="reto-badge">{{ retoDia().duracion }}</span>
         </div>
-        <p class="reto-pregunta">{{ retoDia.pregunta }}</p>
+        <p class="reto-pregunta">{{ retoDia().pregunta }}</p>
         <div class="reto-acciones">
           <button class="btn-primary reto-btn" (click)="abrirCareoInfo()">
             CAREO

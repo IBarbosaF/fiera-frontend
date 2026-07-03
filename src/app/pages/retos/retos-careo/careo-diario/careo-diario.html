@@ -1,1 +1,206 @@
-<p>careo-diario works!</p>
+<!-- ============================================================
+     CareoDiario — Reto: Careo 1vs1 contra FIERA
+
+     Estados:
+     1. cargando()      → preparando el careo (creando debate)
+     2. errorCarga()     → no se pudo crear el careo
+     3. completadoHoy()  → ya se hizo hoy, muestra resultado
+     4. finalizando()    → esperando el resultado final
+     5. activo           → bucle de turnos (historial + input)
+============================================================ -->
+<div class="cd-layout">
+
+  <div class="cd-inner">
+
+    <!-- ── Header ── -->
+    <div class="cd-header">
+      <button class="cd-volver" (click)="volverAlHub()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Volver
+      </button>
+      <h1 class="cd-titulo">Careo del día</h1>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         ESTADO 1 — Cargando (creando el careo)
+    ══════════════════════════════════════════ -->
+    @if (cargando()) {
+      <div class="cd-estado-card">
+        <div class="cd-spinner"></div>
+        <p class="cd-estado-texto">Preparando tu Careo de hoy...</p>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════
+         ESTADO 2 — Error al crear el careo
+    ══════════════════════════════════════════ -->
+    @else if (errorCarga()) {
+      <div class="cd-estado-card cd-estado-card--error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p class="cd-estado-texto">No se ha podido preparar el Careo de hoy. Inténtalo de nuevo más tarde.</p>
+        <button class="cd-btn-volver-error" (click)="volverAlHub()">Volver a Retos</button>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════
+         ESTADO 3 — Ya completado hoy
+    ══════════════════════════════════════════ -->
+    @else if (completadoHoy()) {
+      <div class="cd-completado-card">
+        <div class="cd-completado-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="28" height="28">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h2 class="cd-completado-titulo">Ya has hecho el Careo de hoy</h2>
+        <p class="cd-completado-sub">Vuelve mañana para un nuevo tema y una nueva postura.</p>
+
+        @if (completadoHoy()!.resultado; as resultado) {
+          <div class="cd-resultado-grid">
+            <div class="cd-resultado-total">
+              <span class="cd-resultado-total-num">{{ resultado.scoreTotal }}</span>
+              <span class="cd-resultado-total-label">Puntuación total</span>
+            </div>
+            <div class="cd-resultado-detalle">
+              <div class="cd-resultado-item">
+                <span>Argumentación</span>
+                <strong>{{ resultado.scoreArgumentacion }}</strong>
+              </div>
+              <div class="cd-resultado-item">
+                <span>Refutación</span>
+                <strong>{{ resultado.scoreRefutacion }}</strong>
+              </div>
+              <div class="cd-resultado-item">
+                <span>Evidencias</span>
+                <strong>{{ resultado.scoreEvidence }}</strong>
+              </div>
+              <div class="cd-resultado-item">
+                <span>Claridad</span>
+                <strong>{{ resultado.scoreClarity }}</strong>
+              </div>
+            </div>
+            @if (resultado.feedback) {
+              <p class="cd-resultado-feedback">{{ resultado.feedback }}</p>
+            }
+          </div>
+        }
+
+        <button class="cd-btn-volver" (click)="volverAlHub()">Volver a Retos</button>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════
+         ESTADO 4 — Finalizando (esperando resultado)
+    ══════════════════════════════════════════ -->
+    @else if (finalizando()) {
+      <div class="cd-estado-card">
+        <div class="cd-spinner"></div>
+        <p class="cd-estado-texto">Calculando tu resultado...</p>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════
+         ESTADO 5 — Careo activo (bucle de turnos)
+    ══════════════════════════════════════════ -->
+    @else if (subTurnoInfo) {
+      <div class="cd-activo">
+
+        <!-- ── Turno actual ── -->
+        <div class="cd-turno-card">
+          <div class="cd-turno-progreso">
+            Turno {{ turnoActual() + 1 }} / {{ secuencia.length }}
+          </div>
+          <div class="cd-turno-info">
+            <span class="cd-turno-nombre">{{ subTurnoInfo.nombre }}</span>
+            <span class="cd-turno-postura"
+                  [class.postura-favor]="subTurnoInfo.postura === 'favor'"
+                  [class.postura-contra]="subTurnoInfo.postura === 'contra'">
+              {{ subTurnoInfo.postura === 'favor' ? 'A favor' : 'En contra' }}
+            </span>
+          </div>
+          <div class="cd-turno-quien">
+            {{ esTuTurno ? 'Tu turno' : 'Turno de FIERA' }}
+          </div>
+          <div class="cd-timer">{{ formatearSegundos(segundosRest()) }}</div>
+        </div>
+
+        <!-- ── Historial / transcript ── -->
+        <div class="cd-historial">
+          @for (item of historial(); track $index) {
+            <div class="cd-historial-item" [class.cd-historial-item--fiera]="item.titulo.includes('FIERA')">
+              <p class="cd-historial-titulo">{{ item.titulo }}</p>
+              <p class="cd-historial-texto">
+                @if (item.esAudio) {
+                  🎙️
+                }
+                {{ item.texto }}
+              </p>
+            </div>
+          }
+          @if (fieraHablando()) {
+            <div class="cd-historial-item cd-historial-item--fiera">
+              <p class="cd-historial-titulo">FIERA</p>
+              <p class="cd-historial-texto cd-pensando">FIERA está respondiendo...</p>
+            </div>
+          }
+        </div>
+
+        <!-- ── Input del usuario ── -->
+        @if (esTuTurno) {
+          <div class="cd-input-zona">
+
+            @if (errorMicrofono()) {
+              <p class="cd-error-mic">No se pudo acceder al micrófono.</p>
+            }
+
+            <div class="cd-input-fila">
+              <input #inputTexto
+                     type="text"
+                     class="cd-input"
+                     placeholder="Escribe tu intervención..."
+                     [disabled]="grabando() || procesando()"
+                     (keydown.enter)="enviarTexto(inputTexto.value, inputTexto)" />
+
+              <button class="cd-btn-mic"
+                      [class.grabando]="grabando()"
+                      [disabled]="procesando()"
+                      (click)="grabando() ? detenerGrabacion() : iniciarGrabacion()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                </svg>
+              </button>
+
+              <button class="cd-btn-enviar"
+                      [disabled]="grabando() || procesando()"
+                      (click)="enviarTexto(inputTexto.value, inputTexto)">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </button>
+            </div>
+
+            @if (procesando()) {
+              <p class="cd-procesando">Enviando tu intervención...</p>
+            }
+          </div>
+        }
+
+      </div>
+    }
+
+  </div>
+
+</div>

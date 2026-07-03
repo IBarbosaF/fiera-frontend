@@ -40,6 +40,21 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/retos/retos-hub/retos-hub').then(m => m.RetosHub)
       },
+      {
+        path        : 'careo-diario',
+        loadComponent: () =>
+          import('./pages/retos/retos-careo/careo-diario/careo-diario').then(m => m.CareoDiario)
+      },
+      {
+        path        : 'clash-diario',
+        loadComponent: () =>
+          import('./pages/retos/retos-clash/clash-diario/clash-diario').then(m => m.ClashDiario)
+      },
+      {
+        path        : 'pregunton-diario',
+        loadComponent: () =>
+          import('./pages/retos/retos-pregunton/pregunton-diario/pregunton-diario').then(m => m.PreguntonDiario)
+      },
 
       /* Ligas */
       {

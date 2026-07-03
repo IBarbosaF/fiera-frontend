@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, HostListener, ViewChild, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CareoInfo } from '../retos/retos-careo/careo-info/careo-info';
@@ -8,6 +8,7 @@ import {
   DiaCalendario
 } from '../../core/services/eventos.service';
 import { CommonModule, SlicePipe } from '@angular/common';
+import { DebateService } from '../../core/services/debate.service';
 
 @Component({
   selector        : 'app-home',
@@ -18,11 +19,16 @@ import { CommonModule, SlicePipe } from '@angular/common';
   changeDetection : ChangeDetectionStrategy.OnPush
 })
 
-export class Home {
+export class Home implements OnInit {
+
+  ngOnInit(): void {
+    this.cargarRetoDelDia();
+  }
 
   auth           = inject(AuthService);
   router         = inject(Router);
   eventosService = inject(EventosService);
+  debateService  = inject(DebateService);
 
   /* ── Modales ── */
   modalLoginAbierto     = signal(false);
@@ -63,11 +69,29 @@ export class Home {
     { posicion: 3, nombre: 'Lucía R.',   puntos: 2150, avatar: 'LR', eres_tu: false },
   ];
 
-  /* ── Reto del día ── */
-  readonly retoDia = {
-    pregunta: '¿Deberían prohibirse los móviles en las aulas?',
-    duracion: '5 min',
-  };
+   /* ── Reto del día — tema real, cambia cada 24h para todos ── */
+  retoDia = signal<{ pregunta: string; duracion: string }>({
+    pregunta: 'Cargando reto del día...',
+    duracion: '',
+  });
+
+  private cargarRetoDelDia(): void {
+    this.debateService.getTemas().subscribe({
+      next: temas => {
+        const tema   = this.debateService.getTemaDelDia(temas);
+        const tiempo = this.debateService.getTiempoPorTurnoDelDia();
+
+        if (tema) {
+          const minutosTotal = (tiempo * 4) / 60; // 4 turnos → 4 u 8 min
+          this.retoDia.set({
+            pregunta: tema.enunciado,
+            duracion: `${minutosTotal} min`,
+          });
+        }
+      },
+      error: () => {} // se queda el texto de "Cargando..." si falla
+    });
+  }
 
   /* ── Notificaciones no leídas ── */
   get tieneNoLeidas(): boolean {

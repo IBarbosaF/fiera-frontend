@@ -1,0 +1,413 @@
+/* ============================================================
+   careo-diario.css — Reto: Careo 1vs1 contra FIERA
+============================================================ */
+
+* { box-sizing: border-box; }
+
+.cd-layout {
+  min-height: 100%;
+  padding   : 40px 24px 64px;
+}
+
+.cd-inner {
+  max-width: 640px;
+  margin   : 0 auto;
+}
+
+/* ── Header ── */
+.cd-header {
+  margin-bottom: 24px;
+}
+
+.cd-volver {
+  display      : flex;
+  align-items  : center;
+  gap          : 6px;
+  background   : transparent;
+  border       : none;
+  color        : #8a9ab8;
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  cursor       : pointer;
+  padding      : 0;
+  margin-bottom: 16px;
+  transition   : color 0.2s;
+  font-family  : inherit;
+}
+
+.cd-volver:hover { color: #ffffff; }
+
+.cd-titulo {
+  font-size  : 1.6rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+/* ══════════════════════════════════════════
+   ESTADOS — cargando / error / finalizando
+══════════════════════════════════════════ */
+.cd-estado-card {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  gap            : 16px;
+  background     : #0d1a33;
+  border         : 1px solid #1e2d47;
+  border-radius  : 16px;
+  padding        : 48px 24px;
+  text-align     : center;
+}
+
+.cd-estado-card--error {
+  border-color: rgba(255, 77, 109, 0.3);
+  color       : #ff4d6d;
+}
+
+.cd-spinner {
+  width        : 32px;
+  height       : 32px;
+  border       : 3px solid #1e2d47;
+  border-top-color: #156fe7;
+  border-radius: 50%;
+  animation    : cd-spin 0.8s linear infinite;
+}
+
+@keyframes cd-spin { to { transform: rotate(360deg); } }
+
+.cd-estado-texto {
+  font-size: 0.9rem;
+  color    : #8a9ab8;
+}
+
+.cd-btn-volver-error {
+  background   : rgba(255, 77, 109, 0.1);
+  border       : 1px solid rgba(255, 77, 109, 0.3);
+  border-radius: 8px;
+  color        : #ff4d6d;
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  padding      : 10px 20px;
+  cursor       : pointer;
+  font-family  : inherit;
+}
+
+/* ══════════════════════════════════════════
+   ESTADO — Ya completado hoy
+══════════════════════════════════════════ */
+.cd-completado-card {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  text-align     : center;
+  gap            : 12px;
+  background     : #0d1a33;
+  border         : 1px solid rgba(21, 111, 231, 0.25);
+  border-radius  : 16px;
+  padding        : 40px 28px;
+}
+
+.cd-completado-icono {
+  width          : 56px;
+  height         : 56px;
+  border-radius  : 50%;
+  background     : rgba(21, 111, 231, 0.15);
+  color          : #156fe7;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  margin-bottom  : 4px;
+}
+
+.cd-completado-titulo {
+  font-size  : 1.25rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+.cd-completado-sub {
+  font-size  : 0.85rem;
+  color      : #8a9ab8;
+  margin-bottom: 8px;
+}
+
+.cd-resultado-grid {
+  width      : 100%;
+  display    : flex;
+  flex-direction: column;
+  gap        : 16px;
+  margin     : 8px 0 16px;
+}
+
+.cd-resultado-total {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  background    : rgba(21, 111, 231, 0.08);
+  border        : 1px solid rgba(21, 111, 231, 0.2);
+  border-radius : 12px;
+  padding       : 16px;
+}
+
+.cd-resultado-total-num {
+  font-size  : 2rem;
+  font-weight: 800;
+  color      : #156fe7;
+  line-height: 1;
+}
+
+.cd-resultado-total-label {
+  font-size    : 0.75rem;
+  color        : #8a9ab8;
+  margin-top   : 4px;
+}
+
+.cd-resultado-detalle {
+  display              : grid;
+  grid-template-columns: 1fr 1fr;
+  gap                  : 8px;
+}
+
+.cd-resultado-item {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  background     : #0f1930;
+  border         : 1px solid #1e2d47;
+  border-radius  : 8px;
+  padding        : 10px 12px;
+  font-size      : 0.8rem;
+  color          : #8a9ab8;
+}
+
+.cd-resultado-item strong {
+  color: #ffffff;
+}
+
+.cd-resultado-feedback {
+  font-size  : 0.85rem;
+  color      : #c8d4e8;
+  line-height: 1.6;
+  text-align : left;
+  background : #0f1930;
+  border     : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding    : 14px 16px;
+}
+
+.cd-btn-volver {
+  width          : 100%;
+  padding        : 14px;
+  background     : #156fe7;
+  border         : none;
+  border-radius  : 10px;
+  color          : #ffffff;
+  font-size      : 0.95rem;
+  font-weight    : 700;
+  cursor         : pointer;
+  font-family    : inherit;
+  transition     : background 0.2s;
+}
+
+.cd-btn-volver:hover { background: #105cb1; }
+
+/* ══════════════════════════════════════════
+   ESTADO ACTIVO — bucle de turnos
+══════════════════════════════════════════ */
+.cd-activo {
+  display       : flex;
+  flex-direction: column;
+  gap           : 16px;
+}
+
+/* ── Card del turno actual ── */
+.cd-turno-card {
+  background   : #0d1a33;
+  border       : 1px solid rgba(21, 111, 231, 0.25);
+  border-radius: 16px;
+  padding      : 20px 22px;
+  text-align   : center;
+}
+
+.cd-turno-progreso {
+  font-size    : 0.72rem;
+  font-weight  : 700;
+  letter-spacing: 1px;
+  color        : #156fe7;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.cd-turno-info {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 10px;
+  margin-bottom  : 6px;
+}
+
+.cd-turno-nombre {
+  font-size  : 1.1rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+.cd-turno-postura {
+  font-size    : 0.72rem;
+  font-weight  : 700;
+  border-radius: 6px;
+  padding      : 3px 10px;
+}
+
+.postura-favor {
+  background: rgba(3, 210, 110, 0.15);
+  color     : #03d26e;
+}
+
+.postura-contra {
+  background: rgba(255, 58, 114, 0.15);
+  color     : #ff3a72;
+}
+
+.cd-turno-quien {
+  font-size    : 0.82rem;
+  color        : #8a9ab8;
+  margin-bottom: 12px;
+}
+
+.cd-timer {
+  font-size     : 1.6rem;
+  font-weight   : 800;
+  color         : #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Historial ── */
+.cd-historial {
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+  max-height    : 360px;
+  overflow-y    : auto;
+}
+
+.cd-historial::-webkit-scrollbar       { width: 4px; }
+.cd-historial::-webkit-scrollbar-track { background: transparent; }
+.cd-historial::-webkit-scrollbar-thumb { background: #1e2d47; border-radius: 2px; }
+
+.cd-historial-item {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 12px;
+  padding      : 12px 16px;
+}
+
+.cd-historial-item--fiera {
+  border-color: rgba(21, 111, 231, 0.25);
+  background  : rgba(21, 111, 231, 0.04);
+}
+
+.cd-historial-titulo {
+  font-size    : 0.7rem;
+  font-weight  : 700;
+  letter-spacing: 0.4px;
+  color        : #6b7f9e;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.cd-historial-texto {
+  font-size  : 0.88rem;
+  color      : #e8edf5;
+  line-height: 1.5;
+}
+
+.cd-pensando {
+  color     : #8a9ab8;
+  font-style: italic;
+}
+
+/* ── Input del usuario ── */
+.cd-input-zona {
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+}
+
+.cd-error-mic {
+  font-size: 0.8rem;
+  color    : #ff4d6d;
+}
+
+.cd-input-fila {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  background : #0d1a33;
+  border     : 1px solid #1e2d47;
+  border-radius: 12px;
+  padding    : 6px 6px 6px 16px;
+}
+
+.cd-input {
+  flex      : 1;
+  background: transparent;
+  border    : none;
+  outline   : none;
+  color     : #ffffff;
+  font-size : 0.9rem;
+  padding   : 10px 0;
+  font-family: inherit;
+}
+
+.cd-input::placeholder { color: #3a4d6b; }
+.cd-input:disabled     { opacity: 0.5; }
+
+.cd-btn-mic,
+.cd-btn-enviar {
+  width          : 36px;
+  height         : 36px;
+  border-radius  : 50%;
+  border         : none;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  cursor         : pointer;
+  flex-shrink    : 0;
+  transition     : background 0.2s, color 0.2s;
+}
+
+.cd-btn-mic {
+  background: #1e2d47;
+  color     : #8a9ab8;
+}
+
+.cd-btn-mic:hover     { background: rgba(21, 111, 231, 0.15); color: #156fe7; }
+.cd-btn-mic.grabando  { background: #ff4d6d; color: #ffffff; animation: cd-pulse 1s ease-in-out infinite; }
+.cd-btn-mic:disabled  { opacity: 0.5; cursor: not-allowed; }
+
+@keyframes cd-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 77, 109, 0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(255, 77, 109, 0); }
+}
+
+.cd-btn-enviar {
+  background: #156fe7;
+  color     : #ffffff;
+}
+
+.cd-btn-enviar:hover     { background: #105cb1; }
+.cd-btn-enviar:disabled  { opacity: 0.5; cursor: not-allowed; }
+
+.cd-procesando {
+  font-size : 0.78rem;
+  color     : #8a9ab8;
+  text-align: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .cd-layout { padding: 24px 16px 48px; }
+  .cd-turno-card { padding: 16px 18px; }
+  .cd-resultado-detalle { grid-template-columns: 1fr; }
+}

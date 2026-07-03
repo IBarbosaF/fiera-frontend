@@ -489,4 +489,33 @@ export class DebateService {
     const datos = localStorage.getItem('fiera_resultados_legacy');
     return datos ? JSON.parse(datos) : null;
   }
+
+  /* ── Reto del día — tema y duración compartidos por todos los usuarios ── */
+
+  /** Hash simple y determinista a partir de la fecha (YYYY-MM-DD) */
+  private seedDelDia(fecha: string): number {
+    let hash = 0;
+    for (let i = 0; i < fecha.length; i++) {
+      hash = (hash << 5) - hash + fecha.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  private fechaHoy(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  /** Tema del Careo/reto del día — mismo para todos, cambia cada 24h */
+  getTemaDelDia(temas: TemaApi[]): TemaApi | null {
+    if (!temas.length) return null;
+    const seed = this.seedDelDia(this.fechaHoy());
+    return temas[seed % temas.length];
+  }
+
+  /** Duración por turno del reto del día — 60 o 120 segundos, cambia cada 24h */
+  getTiempoPorTurnoDelDia(): 60 | 120 {
+    const seed = this.seedDelDia(this.fechaHoy());
+    return seed % 2 === 0 ? 60 : 120;
+  }
 }

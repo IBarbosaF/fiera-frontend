@@ -1,5 +1,3 @@
-// src/app/shared/components/careo-info/careo-info.ts
-
 import {
   Component,
   signal,
