@@ -67,6 +67,18 @@ export class CareoDiario implements OnInit, OnDestroy {
   private router        = inject(Router);
   private cdr            = inject(ChangeDetectorRef);
 
+  /* ── Estado "preparado" — antes de arrancar los turnos ── */
+  preparado = signal<{
+    tema        : string;
+    categoria   : string;
+    postura     : 'favor' | 'contra';
+    personalidad: string;
+    duracionTurno: number;
+  } | null>(null);
+
+  /** true solo cuando el usuario ya pulsó "Comenzar" */
+  empezado = signal(false);
+
   /* ── Estado de carga inicial (creando el careo) ── */
   cargando   = signal(true);
   errorCarga = signal(false);
@@ -116,6 +128,23 @@ export class CareoDiario implements OnInit, OnDestroy {
     this.streamActual?.getTracks().forEach(t => t.stop());
   }
 
+  textoPersonalidad(p: string): string {
+    const map: Record<string, string> = {
+      agresiva  : 'Agresiva',
+      elegante  : 'Elegante',
+      sarcastica: 'Sarcástica',
+    };
+    return map[p] ?? p;
+  }
+
+  /** El usuario pulsa "Comenzar Careo" en la pantalla de preparación */
+  comenzarCareo(): void {
+    this.preparado.set(null);
+    this.empezado.set(true);
+    this.cdr.markForCheck();
+    this.iniciarTurno(0);
+  }
+
   /* ──────────────────────────────────────────────────────────
      CREACIÓN AUTOMÁTICA DEL CAREO
      Mismo flujo que CrearDebate.iniciarDebate(), pero con tema
@@ -149,7 +178,7 @@ export class CareoDiario implements OnInit, OnDestroy {
           modo        : 'express',
           dificultad  : 'medio',
           postura,
-          tema        : { enunciado: tema.enunciado, categoria: tema.categoria },
+          tema        : { id: tema.id, enunciado: tema.enunciado, categoria: tema.categoria },
           personalidad,
         });
 
@@ -168,23 +197,32 @@ export class CareoDiario implements OnInit, OnDestroy {
         this.debateService.guardarSubturnos(subturnos);
 
         this.debateService.getFieras().subscribe(() => {
-          this.debateService.crearDebate().subscribe({
-            next: debate => {
-              if (debate?.id) {
-                this.debateService.setDebateId(debate.id);
-                this.debateService.setDebateActivo(debate);
-              }
-              this.secuencia = this.construirSecuencia(subturnos);
-              this.cargando.set(false);
-              this.cdr.markForCheck();
-              this.iniciarTurno(0);
-            },
-            error: () => {
-              this.errorCarga.set(true);
-              this.cargando.set(false);
-              this.cdr.markForCheck();
+        this.debateService.crearDebate().subscribe({
+          next: debate => {
+            if (debate?.id) {
+              this.debateService.setDebateId(debate.id);
+              this.debateService.setDebateActivo(debate);
             }
-          });
+            this.secuencia = this.construirSecuencia(subturnos);
+
+            // En vez de arrancar directo, mostramos la pantalla de "preparado"
+            this.preparado.set({
+              tema         : tema.enunciado,
+              categoria    : tema.categoria,
+              postura,
+              personalidad,
+              duracionTurno: tiempoPorTurno,
+            });
+
+            this.cargando.set(false);
+            this.cdr.markForCheck();
+          },
+          error: () => {
+            this.errorCarga.set(true);
+            this.cargando.set(false);
+            this.cdr.markForCheck();
+          }
+        });
         });
       },
       error: () => {

@@ -44,6 +44,106 @@
 }
 
 /* ══════════════════════════════════════════
+   ESTADO — Preparado
+══════════════════════════════════════════ */
+.cd-preparado-card {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  text-align     : center;
+  gap            : 12px;
+  background     : #0d1a33;
+  border         : 1px solid rgba(21, 111, 231, 0.25);
+  border-radius  : 16px;
+  padding        : 36px 28px;
+}
+
+.cd-preparado-badge {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  letter-spacing: 0.6px;
+  color         : #156fe7;
+  background    : rgba(21, 111, 231, 0.12);
+  border-radius : 20px;
+  padding       : 5px 14px;
+  text-transform: uppercase;
+}
+
+.cd-preparado-tema {
+  font-size    : 1.25rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  line-height  : 1.4;
+  max-width    : 420px;
+}
+
+.cd-preparado-categoria {
+  font-size    : 0.78rem;
+  color        : #8a9ab8;
+  text-transform: capitalize;
+  margin-bottom: 8px;
+}
+
+.cd-preparado-grid {
+  display              : grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap                  : 10px;
+  width                : 100%;
+  margin               : 8px 0 20px;
+}
+
+.cd-preparado-item {
+  display       : flex;
+  flex-direction: column;
+  gap           : 4px;
+  background    : #0f1930;
+  border        : 1px solid #1e2d47;
+  border-radius : 10px;
+  padding       : 12px 10px;
+}
+
+.cd-preparado-label {
+  font-size    : 0.68rem;
+  color        : #6b7f9e;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.cd-preparado-valor {
+  font-size  : 0.85rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+.cd-preparado-valor.postura-favor  { color: #03d26e; }
+.cd-preparado-valor.postura-contra { color: #ff3a72; }
+
+.cd-btn-comenzar {
+  width          : 100%;
+  padding        : 14px;
+  background     : #156fe7;
+  border         : none;
+  border-radius  : 10px;
+  color          : #ffffff;
+  font-size      : 0.95rem;
+  font-weight    : 700;
+  cursor         : pointer;
+  font-family    : inherit;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  transition     : background 0.2s, transform 0.1s;
+}
+
+.cd-btn-comenzar:hover  { background: #105cb1; }
+.cd-btn-comenzar:active { transform: scale(0.98); }
+
+@media (max-width: 600px) {
+  .cd-preparado-grid { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════
    ESTADOS — cargando / error / finalizando
 ══════════════════════════════════════════ */
 .cd-estado-card {

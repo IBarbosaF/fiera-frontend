@@ -110,9 +110,49 @@
     }
 
     <!-- ══════════════════════════════════════════
+     ESTADO — Preparado (antes de empezar)
+    ══════════════════════════════════════════ -->
+    @else if (preparado(); as info) {
+      <div class="cd-preparado-card">
+
+        <div class="cd-preparado-badge">Tu Careo de hoy está listo</div>
+
+        <p class="cd-preparado-tema">{{ info.tema }}</p>
+        <span class="cd-preparado-categoria">{{ info.categoria }}</span>
+
+        <div class="cd-preparado-grid">
+          <div class="cd-preparado-item">
+            <span class="cd-preparado-label">Tu postura</span>
+            <span class="cd-preparado-valor"
+                  [class.postura-favor]="info.postura === 'favor'"
+                  [class.postura-contra]="info.postura === 'contra'">
+              {{ info.postura === 'favor' ? 'A favor' : 'En contra' }}
+            </span>
+          </div>
+          <div class="cd-preparado-item">
+            <span class="cd-preparado-label">FIERA</span>
+            <span class="cd-preparado-valor">{{ textoPersonalidad(info.personalidad) }}</span>
+          </div>
+          <div class="cd-preparado-item">
+            <span class="cd-preparado-label">Duración</span>
+            <span class="cd-preparado-valor">{{ info.duracionTurno / 60 }} min / turno</span>
+          </div>
+        </div>
+
+        <button class="cd-btn-comenzar" (click)="comenzarCareo()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Comenzar Careo
+        </button>
+
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════
          ESTADO 5 — Careo activo (bucle de turnos)
     ══════════════════════════════════════════ -->
-    @else if (subTurnoInfo) {
+    @else if (empezado() && subTurnoInfo) {
       <div class="cd-activo">
 
         <!-- ── Turno actual ── -->
