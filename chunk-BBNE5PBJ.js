@@ -1,1 +1,0 @@
-import{Ba as i,Va as t,Wa as o,lb as s}from"./chunk-ZKUVQTPT.js";var n=class a{static \u0275fac=function(e){return new(e||a)};static \u0275cmp=i({type:a,selectors:[["app-clash-diario"]],decls:2,vars:0,template:function(e,l){e&1&&(t(0,"p"),s(1,"clash-diario works!"),o())},encapsulation:2})};export{n as ClashDiario};
