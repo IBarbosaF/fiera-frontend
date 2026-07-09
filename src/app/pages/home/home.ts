@@ -220,14 +220,15 @@ export class Home implements OnInit {
     this.verPassword = !this.verPassword;
   }
 
-  login(email: string, password: string): void {
+  login(): void {
     this.errorLogin.set('');
-    const resultado = this.auth.login(email, password);
-    if (!resultado.ok) {
-      this.errorLogin.set(resultado.error || '');
-      return;
-    }
-    this.cerrarLogin();
+    this.auth.login(this.emailValue, this.passwordValue).subscribe(resultado => {
+      if (!resultado.ok) {
+        this.errorLogin.set(resultado.error || '');
+        return;
+      }
+      this.cerrarLogin();
+    });
   }
 
   cerrarAlClickarFuera(event: MouseEvent): void {

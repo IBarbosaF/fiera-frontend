@@ -1,6 +1,7 @@
 <!-- ============================================================
      Registro — Formulario de registro en 4 pasos
 ============================================================ -->
+<app-particles />
 <div class="registro-layout">
 
   <!-- ── PANEL IZQUIERDO (decorativo) ── -->
@@ -125,6 +126,29 @@
             </div>
           </div>
 
+                  <div class="avatar-upload">
+          <label for="inputImagen" class="avatar-upload-circulo">
+            @if (imagenPerfilPreview()) {
+              <img [src]="imagenPerfilPreview()" alt="Vista previa" class="avatar-preview-img" />
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            }
+          </label>
+          <input type="file"
+                id="inputImagen"
+                accept="image/*"
+                class="avatar-upload-input"
+                (change)="seleccionarImagen($event)" />
+          <div class="avatar-upload-texto">
+            <p class="avatar-upload-titulo">Foto de perfil</p>
+            <p class="avatar-upload-desc">Opcional. JPG o PNG, máx. 5MB.</p>
+            @if (imagenPerfilPreview()) {
+              <button type="button" class="avatar-upload-quitar" (click)="quitarImagen()">Quitar foto</button>
+            }
+          </div>
+        </div>
+
+
         </div>
 
         @if (errorPaso1()) {
@@ -219,6 +243,10 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         </button>
 
+        <button class="btn-volver" (click)="volver()">
+          Volver atrás
+        </button>
+
       </div>
     }
 
@@ -236,62 +264,57 @@
         <div class="form-input-wrapper">
           <svg class="form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text"
-                 class="form-input"
-                 placeholder="Buscar club o institución..."
-                 (input)="buscarClub($any($event.target).value)" />
-        </div>
-
-        <!-- Filtros -->
-        <div class="filtros-club">
-          @for (f of [
-            { valor: 'colegio',       label: 'Colegio'       },
-            { valor: 'universidad',   label: 'Universidad'   },
-            { valor: 'colegio_mayor', label: 'Colegio Mayor' },
-            { valor: 'otro',          label: 'Otro'          }
-          ]; track f.valor) {
-            <button class="filtro-btn"
-                    [class.active]="filtroclubs() === f.valor"
-                    (click)="setFiltroClub(filtroclubs() === $any(f.valor) ? null : $any(f.valor))">
-              {{ f.label }}
-            </button>
-          }
+                class="form-input"
+                placeholder="Buscar club o institución..."
+                (input)="buscarClub($any($event.target).value)" />
         </div>
 
         <!-- Lista de clubs -->
+        <p class="clubs-sugerencias-label">Sugerencias</p>
         <div class="clubs-lista">
-          <p class="clubs-sugerencias-label">Sugerencias</p>
 
-          @for (club of clubsFiltrados(); track club.id) {
-            <div class="club-item"
-                 [class.selected]="clubSeleccionado()?.id === club.id"
-                 (click)="seleccionarClub(club)">
-              <div class="club-icono">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              </div>
-              <div class="club-info">
-                <p class="club-nombre">{{ club.nombre }}</p>
-                <p class="club-tipo">{{ tipoClubLabel(club.tipo) }}</p>
-              </div>
-              <svg class="club-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
+          @if (cargandoClubs()) {
+            <p class="clubs-vacio">Cargando clubs...</p>
           }
 
-          @empty {
-            <p class="clubs-vacio">No se encontraron clubs.</p>
+          @else if (errorClubs()) {
+            <p class="clubs-vacio">No se pudieron cargar los clubs.</p>
+          }
+
+          @else {
+            @for (club of clubsFiltrados(); track club.id) {
+              <div class="club-item"
+                  [class.selected]="clubSeleccionado()?.id === club.id"
+                  (click)="seleccionarClub(club)">
+                <div class="club-icono">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <div class="club-info">
+                  <p class="club-nombre">{{ club.nombre }}</p>
+                  <p class="club-tipo">{{ club.institucion }}</p>
+                </div>
+                <svg class="club-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            }
+
+            @empty {
+              <p class="clubs-vacio">No se encontraron clubs.</p>
+            }
           }
 
         </div>
 
-        <!-- Solicitar alta -->
-        <div class="club-nuevo">
-          <div class="club-nuevo-icono">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <!-- Sin club -->
+        <div class="club-item club-omitir"
+            [class.selected]="clubSeleccionado() === null"
+            (click)="omitirClub()">
+          <div class="club-icono">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </div>
-          <div class="club-nuevo-info">
-            <p class="club-nombre">Solicitar alta de nuevo club</p>
-            <p class="club-tipo">Escribe el nombre de tu club o institución</p>
+          <div class="club-info">
+            <p class="club-nombre">Sin club por ahora</p>
+            <p class="club-tipo">Podrás unirte más tarde desde tu perfil</p>
           </div>
-          <svg class="club-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
 
         @if (error()) {
@@ -301,6 +324,9 @@
         <button class="btn-continuar" (click)="siguiente()">
           CONTINUAR
           <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <button class="btn-volver" (click)="volver()">
+          Volver atrás
         </button>
 
       </div>
@@ -373,6 +399,9 @@
 
         <button class="btn-continuar btn-finalizar" (click)="finalizar()">
           COMENZAR EN FIERA 🚀
+        </button>
+        <button class="btn-volver" (click)="volver()">
+          Volver atrás
         </button>
 
       </div>

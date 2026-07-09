@@ -282,6 +282,79 @@
   margin-bottom: 16px;
 }
 
+.avatar-upload {
+  display      : flex;
+  align-items  : center;
+  gap          : 16px;
+  margin-bottom: 24px;
+}
+
+.avatar-upload-circulo {
+  width          : 72px;
+  height         : 72px;
+  border-radius  : 50%;
+  background     : #0d1a33;
+  border         : 2px dashed #1e2d47;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  cursor         : pointer;
+  flex-shrink    : 0;
+  overflow       : hidden;
+  transition     : border-color 0.2s ease;
+}
+
+.avatar-upload-circulo:hover {
+  border-color: rgba(21,111,231,0.5);
+}
+
+.avatar-upload-circulo svg {
+  width : 26px;
+  height: 26px;
+  color : #8a9ab8;
+}
+
+.avatar-preview-img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: cover;
+}
+
+.avatar-upload-input {
+  display: none;
+}
+
+.avatar-upload-texto {
+  flex: 1;
+}
+
+.avatar-upload-titulo {
+  font-size    : 0.9rem;
+  font-weight  : 600;
+  color        : #ffffff;
+  margin-bottom: 2px;
+}
+
+.avatar-upload-desc {
+  font-size    : 0.78rem;
+  color        : #8a9ab8;
+  margin-bottom: 6px;
+}
+
+.avatar-upload-quitar {
+  background: none;
+  border    : none;
+  color     : #ef4444;
+  font-size : 0.78rem;
+  font-weight: 600;
+  cursor    : pointer;
+  padding   : 0;
+}
+
+.avatar-upload-quitar:hover {
+  text-decoration: underline;
+}
+
 /* ── Info privacidad / nota ── */
 .info-privacidad {
   display       : flex;
@@ -350,6 +423,24 @@
 .btn-continuar svg {
   width : 16px;
   height: 16px;
+}
+
+/*Botón volver*/
+
+.btn-volver {
+  width      : 100%;
+  background : transparent;
+  border     : none;
+  color      : #8a9ab8;
+  font-size  : 0.85rem;
+  font-weight: 600;
+  padding    : 8px;
+  cursor     : pointer;
+  transition : color 0.2s ease;
+}
+
+.btn-volver:hover {
+  color: #ffffff;
 }
 
 .btn-finalizar {
@@ -516,12 +607,12 @@
   font-weight  : 700;
   color        : #8a9ab8;
   letter-spacing: 0.06em;
-  margin-bottom: 6px;
+  margin-top    : 12px;
+  margin-bottom : 10px;
   text-transform: uppercase;
 }
 
-.club-item,
-.club-nuevo {
+.club-item{
   display       : flex;
   align-items   : center;
   gap           : 12px;
@@ -533,8 +624,7 @@
   transition    : border-color 0.2s ease, background 0.2s ease;
 }
 
-.club-item:hover,
-.club-nuevo:hover {
+.club-item:hover {
   border-color: rgba(21,111,231,0.4);
 }
 
@@ -543,8 +633,7 @@
   background  : rgba(21,111,231,0.08);
 }
 
-.club-icono,
-.club-nuevo-icono {
+.club-icono {
   width          : 36px;
   height         : 36px;
   border-radius  : 8px;
@@ -555,15 +644,13 @@
   flex-shrink    : 0;
 }
 
-.club-icono svg,
-.club-nuevo-icono svg {
+.club-icono svg{
   width : 18px;
   height: 18px;
   color : #156fe7;
 }
 
-.club-info,
-.club-nuevo-info {
+.club-info {
   flex: 1;
 }
 
@@ -586,18 +673,16 @@
   flex-shrink: 0;
 }
 
-.club-nuevo {
-  margin-top  : 8px;
-  margin-bottom: 16px;
-  border-style: dashed;
-}
-
 .clubs-vacio {
   color    : #8a9ab8;
   font-size: 0.9rem;
   padding  : 16px 0;
 }
 
+.club-omitir {
+  border-style: dashed;
+  margin-bottom: 16px;
+}
 /* ── Paso 4 — Posiciones ── */
 .posiciones-lista {
   display       : flex;

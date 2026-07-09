@@ -1,1 +1,157 @@
-<p>ranking works!</p>
+<!-- ============================================================
+     Ranking — Vista completa de ranking de usuarios
+============================================================ -->
+<div class="ranking-layout">
+
+  <!-- ── Header ── -->
+  <div class="ranking-header">
+    <div class="ranking-header-texto">
+      <h1 class="ranking-titulo">Ranking</h1>
+      <p class="ranking-subtitulo">Consulta el ranking de usuarios según su actividad y rendimiento en debates.</p>
+    </div>
+  </div>
+
+  <!-- ── Pestañas de periodo ── -->
+  <div class="periodo-tabs">
+    @for (p of periodos; track p.valor) {
+      <button class="periodo-tab"
+              [class.activo]="ranking.periodo() === p.valor"
+              (click)="seleccionarPeriodo(p.valor)">
+        {{ p.label }}
+      </button>
+    }
+  </div>
+
+  <!-- ── Filtros ── -->
+  <div class="filtros-ranking" (click)="$event.stopPropagation()">
+    @for (f of filtrosConfig; track f.campo) {
+      <div class="filtro-dropdown-wrapper">
+        <button class="filtro-dropdown-btn"
+                [class.activo]="!!ranking.filtros()[f.campo]"
+                (click)="toggleFiltro(f.campo)">
+          <span>{{ ranking.filtros()[f.campo] ?? f.label }}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        @if (filtroAbierto() === f.campo) {
+          <div class="filtro-dropdown-menu">
+            @for (opcion of opcionesPara(f.campo); track opcion) {
+              <button class="filtro-dropdown-item"
+                      [class.selected]="ranking.filtros()[f.campo] === opcion"
+                      (click)="seleccionarValorFiltro(f.campo, opcion)">
+                {{ opcion }}
+              </button>
+            }
+            @empty {
+              <p class="filtro-dropdown-vacio">Sin opciones disponibles.</p>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (hayFiltrosActivos()) {
+      <button class="btn-limpiar-filtros" (click)="limpiarFiltros()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Limpiar filtros
+      </button>
+    }
+  </div>
+
+  <!-- Overlay invisible para cerrar el dropdown al clicar fuera -->
+  @if (filtroAbierto()) {
+    <div class="filtro-overlay" (click)="cerrarFiltros()"></div>
+  }
+
+  <!-- ── Contenido ── -->
+  @if (ranking.cargando()) {
+
+    <div class="ranking-vacio">
+      <p class="ranking-vacio-titulo">Cargando ranking...</p>
+    </div>
+
+  } @else if (ranking.rankingActivo().length === 0) {
+
+    <div class="ranking-vacio">
+      <div class="ranking-vacio-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+      </div>
+      <p class="ranking-vacio-titulo">No hay usuarios que coincidan</p>
+      <p class="ranking-vacio-desc">Prueba a quitar alguno de los filtros aplicados.</p>
+      @if (hayFiltrosActivos()) {
+        <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar filtros</button>
+      }
+    </div>
+
+  } @else {
+
+    <!-- ── Podio (top 3) — solo en la primera página, sin filtros de scroll ── -->
+    @if (ranking.rankingActivo().length >= 3) {
+      <div class="podio">
+
+        <!-- 2º puesto -->
+        <div class="podio-puesto podio-2">
+          <div class="podio-medalla">2</div>
+          <div class="podio-avatar">{{ iniciales(ranking.rankingActivo()[1].usuario.nombre, ranking.rankingActivo()[1].usuario.apellidos) }}</div>
+          <p class="podio-nombre">{{ ranking.rankingActivo()[1].usuario.nombre }} {{ ranking.rankingActivo()[1].usuario.apellidos.charAt(0) }}.</p>
+          <p class="podio-puntos">{{ ranking.rankingActivo()[1].puntos }} pts</p>
+        </div>
+
+        <!-- 1º puesto -->
+        <div class="podio-puesto podio-1">
+          <div class="podio-medalla podio-medalla--oro">1</div>
+          <div class="podio-avatar podio-avatar--oro">{{ iniciales(ranking.rankingActivo()[0].usuario.nombre, ranking.rankingActivo()[0].usuario.apellidos) }}</div>
+          <p class="podio-nombre">{{ ranking.rankingActivo()[0].usuario.nombre }} {{ ranking.rankingActivo()[0].usuario.apellidos.charAt(0) }}.</p>
+          <p class="podio-puntos">{{ ranking.rankingActivo()[0].puntos }} pts</p>
+        </div>
+
+        <!-- 3º puesto -->
+        <div class="podio-puesto podio-3">
+          <div class="podio-medalla">3</div>
+          <div class="podio-avatar">{{ iniciales(ranking.rankingActivo()[2].usuario.nombre, ranking.rankingActivo()[2].usuario.apellidos) }}</div>
+          <p class="podio-nombre">{{ ranking.rankingActivo()[2].usuario.nombre }} {{ ranking.rankingActivo()[2].usuario.apellidos.charAt(0) }}.</p>
+          <p class="podio-puntos">{{ ranking.rankingActivo()[2].puntos }} pts</p>
+        </div>
+
+      </div>
+    }
+
+    <!-- ── Lista — a partir del puesto 4 ── -->
+    <div class="ranking-lista">
+      @for (entry of ranking.rankingActivo().slice(3); track entry.usuario.id) {
+        <div class="ranking-item" [class.es-yo]="entry.esUsuarioActual">
+          <span class="ranking-posicion">{{ entry.posicion }}</span>
+          <div class="ranking-avatar">{{ iniciales(entry.usuario.nombre, entry.usuario.apellidos) }}</div>
+          <div class="ranking-info">
+            <p class="ranking-nombre">{{ entry.usuario.nombre }} {{ entry.usuario.apellidos }}</p>
+            <p class="ranking-meta">{{ entry.usuario.club }} · {{ entry.usuario.pais }}</p>
+          </div>
+          <span class="ranking-puntos">{{ entry.puntos }} pts</span>
+        </div>
+      }
+    </div>
+
+  }
+
+  <!-- ── Tu posición — fija al fondo si estás fuera de la lista visible ── -->
+  @if (miPosicionFueraDeLista()) {
+    @if (ranking.miPosicion(); as mia) {
+      <div class="mi-posicion-flotante">
+        <span class="ranking-posicion">{{ mia.posicion }}</span>
+        <div class="ranking-avatar">{{ iniciales(mia.usuario.nombre, mia.usuario.apellidos) }}</div>
+        <div class="ranking-info">
+          <p class="ranking-nombre">Tu posición</p>
+          <p class="ranking-meta">{{ mia.usuario.club }}</p>
+        </div>
+        <span class="ranking-puntos">{{ mia.puntos }} pts</span>
+      </div>
+    }
+  }
+
+</div>

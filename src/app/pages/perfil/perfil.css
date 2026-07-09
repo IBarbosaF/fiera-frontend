@@ -15,6 +15,13 @@
   position     : relative;
 }
 
+.perfil-loading {
+  text-align: center;
+  padding   : 12px;
+  font-size : 13px;
+  color     : var(--texto-muted, #8a9ab8);
+}
+
 /* ══════════════════════════════════════════════════════════════
    HERO CARD
 ══════════════════════════════════════════════════════════════ */

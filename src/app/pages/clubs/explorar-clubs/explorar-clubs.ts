@@ -31,7 +31,7 @@ export class ExplorarClubs {
       !q
       || club.nombre.toLowerCase().includes(q)
       || club.siglas.toLowerCase().includes(q)
-      || club.institucion.toLowerCase().includes(q)
+      || (club.institucion?.toLowerCase().includes(q) ?? false)
     );
   });
 

@@ -1,52 +1,37 @@
-import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ClubsService, Club } from '../../core/services/clubs.service';
+import { Particles } from '../../shared/components/particles/particles';
 
 /* ============================================================
    RegistroComponent — Registro de usuario en 4 pasos
 
    Paso 1: Datos básicos (nombre, apellidos, usuario, email, contraseña)
    Paso 2: Experiencia en debate
-   Paso 3: Club / institución
+   Paso 3: Club / institución (datos reales del backend)
    Paso 4: Posición en debate
 ============================================================ */
 
-export interface Club {
-  id      : number;
-  nombre  : string;
-  tipo    : 'colegio' | 'universidad' | 'colegio_mayor' | 'otro';
-}
-
 export type Experiencia = 'ninguna' | 'menos1' | '1a3' | 'mas3' | null;
-export type Posicion     = 'introductor' | 'refutador1' | 'refutador2' | 'conclusor' | 'noclear';
-export type FiltroClub   = 'colegio' | 'universidad' | 'colegio_mayor' | 'otro';
-
-/* Clubs hardcodeados — TODO: obtener del backend */
-export const CLUBS: Club[] = [
-  { id: 1, nombre: 'Club de Debate CEU San Pablo',    tipo: 'colegio'      },
-  { id: 2, nombre: 'Club de Debate Colegio del Pilar',tipo: 'colegio'      },
-  { id: 3, nombre: 'Club de Debate Comillas',         tipo: 'universidad'  },
-  { id: 4, nombre: 'Club de Debate Nebrija',          tipo: 'universidad'  },
-  { id: 5, nombre: 'Club de Debate UFV',              tipo: 'universidad'  },
-  { id: 6, nombre: 'Club de Debate UAM',              tipo: 'universidad'  },
-  { id: 7, nombre: 'Club de Debate Colegio Mayor Ximénez de Cisneros', tipo: 'colegio_mayor' },
-  { id: 8, nombre: 'Club de Debate IES Ramiro de Maeztu', tipo: 'otro'    },
-];
+export type Posicion    = 'introductor' | 'refutador1' | 'refutador2' | 'conclusor' | 'noclear';
 
 @Component({
   selector        : 'app-registro',
   standalone      : true,
-  imports         : [RouterLink],
+  imports         : [RouterLink, Particles],
   templateUrl     : './registro.html',
   styleUrl        : './registro.css',
   changeDetection : ChangeDetectionStrategy.OnPush
 })
 export class Registro {
 
-  authService = inject(AuthService);
-  router      = inject(Router);
+  authService  = inject(AuthService);
+  clubsService = inject(ClubsService);
+  router       = inject(Router);
+
   mostrarPassword = signal(false);
-  posicion = signal<Posicion | null>(null);
+  cargando        = signal(false);
 
   /* Paso activo (1–4) */
   pasoActual = signal(1);
@@ -58,32 +43,98 @@ export class Registro {
   email      = signal('');
   password   = signal('');
   errorPaso1 = signal('');
+  imagenPerfil       = signal<File | null>(null);
+  imagenPerfilPreview = signal<string | null>(null);
+
+  /* ----------------------------------------------------------
+   seleccionarImagen()
+   Guarda el archivo elegido y genera una vista previa
+  ---------------------------------------------------------- */
+  seleccionarImagen(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file  = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.errorPaso1.set('El archivo debe ser una imagen.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.errorPaso1.set('La imagen no puede superar los 5 MB.');
+      return;
+    }
+
+    this.imagenPerfil.set(file);
+
+    const reader = new FileReader();
+    reader.onload = () => this.imagenPerfilPreview.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  quitarImagen(): void {
+    this.imagenPerfil.set(null);
+    this.imagenPerfilPreview.set(null);
+  }
 
   /* ── Paso 2 ── */
   experiencia = signal<Experiencia>(null);
 
-  // Mapeo de experiencia a integer
   private experienciaToInt(): number {
-  const map: Record<string, number> = {
-    ninguna: 0,
-    menos1 : 1,
-    '1a3'  : 2,
-    mas3   : 3,
-  };
-  return map[this.experiencia() ?? 'ninguna'] ?? 0;
-}
+    const map: Record<string, number> = {
+      ninguna: 0,
+      menos1 : 1,
+      '1a3'  : 2,
+      mas3   : 3,
+    };
+    return map[this.experiencia() ?? 'ninguna'] ?? 0;
+  }
 
-  /* ── Paso 3 ── */
-  clubSeleccionado  = signal<Club | null>(null);
-  filtroclubs       = signal<FiltroClub | null>(null);
-  busquedaClub      = signal('');
-  clubsFiltrados    = signal<Club[]>(CLUBS);
+  /* ── Paso 3 — Clubs reales del backend ── */
+  clubs            = signal<Club[]>([]);
+  cargandoClubs    = signal(false);
+  errorClubs       = signal(false);
+  clubSeleccionado = signal<Club | null>(null);
+  busquedaClub     = signal('');
+
+  clubsFiltrados = computed(() => {
+    const q = this.busquedaClub().toLowerCase().trim();
+    if (!q) return this.clubs();
+    return this.clubs().filter(c =>
+      c.nombre.toLowerCase().includes(q) ||
+      c.institucion?.toLowerCase().includes(q)
+    );
+  });
 
   /* ── Paso 4 ── */
-  posiciones        = signal<Set<Posicion>>(new Set());
+  posicion = signal<Posicion | null>(null);
 
   /* Error global */
   error = signal('');
+
+  constructor() {
+    this.cargarClubs();
+  }
+
+  /* ----------------------------------------------------------
+     cargarClubs()
+     Obtiene los clubs reales del backend
+  ---------------------------------------------------------- */
+  private cargarClubs(): void {
+    this.cargandoClubs.set(true);
+    this.errorClubs.set(false);
+
+    this.clubsService.getClubs().subscribe({
+      next: clubs => {
+        this.clubs.set(clubs);
+        this.cargandoClubs.set(false);
+      },
+      error: () => {
+        this.errorClubs.set(true);
+        this.cargandoClubs.set(false);
+      }
+    });
+  }
 
   /* ----------------------------------------------------------
      Navegación entre pasos
@@ -119,10 +170,8 @@ export class Registro {
         return false;
       }
       if (this.password().length < 6) {
-        this.errorPaso1.set('La contraseña debe tener al menos 6 caracteres.');
-        return false;
+        return true;
       }
-      return true;
     }
 
     if (this.pasoActual() === 2) {
@@ -135,37 +184,21 @@ export class Registro {
 
     if (this.pasoActual() === 3) {
       if (!this.clubSeleccionado()) {
-        this.error.set('Selecciona tu club o institución.');
-        return false;
+        return true;
       }
-      return true;
     }
-
     return true;
   }
 
-  /* ----------------------------------------------------------
-     Paso 3 — filtrado de clubs
-  ---------------------------------------------------------- */
-  setFiltroClub(filtro: FiltroClub | null): void {
-    this.filtroclubs.set(filtro);
-    this.aplicarFiltros();
-  }
+    omitirClub(): void {
+      this.clubSeleccionado.set(null);
+    }
 
+  /* ----------------------------------------------------------
+     Paso 3 — búsqueda y selección de club
+  ---------------------------------------------------------- */
   buscarClub(texto: string): void {
     this.busquedaClub.set(texto);
-    this.aplicarFiltros();
-  }
-
-  private aplicarFiltros(): void {
-    let resultado = CLUBS;
-    const filtro  = this.filtroclubs();
-    const q       = this.busquedaClub().toLowerCase().trim();
-
-    if (filtro) resultado = resultado.filter(c => c.tipo === filtro);
-    if (q)      resultado = resultado.filter(c => c.nombre.toLowerCase().includes(q));
-
-    this.clubsFiltrados.set(resultado);
   }
 
   seleccionarClub(club: Club): void {
@@ -173,7 +206,7 @@ export class Registro {
   }
 
   /* ----------------------------------------------------------
-     Paso 4 — toggle de posiciones
+     Paso 4 — selección de posición
   ---------------------------------------------------------- */
   seleccionarPosicion(pos: Posicion): void {
     this.posicion.set(pos);
@@ -187,7 +220,10 @@ export class Registro {
      Finalizar registro
   ---------------------------------------------------------- */
   finalizar(): void {
-    const resultado = this.authService.registrar({
+    this.error.set('');
+    this.cargando.set(true);
+
+    this.authService.registrar({
       nombre      : this.nombre(),
       apellidos   : this.apellidos(),
       username    : this.usuario(),
@@ -195,26 +231,28 @@ export class Registro {
       password    : this.password(),
       experiencia : this.experienciaToInt(),
       posicion    : this.posicion() ?? '',
-    });
+    }, this.imagenPerfil()).subscribe(resultado => {
+      this.cargando.set(false);
 
-    if (!resultado.ok) {
-      this.error.set(resultado.error || 'Error al registrar.');
-      return;
+      if (!resultado.ok) {
+        this.error.set(resultado.error || 'Error al registrar.');
+        return;
+      }
+
+      const club = this.clubSeleccionado();
+      const usuarioCreado = this.authService.usuario();
+      console.log('🟣 Club seleccionado:', club);
+      console.log('🟣 Usuario creado (con id):', usuarioCreado);
+
+    if (club && usuarioCreado?.id) {
+      this.authService.actualizarClub(usuarioCreado.id, club.id).subscribe(() => {
+        this.cargando.set(false);
+        this.router.navigate(['/']);
+      });
+    } else {
+      this.cargando.set(false);
+      this.router.navigate(['/']);
     }
-
-    this.router.navigate(['/']);
-  }
-
-  /* ----------------------------------------------------------
-     Helper — etiqueta legible del tipo de club
-  ---------------------------------------------------------- */
-  tipoClubLabel(tipo: string): string {
-    const map: Record<string, string> = {
-      colegio      : 'Colegio',
-      universidad  : 'Universidad',
-      colegio_mayor: 'Colegio Mayor',
-      otro         : 'Otro',
-    };
-    return map[tipo] ?? tipo;
+    });
   }
 }

@@ -25,16 +25,22 @@ export interface ContactoClub {
 }
 
 export interface Club {
-  id         : number;
-  nombre     : string;
-  siglas     : string;
-  institucion: string;
-  usuarios   : any[];
-    // Campos opcionales — TODO: añadir al backend
-  descripcion?: string | null;
-  ciudad?     : string | null;
-  fundacion?  : number | null;
-  contacto?   : ContactoClub | null;
+  id                 : number;
+  nombre             : string;
+  siglas             : string;
+  institucion        : string | null;
+  usuarios           : any[];
+  admins?            : any[];
+  ciudad?            : string | null;
+  comunidad?         : string | null;
+  pais?              : string | null;
+  provincia?         : string | null;
+  direccion?         : string | null;
+  imgUrl?            : string | null;
+  fundacion?         : number | null;
+  frecuenciaFormacion?: string | null;
+  tamaño?            : number | null;
+  creadoPor?         : number | null;
 }
 
 // ── Servicio ───────────────────────────────────────────────────────────────

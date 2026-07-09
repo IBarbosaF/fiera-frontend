@@ -3,6 +3,11 @@
      Vive dentro de MainLayout (sidebar ya gestiona la nav)
 ============================================================ -->
 <div class="perfil-root">
+    @if (cargandoUsuario()) {
+    <div class="perfil-loading">
+      <p>Cargando perfil...</p>
+    </div>
+  }
 
   <!-- ══════════════════════════════════════════════════════════
        HERO CARD — Avatar + nombre + nivel
@@ -12,7 +17,7 @@
     <!-- Avatar: imagen real o iniciales -->
     <div class="perfil-avatar">
       @if (tieneImagen()) {
-        <img [src]="usuario()?.img_perfil" alt="Avatar" class="perfil-avatar-img" />
+        <img [src]="usuario()?.imgPerfil" alt="Avatar" class="perfil-avatar-img" />
       } @else {
         <span class="perfil-avatar-iniciales">{{ iniciales() }}</span>
       }
@@ -408,7 +413,9 @@
             }
             <div class="perfil-form-acciones">
               <button class="perfil-btn-cancelar" (click)="cerrarModal()">Cancelar</button>
-              <button class="perfil-btn-guardar" (click)="guardarDatos()">Guardar cambios</button>
+              <button class="perfil-btn-guardar" [disabled]="guardando()" (click)="guardarDatos()">
+                {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
             </div>
           </div>
         }
@@ -502,7 +509,9 @@
             }
             <div class="perfil-form-acciones">
               <button class="perfil-btn-cancelar" (click)="cerrarModal()">Cancelar</button>
-              <button class="perfil-btn-guardar" (click)="guardarPassword()">Guardar contraseña</button>
+              <button class="perfil-btn-guardar" [disabled]="guardando()" (click)="guardarPassword()">
+                {{ guardando() ? 'Guardando...' : 'Guardar contraseña' }}
+              </button>
             </div>
           </div>
         }

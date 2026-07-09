@@ -1,5 +1,5 @@
 import {
-  Component, inject, signal, computed, ChangeDetectionStrategy
+  Component, inject, signal, computed, ChangeDetectionStrategy, OnInit
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/auth.service';
@@ -29,7 +29,16 @@ export interface Logro {
   styleUrl       : './perfil.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Perfil {
+export class Perfil implements OnInit {
+
+  cargandoUsuario = signal(false);
+
+  ngOnInit(): void {
+    this.cargandoUsuario.set(true);
+    this.authService.refrescarUsuario().subscribe(() => {
+      this.cargandoUsuario.set(false);
+    });
+  }
 
   private router      = inject(Router);
   private authService = inject(AuthService);
@@ -43,7 +52,7 @@ export class Perfil {
     return (u.nombre[0] + (u.apellidos?.[0] ?? '')).toUpperCase();
   });
 
-  tieneImagen = computed(() => !!this.usuario()?.img_perfil);
+  tieneImagen = computed(() => !!this.usuario()?.imgPerfil);
 
   /* ── Nivel con fallback ── */
   nivelLabel = computed(() => this.usuario()?.nivel ?? 'Sin nivel');
@@ -111,31 +120,38 @@ export class Perfil {
   errorDatos    = signal('');
   exitoDatos    = signal(false);
 
+  guardando = signal(false);
+
   guardarDatos(): void {
     if (!this.editNombre() || !this.editApellidos() || !this.editEmail() || !this.editUsername()) {
       this.errorDatos.set('Nombre, apellidos, email y username son obligatorios.');
       return;
     }
-    // TODO: PUT /api/app/usuarios/:id
-    const usuarios: Usuario[] = JSON.parse(
-      localStorage.getItem('fiera_users') ?? '[]'
-    );
+
     const u = this.usuario();
-    if (!u) return;
-    const idx = usuarios.findIndex(x => x.email === u.email);
-    if (idx !== -1) {
-      usuarios[idx] = {
-        ...usuarios[idx],
-        nombre   : this.editNombre(),
-        apellidos: this.editApellidos(),
-        email    : this.editEmail().toLowerCase(),
-        username : this.editUsername(),
-        posicion : this.editPosicion() || null,
-      };
-      localStorage.setItem('fiera_users',  JSON.stringify(usuarios));
-      localStorage.setItem('fiera_sesion', JSON.stringify(usuarios[idx]));
+    if (!u?.id) {
+      this.errorDatos.set('No se pudo identificar al usuario.');
+      return;
     }
-    this.exitoDatos.set(true);
+
+    this.errorDatos.set('');
+    this.exitoDatos.set(false);
+    this.guardando.set(true);
+
+    this.authService.actualizarUsuario(u.id, {
+      nombre   : this.editNombre(),
+      apellidos: this.editApellidos(),
+      email    : this.editEmail().toLowerCase(),
+      username : this.editUsername(),
+      posicion : this.editPosicion() || null,
+    }).subscribe(res => {
+      this.guardando.set(false);
+      if (res.ok) {
+        this.exitoDatos.set(true);
+      } else {
+        this.errorDatos.set(res.error ?? 'Error al guardar los cambios.');
+      }
+    });
   }
 
   /* ══════════════════════════════════════════
@@ -152,13 +168,12 @@ export class Perfil {
 
   guardarPassword(): void {
     const u = this.usuario();
-    if (!u) return;
-    if (!this.passActual() || !this.passNueva() || !this.passRepetir()) {
-      this.errorPassword.set('Completa todos los campos.');
+    if (!u?.id) {
+      this.errorPassword.set('No se pudo identificar al usuario.');
       return;
     }
-    if (u.password !== this.passActual()) {
-      this.errorPassword.set('La contraseña actual es incorrecta.');
+    if (!this.passActual() || !this.passNueva() || !this.passRepetir()) {
+      this.errorPassword.set('Completa todos los campos.');
       return;
     }
     if (this.passNueva().length < 6) {
@@ -169,17 +184,30 @@ export class Perfil {
       this.errorPassword.set('Las contraseñas no coinciden.');
       return;
     }
-    // TODO: PUT /api/app/usuarios/:id
-    const usuarios: Usuario[] = JSON.parse(
-      localStorage.getItem('fiera_users') ?? '[]'
-    );
-    const idx = usuarios.findIndex(x => x.email === u.email);
-    if (idx !== -1) {
-      usuarios[idx].password = this.passNueva();
-      localStorage.setItem('fiera_users',  JSON.stringify(usuarios));
-      localStorage.setItem('fiera_sesion', JSON.stringify(usuarios[idx]));
-    }
-    this.exitoPassword.set(true);
+
+    this.errorPassword.set('');
+    this.exitoPassword.set(false);
+    this.guardando.set(true);
+
+    // NOTA DE SEGURIDAD: confirmado con Swagger que PUT /api/auth/update/{id}
+    // NO valida la contraseña actual — acepta el cambio sin comprobarla.
+    // El campo 'passActual' se pide en el form por UX/higiene, pero de
+    // momento NO se envía porque el backend no lo espera ni lo usa.
+    // TODO: reportar a María Rosa para que el backend valide la contraseña
+    // actual antes de aceptar un cambio (hueco de seguridad real).
+    this.authService.actualizarUsuario(u.id, {
+      password: this.passNueva()
+    }).subscribe(res => {
+      this.guardando.set(false);
+      if (res.ok) {
+        this.exitoPassword.set(true);
+        this.passActual.set('');
+        this.passNueva.set('');
+        this.passRepetir.set('');
+      } else {
+        this.errorPassword.set(res.error ?? 'Error al cambiar la contraseña.');
+      }
+    });
   }
 
   /* ══════════════════════════════════════════
