@@ -1,0 +1,164 @@
+<!-- ============================================================
+     Ajustes — Notificaciones y privacidad
+     100% mock (localStorage) — sin backend por ahora
+============================================================ -->
+<div class="np-root">
+
+  <!-- ── Header con volver ── -->
+  <div class="np-header">
+    <button class="np-volver" (click)="irAAjustes()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Ajustes
+    </button>
+    <h1 class="np-titulo">Notificaciones y privacidad</h1>
+    <p class="np-subtitulo">Elige de qué quieres que te avisemos y quién puede ver tu información.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CARD con tabs
+  ══════════════════════════════════════════════════════════ -->
+  <div class="np-card">
+
+    <div class="np-tabs">
+      <button class="np-tab"
+              [class.activo]="tabActiva() === 'notificaciones'"
+              (click)="tabActiva.set('notificaciones')">
+        Notificaciones
+      </button>
+      <button class="np-tab"
+              [class.activo]="tabActiva() === 'privacidad'"
+              (click)="tabActiva.set('privacidad')">
+        Privacidad
+      </button>
+    </div>
+
+    <!-- TAB: Notificaciones -->
+    @if (tabActiva() === 'notificaciones') {
+      <div class="np-lista">
+
+        <div class="np-row np-row--cabecera">
+          <span class="np-col-titulo"></span>
+          <div class="np-col-canal">
+            <span>En la app</span>
+            <button class="np-switch"
+                    [class.activo]="todoActivo('app')"
+                    (click)="toggleTodoCanal('app')"
+                    aria-label="Activar/desactivar todas las notificaciones en la app">
+              <span class="np-switch-bola"></span>
+            </button>
+          </div>
+          <div class="np-col-canal">
+            <span>Email</span>
+            <button class="np-switch"
+                    [class.activo]="todoActivo('email')"
+                    (click)="toggleTodoCanal('email')"
+                    aria-label="Activar/desactivar todas las notificaciones por email">
+              <span class="np-switch-bola"></span>
+            </button>
+          </div>
+        </div>
+
+        @for (cat of categorias; track cat.id) {
+          <div class="np-row">
+
+            <div class="np-col-titulo">
+              <div class="np-icono">
+                @if (cat.icono === 'debate') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                }
+                @if (cat.icono === 'liga') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                }
+                @if (cat.icono === 'club') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                }
+                @if (cat.icono === 'logro') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+                }
+                @if (cat.icono === 'novedad') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                }
+              </div>
+              <div>
+                <p class="np-item-titulo">{{ cat.titulo }}</p>
+                <p class="np-item-desc">{{ cat.desc }}</p>
+              </div>
+            </div>
+
+            <div class="np-col-canal">
+              <button class="np-switch"
+                      [class.activo]="prefsNotif()[cat.id].app"
+                      (click)="toggleCanal(cat.id, 'app')"
+                      [attr.aria-label]="'Notificaciones en la app para ' + cat.titulo">
+                <span class="np-switch-bola"></span>
+              </button>
+            </div>
+
+            <div class="np-col-canal">
+              <button class="np-switch"
+                      [class.activo]="prefsNotif()[cat.id].email"
+                      (click)="toggleCanal(cat.id, 'email')"
+                      [attr.aria-label]="'Notificaciones por email para ' + cat.titulo">
+                <span class="np-switch-bola"></span>
+              </button>
+            </div>
+
+          </div>
+        }
+
+      </div>
+    }
+
+    <!-- TAB: Privacidad -->
+    @if (tabActiva() === 'privacidad') {
+      <div class="np-lista">
+
+        @for (op of opciones; track op.id) {
+          <div class="np-row">
+
+            <div class="np-col-titulo">
+              <div class="np-icono np-icono--privacidad">
+                @if (op.icono === 'ranking') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                }
+                @if (op.icono === 'perfil') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                }
+                @if (op.icono === 'club') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                }
+                @if (op.icono === 'invitacion') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                }
+                @if (op.icono === 'mensaje') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                }
+                @if (op.icono === 'historial') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                }
+              </div>
+              <div>
+                <p class="np-item-titulo">{{ op.titulo }}</p>
+                <p class="np-item-desc">{{ op.desc }}</p>
+              </div>
+            </div>
+
+            <button class="np-switch"
+                    [class.activo]="prefsPriv()[op.id]"
+                    (click)="togglePrivacidad(op.id)"
+                    [attr.aria-label]="op.titulo">
+              <span class="np-switch-bola"></span>
+            </button>
+
+          </div>
+        }
+
+      </div>
+    }
+
+  </div>
+
+</div>

@@ -1,6 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
+import { AuthService } from './auth.service';
 
 /* ============================================================
    DebateService — Gestión del estado del debate
@@ -154,6 +155,7 @@ export interface DebateApi {
   status?       : string;
   temaElegido?  : string;
   posturaFiera? : string | null;
+  creadoA?      : string;   // ← nuevo: fecha de creación, viene de la columna 'creado_a'
   usuarios      : UsuarioDebate[];
   intervenciones: IntervencionApi[];
   fiera         : { id: number; personalidad: string };
@@ -203,6 +205,7 @@ const CONFIG_INICIAL: ConfigDebate = {
 export class DebateService {
 
   private http = inject(HttpClient);
+  private auth = inject(AuthService);
 
   /* ── Signals de estado ── */
   private _config       = signal<ConfigDebate>({ ...CONFIG_INICIAL });
@@ -277,6 +280,7 @@ export class DebateService {
   crearDebate() {
     const config    = this._config();
     const subturnos = this.cargarSubturnos();
+    const usuarioId = this.auth.usuario()?.id ?? 4;
 
     /* Calcular postura del usuario (solo se usa como fallback,
        ya no determina la postura de cada intervención) */
@@ -290,7 +294,7 @@ export class DebateService {
        postura elegida por el usuario. */
     const intervenciones: IntervencionRequest[] = subturnos.map(t => ({
       nombre          : NOMBRE_MAP[t.nombre] ?? t.nombre.toLowerCase(),
-      usuario         : t.asignado === 'yo' ? { id: 4 } : null,
+      usuario         : t.asignado === 'yo' ? { id: usuarioId } : null,
       duracion        : `00:${String(t.minutos).padStart(2, '0')}:00`,
       speaker         : t.asignado === 'fiera' ? 'fiera' : 'usuario',
       postura         : t.postura === 'favor' ? 'pro' : 'contra',
@@ -316,7 +320,7 @@ export class DebateService {
       creadoA      : new Date().toISOString(),
       temaElegido  : config.tema?.enunciado ?? '',
       posturaFiera,
-      usuarios     : [{ id: 4 }], // TODO: reemplazar con id real del usuario logueado
+      usuarios     : [{ id: usuarioId }],
       tema         : config.tema?.id ? { id: config.tema.id } : null,
       fiera        : { id: fieraId },
       intervenciones,
@@ -338,6 +342,58 @@ export class DebateService {
     if (this._debateId()) return this._debateId();
     const stored = localStorage.getItem(STORAGE_DEBATE_ID);
     return stored ? Number(stored) : null;
+  }
+
+   /* ----------------------------------------------------------
+     iniciarDebate()
+     POST /{debateId}/start — obligatorio antes de mandar
+     cualquier turno. Cambia el debate a EN_PROGRESO.
+     Sin esta llamada, procesarTurno() falla con:
+     "IllegalStateException: El debate no está en progreso."
+  ---------------------------------------------------------- */
+  iniciarDebate(debateId: number) {
+    return this.http.post<DebateApi>(
+      `${API_BASE}/api/app/debates/${debateId}/start`,
+      {}
+    ).pipe(
+      tap(debate => {
+        if (debate) this.setDebateActivo(debate);
+      })
+    );
+  }
+
+  /* ----------------------------------------------------------
+     avanzarTurno()
+     POST /{debateId}/turnos/next — hay que llamarlo después
+     de procesar cada intervención (procesarTurno) para que
+     el backend avance al siguiente turno de la secuencia.
+  ---------------------------------------------------------- */
+  avanzarTurno(debateId: number) {
+    return this.http.post<DebateApi>(
+      `${API_BASE}/api/app/debates/${debateId}/turnos/next`,
+      {}
+    ).pipe(
+      tap(debate => {
+        if (debate) this.setDebateActivo(debate);
+      })
+    );
+  }
+
+  /* ----------------------------------------------------------
+     finalizarDebateBackend()
+     POST /{debateId}/finish — cierra el debate en el backend
+     y dispara el cálculo de resultados. Sin esta llamada el
+     debate se queda colgado y nunca pasa a FINALIZADO.
+  ---------------------------------------------------------- */
+  finalizarDebateBackend(debateId: number) {
+    return this.http.post<DebateApi>(
+      `${API_BASE}/api/app/debates/${debateId}/finish`,
+      {}
+    ).pipe(
+      tap(debate => {
+        if (debate) this.setDebateActivo(debate);
+      })
+    );
   }
 
   /* ----------------------------------------------------------
@@ -470,8 +526,9 @@ export class DebateService {
   obtenerResultadoUsuario(usuarioId?: number): ResultadoApi | null {
     const lista = this.obtenerResultadosApi();
     if (!lista.length) return null;
-    if (usuarioId != null) {
-      return lista.find(r => r.usuarioId === usuarioId) ?? lista[0];
+    const id = usuarioId ?? this.auth.usuario()?.id;
+    if (id != null) {
+      return lista.find(r => r.usuarioId === id) ?? lista[0];
     }
     return lista[0];
   }

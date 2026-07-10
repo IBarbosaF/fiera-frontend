@@ -2,6 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap, catchError, switchMap } from 'rxjs/operators';
 import { of, Observable } from 'rxjs';
+import { DebateApi, ResultadoApi } from './debate.service';
 
 /* ============================================================
    AuthService — Gestión de autenticación con backend real
@@ -31,6 +32,7 @@ export interface Usuario {
   // historial/estadísticas/clubs a fondo — de momento any[] evita
   // bloquear el desarrollo sin perder la forma del objeto.
   coleccionVideos?    : any[] | null;
+  plantillas?          : any[] | null;
   debatesParticipados?: any[] | null;
   debatesCreados?     : any[] | null;
   resultados?         : any[] | null;
@@ -158,9 +160,13 @@ export class AuthService {
      Si el backend devuelve el usuario actualizado, refresca
      la sesión activa automáticamente.
   ---------------------------------------------------------- */
-  actualizarUsuario(userId: number, cambios: Partial<Usuario>): Observable<{ ok: boolean; error?: string }> {
+  actualizarUsuario(userId: number, cambios: Partial<Usuario>, imagen?: File | null): Observable<{ ok: boolean; error?: string }> {
     const formData = new FormData();
     formData.append('usuario', new Blob([JSON.stringify(cambios)], { type: 'application/json' }));
+
+    if (imagen) {
+      formData.append('imagen', imagen);
+    }
 
     return this.http.put<any>(`${API_BASE}/api/auth/update/${userId}`, formData).pipe(
       tap(res => {

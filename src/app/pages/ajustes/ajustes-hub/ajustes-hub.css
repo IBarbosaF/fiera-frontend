@@ -1,0 +1,139 @@
+/* ============================================================
+   Ajustes Hub — Menú de entrada al módulo de Ajustes
+============================================================ */
+
+* { box-sizing: border-box; }
+
+.hub-layout {
+  min-height: 100vh;
+  padding   : 48px 40px;
+  position  : relative;
+  z-index   : 1;
+}
+
+.hub-inner {
+  max-width: 600px;
+  margin   : 0 auto;
+}
+
+/* ── Header ── */
+.hub-header {
+  margin-bottom: 32px;
+}
+
+.hub-titulo {
+  font-size    : 1.9rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 8px;
+}
+
+.hub-subtitulo {
+  font-size  : 0.95rem;
+  color      : #8a9ab8;
+  line-height: 1.5;
+}
+
+/* ── Grid de tarjetas ── */
+.hub-opciones {
+  display              : flex;
+  flex-direction       : column;
+  gap                  : 16px;
+}
+
+.hub-card {
+  display       : flex;
+  align-items   : flex-start;
+  gap           : 16px;
+  background    : #0d1a33;
+  border        : 1px solid #1e2d47;
+  border-radius : 14px;
+  padding       : 20px;
+  cursor        : pointer;
+  transition    : border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.hub-card:hover {
+  border-color: rgba(21,111,231,0.4);
+  background  : rgba(21,111,231,0.04);
+  transform   : translateY(-2px);
+}
+
+/* ── Icono ── */
+.hub-card-icono {
+  width          : 44px;
+  height         : 44px;
+  border-radius  : 10px;
+  background     : rgba(47,143,255,0.16);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.hub-card-icono svg {
+  width : 20px;
+  height: 20px;
+  color : #2f8fff;
+}
+
+/* ── Borde izquierdo — azul unificado ── */
+.hub-card {
+  box-shadow: inset 3px 0 0 rgba(47,143,255,0.6);
+}
+
+/* ── Texto ── */
+.hub-card-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.hub-card-titulo {
+  font-size    : 1rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 4px;
+}
+
+.hub-card-desc {
+  font-size  : 0.85rem;
+  color      : #8a9ab8;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.hub-card-tags {
+  display: flex;
+  gap    : 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size    : 0.7rem;
+  font-weight  : 600;
+  color        : #8a9ab8;
+  background   : rgba(255,255,255,0.05);
+  border       : 1px solid #1e2d47;
+  border-radius: 20px;
+  padding      : 3px 10px;
+}
+
+/* ── Flecha ── */
+.hub-card-flecha {
+  width      : 18px;
+  height     : 18px;
+  color      : #3a4d6b;
+  flex-shrink: 0;
+  margin-top : 4px;
+  transition : color 0.2s ease;
+}
+
+.hub-card:hover .hub-card-flecha {
+  color: #156fe7;
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .hub-layout   { padding: 32px 20px; }
+  .hub-opciones { grid-template-columns: 1fr; }
+}

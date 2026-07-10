@@ -485,8 +485,16 @@ export class CrearDebate implements OnInit {
           if (debate?.id) {
             this.debateService.setDebateId(debate.id);
             this.debateService.setDebateActivo(debate);
+
+            /* Arrancar el debate en el backend (obligatorio antes
+              de poder mandar turnos) y solo entonces navegar */
+            this.debateService.iniciarDebate(debate.id).subscribe({
+              next : () => this.router.navigate(['partida-debate']),
+              error: () => this.router.navigate(['partida-debate']) /* fallback: navegar igual */
+            });
+          } else {
+            this.router.navigate(['partida-debate']);
           }
-          this.router.navigate(['partida-debate']);
         },
         error: () => this.router.navigate(['partida-debate'])
       });

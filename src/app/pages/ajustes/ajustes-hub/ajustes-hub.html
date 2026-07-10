@@ -1,0 +1,67 @@
+<!-- ============================================================
+     Ajustes Hub — Menú de entrada al módulo de Ajustes
+============================================================ -->
+<div class="hub-layout">
+
+  <!-- ── CONTENIDO ── -->
+  <div class="hub-inner">
+
+    <div class="hub-header">
+      <h1 class="hub-titulo">Ajustes</h1>
+      <p class="hub-subtitulo">Gestiona tu cuenta, privacidad y preferencias de FIERA.</p>
+    </div>
+
+    <div class="hub-opciones">
+
+      <!-- Cuenta -->
+      <div class="hub-card" (click)="irACuenta()">
+        <div class="hub-card-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="hub-card-texto">
+          <p class="hub-card-titulo">Cuenta</p>
+          <p class="hub-card-desc">Cambia tu contraseña, correo y gestiona tu cuenta.</p>
+          <div class="hub-card-tags">
+            <span class="tag">Contraseña</span>
+            <span class="tag">Datos</span>
+          </div>
+        </div>
+        <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Notificaciones y privacidad -->
+      <div class="hub-card" (click)="irANotificacionesPrivacidad()">
+        <div class="hub-card-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="hub-card-texto">
+          <p class="hub-card-titulo">Notificaciones y privacidad</p>
+          <p class="hub-card-desc">Elige de qué te avisamos y quién puede ver tu información.</p>
+          <div class="hub-card-tags">
+            <span class="tag">Alertas</span>
+            <span class="tag">Visibilidad</span>
+          </div>
+        </div>
+        <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Soporte y ayuda -->
+      <div class="hub-card" (click)="irASoporte()">
+        <div class="hub-card-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="hub-card-texto">
+          <p class="hub-card-titulo">Soporte y ayuda</p>
+          <p class="hub-card-desc">Contacto, sugerencias, reportes y aspectos legales.</p>
+          <div class="hub-card-tags">
+            <span class="tag">Contacto</span>
+            <span class="tag">Legal</span>
+          </div>
+        </div>
+        <svg class="hub-card-flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+    </div>
+  </div>
+
+</div>

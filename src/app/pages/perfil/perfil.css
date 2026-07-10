@@ -2,6 +2,7 @@
    perfil.css — Dashboard de perfil del usuario
    Layout: cards apiladas en 2 columnas (desktop) / 1 (móvil)
    Vive dentro de MainLayout (sidebar 210px ya descontado)
+   La edición de datos/contraseña vive en /ajustes, no aquí.
 ============================================================ */
 
 * { box-sizing: border-box; }
@@ -13,13 +14,6 @@
   font-family  : 'Inter', sans-serif;
   overflow-x   : hidden;
   position     : relative;
-}
-
-.perfil-loading {
-  text-align: center;
-  padding   : 12px;
-  font-size : 13px;
-  color     : var(--texto-muted, #8a9ab8);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -38,7 +32,6 @@
   overflow     : hidden;
 }
 
-/* Brillo decorativo sutil en esquina */
 .perfil-hero-card::before {
   content      : '';
   position     : absolute;
@@ -50,7 +43,7 @@
   pointer-events: none;
 }
 
-/* Avatar generado con iniciales */
+/* Avatar */
 .perfil-avatar {
   position     : relative;
   width        : 80px;
@@ -73,6 +66,15 @@
   z-index        : 1;
 }
 
+.perfil-avatar-img {
+  width        : 80px;
+  height       : 80px;
+  border-radius: 50%;
+  object-fit   : cover;
+  position     : relative;
+  z-index      : 1;
+}
+
 .perfil-avatar-glow {
   position     : absolute;
   inset        : -4px;
@@ -92,20 +94,42 @@
   min-width: 0;
 }
 
+.perfil-hero-nombre-row {
+  display      : flex;
+  align-items  : baseline;
+  gap          : 10px;
+  flex-wrap    : wrap;
+  margin-bottom: 4px;
+}
+
 .perfil-nombre {
   font-size    : 22px;
   font-weight  : 800;
   color        : #fff;
-  margin-bottom: 4px;
   white-space  : nowrap;
   overflow     : hidden;
   text-overflow: ellipsis;
+}
+
+.perfil-hero-username {
+  font-size  : 14px;
+  color      : var(--texto-muted, #8a9ab8);
+  font-weight: 400;
 }
 
 .perfil-email {
   font-size    : 14px;
   color        : var(--texto-muted, #8a9ab8);
   margin-bottom: 10px;
+}
+
+/* Badges fila */
+.perfil-hero-badges {
+  display      : flex;
+  align-items  : center;
+  gap          : 8px;
+  flex-wrap    : wrap;
+  margin-bottom: 14px;
 }
 
 .perfil-nivel-badge {
@@ -121,27 +145,75 @@
   color        : #156fe7;
 }
 
-.perfil-cta {
-  display        : flex;
-  align-items    : center;
-  gap            : 8px;
-  background     : #156fe7;
-  border         : none;
-  border-radius  : 10px;
-  color          : #fff;
-  font-size      : 14px;
-  font-weight    : 600;
-  font-family    : inherit;
-  padding        : 12px 20px;
-  cursor         : pointer;
-  white-space    : nowrap;
-  flex-shrink    : 0;
-  transition     : background 0.2s, transform 0.15s;
+.perfil-sub-badge {
+  display      : inline-flex;
+  align-items  : center;
+  gap          : 5px;
+  border-radius: 20px;
+  padding      : 4px 12px;
+  font-size    : 12px;
+  font-weight  : 600;
 }
 
-.perfil-cta:hover {
-  background: #105cb1;
-  transform : translateY(-1px);
+.sub--free {
+  background: rgba(138,154,184,0.1);
+  border    : 1px solid rgba(138,154,184,0.2);
+  color     : #8a9ab8;
+}
+.sub--pro {
+  background: rgba(21,111,231,0.12);
+  border    : 1px solid rgba(21,111,231,0.25);
+  color     : #156fe7;
+}
+.sub--club {
+  background: rgba(240,167,66,0.12);
+  border    : 1px solid rgba(240,167,66,0.25);
+  color     : #f0a742;
+}
+
+.perfil-posicion-badge {
+  display      : inline-flex;
+  align-items  : center;
+  gap          : 5px;
+  background   : rgba(3,210,110,0.08);
+  border       : 1px solid rgba(3,210,110,0.2);
+  border-radius: 20px;
+  padding      : 4px 12px;
+  font-size    : 12px;
+  font-weight  : 600;
+  color        : #03d26e;
+}
+
+/* Fila stats hero (puntos, ranking, XP) */
+.perfil-hero-stats-row {
+  display    : flex;
+  align-items: center;
+  gap        : 16px;
+}
+
+.perfil-hero-stat {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  gap           : 2px;
+}
+
+.perfil-hero-stat-val {
+  font-size  : 20px;
+  font-weight: 800;
+  color      : #fff;
+  line-height: 1;
+}
+
+.perfil-hero-stat-label {
+  font-size: 11px;
+  color    : var(--texto-muted, #8a9ab8);
+}
+
+.perfil-hero-stat-sep {
+  width     : 1px;
+  height    : 32px;
+  background: rgba(255,255,255,0.1);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -191,187 +263,14 @@
   flex-shrink: 0;
 }
 
-/* Badge "Mock" */
-.perfil-badge-mock {
-  font-size    : 10px;
-  font-weight  : 600;
-  color        : #f0a742;
-  background   : rgba(240, 167, 66, 0.12);
-  border       : 1px solid rgba(240, 167, 66, 0.25);
-  border-radius: 20px;
-  padding      : 2px 8px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
 /* ══════════════════════════════════════════════════════════════
-   DATOS PERSONALES — vista lectura
+   ERROR genérico (usado por CV)
 ══════════════════════════════════════════════════════════════ */
-.perfil-datos-grid {
-  display              : grid;
-  grid-template-columns: 1fr 1fr;
-  gap                  : 16px;
-}
-
-.perfil-dato { display: flex; flex-direction: column; gap: 4px; }
-.perfil-dato--full { grid-column: 1 / -1; }
-
-.perfil-dato-label {
-  font-size     : 10px;
-  font-weight   : 600;
-  color         : var(--texto-muted, #8a9ab8);
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
-
-.perfil-dato-valor {
-  font-size  : 14px;
-  color      : #e2e8f0;
-  font-weight: 500;
-}
-
-.perfil-muted { color: var(--texto-muted, #8a9ab8); }
-
-/* ══════════════════════════════════════════════════════════════
-   FORMULARIOS (edición y contraseña)
-══════════════════════════════════════════════════════════════ */
-.perfil-form {
-  display       : flex;
-  flex-direction: column;
-  gap           : 14px;
-}
-
-.perfil-form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap    : 12px;
-}
-
-.perfil-field {
-  display       : flex;
-  flex-direction: column;
-  gap           : 6px;
-}
-
-.perfil-label {
-  font-size     : 10px;
-  font-weight   : 600;
-  color         : var(--texto-muted, #8a9ab8);
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-}
-
-.perfil-input-wrapper {
-  position: relative;
-  display : flex;
-  align-items: center;
-}
-
-.perfil-input {
-  width        : 100%;
-  background   : rgba(255, 255, 255, 0.05);
-  border       : 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color        : #fff;
-  font-size    : 14px;
-  font-family  : inherit;
-  padding      : 10px 14px;
-  outline      : none;
-  transition   : border 0.2s;
-}
-
-.perfil-input:focus {
-  border-color: #156fe7;
-  background  : rgba(21, 111, 231, 0.06);
-}
-
-.perfil-input::placeholder { color: var(--texto-muted, #8a9ab8); }
-
-/* Input con ojo: padding extra derecha */
-.perfil-input-wrapper .perfil-input { padding-right: 42px; }
-
-.perfil-ojo {
-  position   : absolute;
-  right      : 12px;
-  background : none;
-  border     : none;
-  color      : var(--texto-muted, #8a9ab8);
-  cursor     : pointer;
-  padding    : 0;
-  display    : flex;
-  align-items: center;
-  transition : color 0.2s;
-}
-
-.perfil-ojo:hover { color: #fff; }
-
 .perfil-error {
   font-size  : 13px;
   color      : #ff4d6d;
-  margin-top : -4px;
-}
-
-.perfil-exito {
-  font-size  : 13px;
-  color      : #03d26e;
   margin-top : 8px;
 }
-
-.perfil-form-acciones {
-  display        : flex;
-  justify-content: flex-end;
-  gap            : 10px;
-  margin-top     : 4px;
-}
-
-.perfil-btn-cancelar {
-  background   : rgba(255, 255, 255, 0.06);
-  border       : 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color        : var(--texto-muted, #8a9ab8);
-  font-size    : 13px;
-  font-family  : inherit;
-  padding      : 9px 16px;
-  cursor       : pointer;
-  transition   : background 0.2s;
-}
-
-.perfil-btn-cancelar:hover { background: rgba(255,255,255,0.1); color: #fff; }
-
-.perfil-btn-guardar {
-  background   : #156fe7;
-  border       : none;
-  border-radius: 8px;
-  color        : #fff;
-  font-size    : 13px;
-  font-weight  : 600;
-  font-family  : inherit;
-  padding      : 9px 18px;
-  cursor       : pointer;
-  transition   : background 0.2s;
-}
-
-.perfil-btn-guardar:hover { background: #105cb1; }
-
-/* Botón editar inline (cabecera card) */
-.perfil-btn-editar {
-  display      : flex;
-  align-items  : center;
-  gap          : 5px;
-  background   : rgba(21, 111, 231, 0.1);
-  border       : 1px solid rgba(21, 111, 231, 0.2);
-  border-radius: 7px;
-  color        : #156fe7;
-  font-size    : 12px;
-  font-weight  : 600;
-  font-family  : inherit;
-  padding      : 5px 12px;
-  cursor       : pointer;
-  transition   : background 0.2s;
-  white-space  : nowrap;
-}
-
-.perfil-btn-editar:hover { background: rgba(21, 111, 231, 0.2); }
 
 /* ══════════════════════════════════════════════════════════════
    CV
@@ -397,9 +296,7 @@
 
 .perfil-cv-zona svg { color: var(--texto-muted, #8a9ab8); }
 
-.perfil-cv-input {
-  display: none;
-}
+.perfil-cv-input { display: none; }
 
 .perfil-cv-label {
   font-size: 13px;
@@ -413,7 +310,6 @@
   color    : rgba(138, 154, 184, 0.6);
 }
 
-/* Archivo subido */
 .perfil-cv-archivo {
   display      : flex;
   align-items  : center;
@@ -427,13 +323,13 @@
 .perfil-cv-archivo svg { color: #03d26e; flex-shrink: 0; }
 
 .perfil-cv-nombre {
-  flex       : 1;
-  font-size  : 13px;
-  color      : #e2e8f0;
-  font-weight: 500;
-  overflow   : hidden;
+  flex         : 1;
+  font-size    : 13px;
+  color        : #e2e8f0;
+  font-weight  : 500;
+  overflow     : hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space  : nowrap;
 }
 
 .perfil-cv-eliminar {
@@ -454,11 +350,23 @@
 /* ══════════════════════════════════════════════════════════════
    ESTADÍSTICAS
 ══════════════════════════════════════════════════════════════ */
+.perfil-stats-vacio {
+  font-size  : 13px;
+  color      : var(--texto-muted, #8a9ab8);
+  text-align : center;
+  padding    : 20px 10px;
+  line-height: 1.5;
+}
+
 .perfil-stats-grid {
   display              : grid;
   grid-template-columns: repeat(4, 1fr);
   gap                  : 12px;
-  margin-bottom        : 20px;
+}
+
+.perfil-stats-grid--2 {
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 24px;
 }
 
 .perfil-stat {
@@ -489,19 +397,7 @@
   font-weight: 500;
 }
 
-/* Barra de victorias */
-.perfil-stat-barra-wrap { margin-bottom: 16px; }
-
-.perfil-stat-barra-label {
-  display        : flex;
-  justify-content: space-between;
-  font-size      : 12px;
-  color          : var(--texto-muted, #8a9ab8);
-  margin-bottom  : 6px;
-}
-
-.perfil-stat-barra-pct { font-weight: 700; color: #156fe7; }
-
+/* Barra reutilizada por las sub-métricas */
 .perfil-stat-barra-bg {
   height       : 6px;
   background   : rgba(255, 255, 255, 0.07);
@@ -516,22 +412,27 @@
   transition   : width 0.6s ease;
 }
 
-/* Stats extra */
-.perfil-stats-extra {
-  display : flex;
-  gap     : 20px;
-  flex-wrap: wrap;
+/* Sub-métricas (refutación, argumentación, evidencias, claridad) */
+.perfil-submetricas {
+  display       : flex;
+  flex-direction: column;
+  gap           : 14px;
 }
 
-.perfil-stat-extra-item {
-  display    : flex;
-  align-items: center;
-  gap        : 6px;
+.perfil-submetrica-label {
+  display        : flex;
+  justify-content: space-between;
+  align-items    : baseline;
+  font-size      : 12px;
+  color          : var(--texto-muted, #8a9ab8);
+  margin-bottom  : 6px;
+}
+
+.perfil-submetrica-valor {
   font-size  : 13px;
-  color      : var(--texto-muted, #8a9ab8);
+  font-weight: 700;
+  color      : #fff;
 }
-
-.perfil-stat-extra-item svg { color: #156fe7; flex-shrink: 0; }
 
 /* ══════════════════════════════════════════════════════════════
    LOGROS
@@ -582,17 +483,17 @@
 }
 
 .perfil-logro--bloqueado .perfil-logro-icono {
-  background: rgba(255, 255, 255, 0.05);
+  background  : rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
-  color: var(--texto-muted, #8a9ab8);
+  color       : var(--texto-muted, #8a9ab8);
 }
 
 .perfil-logro-info { flex: 1; min-width: 0; }
 
 .perfil-logro-nombre {
-  font-size  : 13px;
-  font-weight: 600;
-  color      : #e2e8f0;
+  font-size    : 13px;
+  font-weight  : 600;
+  color        : #e2e8f0;
   margin-bottom: 2px;
 }
 
@@ -635,37 +536,6 @@
 
 .perfil-historial-item:hover { border-color: rgba(255,255,255,0.14); }
 
-/* Círculo V/D/E */
-.perfil-historial-resultado {
-  width          : 36px;
-  height         : 36px;
-  border-radius  : 50%;
-  display        : flex;
-  align-items    : center;
-  justify-content: center;
-  font-size      : 13px;
-  font-weight    : 800;
-  flex-shrink    : 0;
-}
-
-.perfil-resultado--victoria {
-  background: rgba(3, 210, 110, 0.15);
-  color     : #03d26e;
-  border    : 1px solid rgba(3, 210, 110, 0.3);
-}
-
-.perfil-resultado--derrota {
-  background: rgba(255, 77, 109, 0.15);
-  color     : #ff4d6d;
-  border    : 1px solid rgba(255, 77, 109, 0.3);
-}
-
-.perfil-resultado--empate {
-  background: rgba(138, 154, 184, 0.12);
-  color     : #8a9ab8;
-  border    : 1px solid rgba(138, 154, 184, 0.2);
-}
-
 .perfil-historial-info { flex: 1; min-width: 0; }
 
 .perfil-historial-tema {
@@ -689,7 +559,6 @@
   color    : var(--texto-muted, #8a9ab8);
 }
 
-/* Badge dificultad */
 .perfil-historial-dif {
   font-size     : 10px;
   font-weight   : 600;
@@ -723,201 +592,6 @@
 }
 
 /* ══════════════════════════════════════════════════════════════
-   MODAL EDITAR PERFIL
-══════════════════════════════════════════════════════════════ */
-.perfil-modal-overlay {
-  position       : fixed;
-  inset          : 0;
-  background     : rgba(8, 14, 26, 0.75);
-  backdrop-filter: blur(4px);
-  display        : flex;
-  align-items    : center;
-  justify-content: center;
-  z-index        : 100;
-  padding        : 20px;
-}
-
-.perfil-modal {
-  background   : #0f1930;
-  border       : 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding      : 28px;
-  width        : 100%;
-  max-width    : 480px;
-  max-height   : 90vh;
-  overflow-y   : auto;
-}
-
-.perfil-modal::-webkit-scrollbar       { width: 4px; }
-.perfil-modal::-webkit-scrollbar-track { background: transparent; }
-.perfil-modal::-webkit-scrollbar-thumb { background: rgba(21,111,231,0.3); border-radius: 4px; }
-
-.perfil-modal-header {
-  display        : flex;
-  align-items    : center;
-  justify-content: space-between;
-  margin-bottom  : 20px;
-}
-
-.perfil-modal-titulo {
-  font-size  : 18px;
-  font-weight: 700;
-  color      : #fff;
-}
-
-.perfil-modal-cerrar {
-  width          : 32px;
-  height         : 32px;
-  display        : flex;
-  align-items    : center;
-  justify-content: center;
-  background     : rgba(255, 255, 255, 0.06);
-  border         : 1px solid rgba(255, 255, 255, 0.1);
-  border-radius  : 8px;
-  color          : var(--texto-muted, #8a9ab8);
-  cursor         : pointer;
-  transition     : background 0.2s, color 0.2s;
-}
-
-.perfil-modal-cerrar:hover { background: rgba(255,77,109,0.12); color: #ff4d6d; }
-
-/* Tabs */
-.perfil-modal-tabs {
-  display      : flex;
-  background   : rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  padding      : 3px;
-  margin-bottom: 24px;
-  gap          : 2px;
-}
-
-.perfil-modal-tab {
-  flex           : 1;
-  background     : transparent;
-  border         : none;
-  border-radius  : 8px;
-  color          : var(--texto-muted, #8a9ab8);
-  font-size      : 13px;
-  font-weight    : 500;
-  font-family    : inherit;
-  padding        : 8px 12px;
-  cursor         : pointer;
-  transition     : all 0.2s;
-}
-
-.perfil-modal-tab.activo {
-  background: #156fe7;
-  color     : #fff;
-  font-weight: 600;
-}
-
-/* Hero — nombre + username en fila */
-.perfil-hero-nombre-row {
-  display    : flex;
-  align-items: baseline;
-  gap        : 10px;
-  flex-wrap  : wrap;
-  margin-bottom: 4px;
-}
-
-.perfil-hero-username {
-  font-size  : 14px;
-  color      : var(--texto-muted, #8a9ab8);
-  font-weight: 400;
-}
-
-/* Badges fila */
-.perfil-hero-badges {
-  display    : flex;
-  align-items: center;
-  gap        : 8px;
-  flex-wrap  : wrap;
-  margin-bottom: 14px;
-}
-
-/* Badge subscripción */
-.perfil-sub-badge {
-  display      : inline-flex;
-  align-items  : center;
-  gap          : 5px;
-  border-radius: 20px;
-  padding      : 4px 12px;
-  font-size    : 12px;
-  font-weight  : 600;
-}
-
-.sub--free  {
-  background: rgba(138,154,184,0.1);
-  border    : 1px solid rgba(138,154,184,0.2);
-  color     : #8a9ab8;
-}
-.sub--pro   {
-  background: rgba(21,111,231,0.12);
-  border    : 1px solid rgba(21,111,231,0.25);
-  color     : #156fe7;
-}
-.sub--club  {
-  background: rgba(240,167,66,0.12);
-  border    : 1px solid rgba(240,167,66,0.25);
-  color     : #f0a742;
-}
-
-/* Badge posición */
-.perfil-posicion-badge {
-  display      : inline-flex;
-  align-items  : center;
-  gap          : 5px;
-  background   : rgba(3,210,110,0.08);
-  border       : 1px solid rgba(3,210,110,0.2);
-  border-radius: 20px;
-  padding      : 4px 12px;
-  font-size    : 12px;
-  font-weight  : 600;
-  color        : #03d26e;
-}
-
-/* Fila stats hero (puntos, ranking, XP) */
-.perfil-hero-stats-row {
-  display    : flex;
-  align-items: center;
-  gap        : 16px;
-}
-
-.perfil-hero-stat {
-  display       : flex;
-  flex-direction: column;
-  align-items   : center;
-  gap           : 2px;
-}
-
-.perfil-hero-stat-val {
-  font-size  : 20px;
-  font-weight: 800;
-  color      : #fff;
-  line-height: 1;
-}
-
-.perfil-hero-stat-label {
-  font-size: 11px;
-  color    : var(--texto-muted, #8a9ab8);
-}
-
-.perfil-hero-stat-sep {
-  width        : 1px;
-  height       : 32px;
-  background   : rgba(255,255,255,0.1);
-}
-
-/* Avatar con imagen real */
-.perfil-avatar-img {
-  width        : 80px;
-  height       : 80px;
-  border-radius: 50%;
-  object-fit   : cover;
-  position     : relative;
-  z-index      : 1;
-}
-/* ══════════════════════════════════════════════════════════════
    RESPONSIVE — móvil
 ══════════════════════════════════════════════════════════════ */
 @media (max-width: 900px) {
@@ -935,9 +609,6 @@
 
   .perfil-cta { width: 100%; justify-content: center; }
 
-  .perfil-stats-grid { grid-template-columns: repeat(2, 1fr); }
-
-  .perfil-form-row { grid-template-columns: 1fr; }
-
-  .hub-fiera-wrapper { display: none; }
+  .perfil-stats-grid,
+  .perfil-stats-grid--2 { grid-template-columns: repeat(2, 1fr); }
 }

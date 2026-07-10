@@ -158,7 +158,22 @@ export const routes: Routes = [
       {
         path        : 'ajustes',
         loadComponent: () =>
-          import('./pages/ajustes/ajustes').then(m => m.Ajustes)
+          import('./pages/ajustes/ajustes-hub/ajustes-hub').then(m => m.AjustesHub)
+      },
+      {
+        path        : 'ajustes/cuenta',
+        loadComponent: () =>
+          import('./pages/ajustes/ajustes-cuenta/ajustes-cuenta').then(m => m.AjustesCuenta)
+      },
+      {
+        path        : 'ajustes/notificaciones-privacidad',
+        loadComponent: () =>
+          import('./pages/ajustes/ajustes-notificaciones-privacidad/ajustes-notificaciones-privacidad').then(m => m.AjustesNotificacionesPrivacidad)
+      },
+      {
+        path        : 'ajustes/soporte',
+        loadComponent: () =>
+          import('./pages/ajustes/ajustes-soporte/ajustes-soporte').then(m => m.AjustesSoporte)
       },
 
       /* Resultados */

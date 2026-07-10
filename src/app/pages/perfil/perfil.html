@@ -17,7 +17,7 @@
     <!-- Avatar: imagen real o iniciales -->
     <div class="perfil-avatar">
       @if (tieneImagen()) {
-        <img [src]="usuario()?.imgPerfil" alt="Avatar" class="perfil-avatar-img" />
+        <img [src]="urlImagenPerfil()" alt="Avatar" class="perfil-avatar-img" />
       } @else {
         <span class="perfil-avatar-iniciales">{{ iniciales() }}</span>
       }
@@ -70,17 +70,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Botón editar -->
-    <button class="perfil-cta" (click)="abrirModalEditar()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-          stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-      </svg>
-      Editar perfil
-    </button>
-
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
@@ -240,55 +229,69 @@
             </svg>
             Estadísticas
           </div>
-          <span class="perfil-badge-mock">Mock</span>
         </div>
 
-        <div class="perfil-stats-grid">
-          <div class="perfil-stat">
-            <span class="perfil-stat-valor">{{ totalDebates }}</span>
-            <span class="perfil-stat-label">Debates</span>
-          </div>
-          <div class="perfil-stat">
-            <span class="perfil-stat-valor perfil-stat--verde">{{ stats.victorias }}</span>
-            <span class="perfil-stat-label">Victorias</span>
-          </div>
-          <div class="perfil-stat">
-            <span class="perfil-stat-valor perfil-stat--rojo">{{ stats.derrotas }}</span>
-            <span class="perfil-stat-label">Derrotas</span>
-          </div>
-          <div class="perfil-stat">
-            <span class="perfil-stat-valor perfil-stat--azul">{{ stats.racha }}</span>
-            <span class="perfil-stat-label">Racha</span>
-          </div>
-        </div>
+        @if (totalDebates() === 0) {
+          <p class="perfil-stats-vacio">Aún no has completado ningún debate. Tus estadísticas aparecerán aquí en cuanto termines tu primera práctica.</p>
+        } @else {
 
-        <div class="perfil-stat-barra-wrap">
-          <div class="perfil-stat-barra-label">
-            <span>Tasa de victorias</span>
-            <span class="perfil-stat-barra-pct">{{ porcentajeVictorias }}%</span>
+          <!-- Puntuación media general -->
+          <div class="perfil-stats-grid perfil-stats-grid--2">
+            <div class="perfil-stat">
+              <span class="perfil-stat-valor">{{ totalDebates() }}</span>
+              <span class="perfil-stat-label">Debates completados</span>
+            </div>
+            <div class="perfil-stat">
+              <span class="perfil-stat-valor perfil-stat--azul">{{ mediaPuntos() }}</span>
+              <span class="perfil-stat-label">Puntuación media</span>
+            </div>
           </div>
-          <div class="perfil-stat-barra-bg">
-            <div class="perfil-stat-barra-fill" [style.width.%]="porcentajeVictorias"></div>
-          </div>
-        </div>
 
-        <div class="perfil-stats-extra">
-          <div class="perfil-stat-extra-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <span>{{ stats.horasEntrenadas }}h entrenadas</span>
+          <!-- Sub-métricas -->
+          <div class="perfil-submetricas">
+
+            <div class="perfil-submetrica">
+              <div class="perfil-submetrica-label">
+                <span>Refutación</span>
+                <span class="perfil-submetrica-valor">{{ mediaRefutacion() }}</span>
+              </div>
+              <div class="perfil-stat-barra-bg">
+                <div class="perfil-stat-barra-fill" [style.width.%]="mediaRefutacion()"></div>
+              </div>
+            </div>
+
+            <div class="perfil-submetrica">
+              <div class="perfil-submetrica-label">
+                <span>Argumentación</span>
+                <span class="perfil-submetrica-valor">{{ mediaArgumentacion() }}</span>
+              </div>
+              <div class="perfil-stat-barra-bg">
+                <div class="perfil-stat-barra-fill" [style.width.%]="mediaArgumentacion()"></div>
+              </div>
+            </div>
+
+            <div class="perfil-submetrica">
+              <div class="perfil-submetrica-label">
+                <span>Evidencias</span>
+                <span class="perfil-submetrica-valor">{{ mediaEvidencia() }}</span>
+              </div>
+              <div class="perfil-stat-barra-bg">
+                <div class="perfil-stat-barra-fill" [style.width.%]="mediaEvidencia()"></div>
+              </div>
+            </div>
+
+            <div class="perfil-submetrica">
+              <div class="perfil-submetrica-label">
+                <span>Claridad</span>
+                <span class="perfil-submetrica-valor">{{ mediaClaridad() }}</span>
+              </div>
+              <div class="perfil-stat-barra-bg">
+                <div class="perfil-stat-barra-fill" [style.width.%]="mediaClaridad()"></div>
+              </div>
+            </div>
+
           </div>
-          <div class="perfil-stat-extra-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-            <span>{{ stats.mediaPuntos }} pts de media</span>
-          </div>
-        </div>
+        }
       </div>
 
       <!-- CARD: Historial -->
@@ -302,222 +305,40 @@
             </svg>
             Historial de debates
           </div>
-          <span class="perfil-badge-mock">Mock</span>
         </div>
 
-        <div class="perfil-historial-lista">
-          @for (debate of historial; track debate.id) {
-            <div class="perfil-historial-item">
-              <div class="perfil-historial-resultado"
-                  [class.perfil-resultado--victoria]="debate.resultado === 'victoria'"
-                  [class.perfil-resultado--derrota]="debate.resultado === 'derrota'"
-                  [class.perfil-resultado--empate]="debate.resultado === 'empate'">
-                {{ debate.resultado === 'victoria' ? 'V' : debate.resultado === 'derrota' ? 'D' : 'E' }}
-              </div>
-              <div class="perfil-historial-info">
-                <p class="perfil-historial-tema">{{ debate.tema }}</p>
-                <div class="perfil-historial-meta">
-                  <span class="perfil-historial-fecha">{{ debate.fecha }}</span>
-                  <span class="perfil-historial-dif perfil-dif--{{ debate.dificultad }}">
-                    {{ debate.dificultad }}
-                  </span>
+        @if (historial().length === 0) {
+          <p class="perfil-stats-vacio">Aquí aparecerán tus debates en cuanto completes alguno.</p>
+        } @else {
+          <div class="perfil-historial-lista">
+            @for (debate of historial(); track debate.debateId) {
+              <div class="perfil-historial-item">
+                <div class="perfil-historial-info">
+                  <p class="perfil-historial-tema">{{ debate.tema }}</p>
+                  <div class="perfil-historial-meta">
+                    @if (debate.fecha) {
+                      <span class="perfil-historial-fecha">{{ debate.fecha | date:'d MMM y' }}</span>
+                    }
+                    <span class="perfil-historial-dif perfil-dif--{{ debate.dificultad }}">
+                      {{ debate.dificultad }}
+                    </span>
+                  </div>
+                </div>
+                <div class="perfil-historial-puntos">
+                  @if (debate.puntuacion !== null) {
+                    <span class="perfil-historial-pts">{{ debate.puntuacion }}</span>
+                    <span class="perfil-historial-pts-label">pts</span>
+                  } @else {
+                    <span class="perfil-historial-pts-label">Sin resultado</span>
+                  }
                 </div>
               </div>
-              <div class="perfil-historial-puntos">
-                <span class="perfil-historial-pts">{{ debate.puntuacion }}</span>
-                <span class="perfil-historial-pts-label">pts</span>
-              </div>
-            </div>
-          }
-        </div>
+            }
+          </div>
+        }
       </div>
 
     </div><!-- /col der -->
   </div>
-
-  <!-- ══════════════════════════════════════════════════════════
-      MODAL: Editar perfil
-  ══════════════════════════════════════════════════════════ -->
-  @if (modalEditarAbierto()) {
-    <div class="perfil-modal-overlay" (click)="cerrarModalAlClickarFuera($event)">
-      <div class="perfil-modal">
-
-        <div class="perfil-modal-header">
-          <h2 class="perfil-modal-titulo">Editar perfil</h2>
-          <button class="perfil-modal-cerrar" (click)="cerrarModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Tabs -->
-        <div class="perfil-modal-tabs">
-          <button class="perfil-modal-tab"
-                  [class.activo]="modalTab() === 'datos'"
-                  (click)="modalTab.set('datos')">
-            Datos personales
-          </button>
-          <button class="perfil-modal-tab"
-                  [class.activo]="modalTab() === 'password'"
-                  (click)="modalTab.set('password')">
-            Contraseña
-          </button>
-        </div>
-
-        <!-- TAB: Datos personales -->
-        @if (modalTab() === 'datos') {
-          <div class="perfil-form">
-            <div class="perfil-form-row">
-              <div class="perfil-field">
-                <label class="perfil-label">NOMBRE</label>
-                <input class="perfil-input" type="text" placeholder="Tu nombre"
-                      [value]="editNombre()"
-                      (input)="editNombre.set($any($event.target).value)" />
-              </div>
-              <div class="perfil-field">
-                <label class="perfil-label">APELLIDOS</label>
-                <input class="perfil-input" type="text" placeholder="Tus apellidos"
-                      [value]="editApellidos()"
-                      (input)="editApellidos.set($any($event.target).value)" />
-              </div>
-            </div>
-            <!-- fila username / posición -->
-            <div class="perfil-form-row">
-              <div class="perfil-field">
-                <label class="perfil-label">USERNAME</label>
-                <input class="perfil-input" type="text" placeholder="tu_username"
-                      [value]="editUsername()"
-                      (input)="editUsername.set($any($event.target).value)" />
-              </div>
-              <div class="perfil-field">
-                <label class="perfil-label">POSICIÓN / ROL</label>
-                <input class="perfil-input" type="text" placeholder="Ej: Capitán de equipo"
-                      [value]="editPosicion()"
-                      (input)="editPosicion.set($any($event.target).value)" />
-              </div>
-            </div>
-            <div class="perfil-field">
-              <label class="perfil-label">EMAIL</label>
-              <input class="perfil-input" type="email" placeholder="tu@email.com"
-                    [value]="editEmail()"
-                    (input)="editEmail.set($any($event.target).value)" />
-            </div>
-            @if (errorDatos()) {
-              <p class="perfil-error">{{ errorDatos() }}</p>
-            }
-            @if (exitoDatos()) {
-              <p class="perfil-exito">✓ Datos actualizados correctamente.</p>
-            }
-            <div class="perfil-form-acciones">
-              <button class="perfil-btn-cancelar" (click)="cerrarModal()">Cancelar</button>
-              <button class="perfil-btn-guardar" [disabled]="guardando()" (click)="guardarDatos()">
-                {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
-              </button>
-            </div>
-          </div>
-        }
-
-        <!-- TAB: Contraseña -->
-        @if (modalTab() === 'password') {
-          <div class="perfil-form">
-            <div class="perfil-field">
-              <label class="perfil-label">CONTRASEÑA ACTUAL</label>
-              <div class="perfil-input-wrapper">
-                <input class="perfil-input" [type]="verPassActual() ? 'text' : 'password'"
-                      placeholder="Tu contraseña actual"
-                      [value]="passActual()"
-                      (input)="passActual.set($any($event.target).value)" />
-                <button class="perfil-ojo" (click)="verPassActual.set(!verPassActual())">
-                  @if (verPassActual()) {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  } @else {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  }
-                </button>
-              </div>
-            </div>
-
-            <div class="perfil-field">
-              <label class="perfil-label">NUEVA CONTRASEÑA</label>
-              <div class="perfil-input-wrapper">
-                <input class="perfil-input" [type]="verPassNueva() ? 'text' : 'password'"
-                      placeholder="Mínimo 6 caracteres"
-                      [value]="passNueva()"
-                      (input)="passNueva.set($any($event.target).value)" />
-                <button class="perfil-ojo" (click)="verPassNueva.set(!verPassNueva())">
-                  @if (verPassNueva()) {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  } @else {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  }
-                </button>
-              </div>
-            </div>
-
-            <div class="perfil-field">
-              <label class="perfil-label">REPETIR NUEVA CONTRASEÑA</label>
-              <div class="perfil-input-wrapper">
-                <input class="perfil-input" [type]="verPassRepetir() ? 'text' : 'password'"
-                      placeholder="Repite la nueva contraseña"
-                      [value]="passRepetir()"
-                      (input)="passRepetir.set($any($event.target).value)" />
-                <button class="perfil-ojo" (click)="verPassRepetir.set(!verPassRepetir())">
-                  @if (verPassRepetir()) {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  } @else {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                        stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  }
-                </button>
-              </div>
-            </div>
-
-            @if (errorPassword()) {
-              <p class="perfil-error">{{ errorPassword() }}</p>
-            }
-            @if (exitoPassword()) {
-              <p class="perfil-exito">✓ Contraseña actualizada correctamente.</p>
-            }
-            <div class="perfil-form-acciones">
-              <button class="perfil-btn-cancelar" (click)="cerrarModal()">Cancelar</button>
-              <button class="perfil-btn-guardar" [disabled]="guardando()" (click)="guardarPassword()">
-                {{ guardando() ? 'Guardando...' : 'Guardar contraseña' }}
-              </button>
-            </div>
-          </div>
-        }
-
-      </div>
-    </div>
-  }
 
 </div>

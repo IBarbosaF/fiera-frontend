@@ -210,7 +210,12 @@ export class PartidaDebate implements OnInit, OnDestroy {
           const titulo = `${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — FIERA`;
 
           this.añadirAlHistorial(titulo, texto || '(FIERA está argumentando...)', false);
-          this.peticionPendiente.set(false);
+
+          /* Avanzar turno en el backend tras procesar la intervención */
+          this.debateService.avanzarTurno(debateActivo.id).subscribe({
+            next : () => this.peticionPendiente.set(false),
+            error: () => this.peticionPendiente.set(false)
+          });
 
           if (audio) {
             this.reproducirAudioFiera(audio).finally(() => {
@@ -351,7 +356,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
       this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, '', audio)
         .subscribe({
           next: (res) => {
-            /* Si el backend devuelve la transcripción, actualizamos el historial */
             const transcripcion = res?.debateResponse?.intervenciones
               ?.find((i: any) => i.id === sub.intervencionId)?.mensaje;
 
@@ -365,7 +369,11 @@ export class PartidaDebate implements OnInit, OnDestroy {
             }
 
             this.procesandoAudio.set(false);
-            this.peticionPendiente.set(false);
+
+            this.debateService.avanzarTurno(debateActivo.id).subscribe({
+              next : () => this.peticionPendiente.set(false),
+              error: () => this.peticionPendiente.set(false)
+            });
             this.cdr.markForCheck();
           },
           error: () => {
@@ -413,7 +421,12 @@ export class PartidaDebate implements OnInit, OnDestroy {
       this.peticionPendiente.set(true);
       this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, texto.trim())
         .subscribe({
-          next : () => this.peticionPendiente.set(false),
+          next : () => {
+            this.debateService.avanzarTurno(debateActivo.id).subscribe({
+              next : () => this.peticionPendiente.set(false),
+              error: () => this.peticionPendiente.set(false)
+            });
+          },
           error: () => this.peticionPendiente.set(false)
         });
     }
@@ -533,7 +546,15 @@ export class PartidaDebate implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     this.esperarPeticionPendiente().finally(() => {
-      this.router.navigate(['/resultados']);
+      const debateActivo = this.debateService.getDebateActivo();
+      if (debateActivo) {
+        this.debateService.finalizarDebateBackend(debateActivo.id).subscribe({
+          next : () => this.router.navigate(['/resultados']),
+          error: () => this.router.navigate(['/resultados']) /* navegar igual si falla */
+        });
+      } else {
+        this.router.navigate(['/resultados']);
+      }
     });
   }
 

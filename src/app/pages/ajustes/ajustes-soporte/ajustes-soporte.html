@@ -1,0 +1,140 @@
+<!-- ============================================================
+     Ajustes — Soporte y ayuda (incluye tab Legal)
+============================================================ -->
+<div class="soporte-root">
+
+  <!-- ── Header con volver ── -->
+  <div class="soporte-header">
+    <button class="soporte-volver" (click)="irAAjustes()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Ajustes
+    </button>
+    <h1 class="soporte-titulo">Soporte y ayuda</h1>
+    <p class="soporte-subtitulo">Contacta con nosotros, envía sugerencias o consulta la información legal.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CARD con tabs
+  ══════════════════════════════════════════════════════════ -->
+  <div class="soporte-card">
+
+    <div class="soporte-tabs">
+      <button class="soporte-tab"
+              [class.activo]="tabActiva() === 'ayuda'"
+              (click)="tabActiva.set('ayuda')">
+        Ayuda
+      </button>
+      <button class="soporte-tab"
+              [class.activo]="tabActiva() === 'legal'"
+              (click)="tabActiva.set('legal')">
+        Legal
+      </button>
+    </div>
+
+    <!-- TAB: Ayuda -->
+    @if (tabActiva() === 'ayuda') {
+      <div class="soporte-ayuda">
+
+        <div class="soporte-contacto-directo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span>¿Prefieres escribirnos directamente? <a [href]="'mailto:' + emailSoporte">{{ emailSoporte }}</a></span>
+        </div>
+
+        <div class="soporte-form">
+          <div class="soporte-field">
+            <label class="soporte-label">TIPO DE SOLICITUD</label>
+            <select class="soporte-input"
+                    [value]="tipoSolicitud()"
+                    (change)="tipoSolicitud.set($any($event.target).value)">
+              <option value="sugerencia">Sugerencia</option>
+              <option value="reporte">Reportar un problema</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="soporte-field">
+            <label class="soporte-label">ASUNTO</label>
+            <input class="soporte-input" type="text" placeholder="Resume tu solicitud en pocas palabras"
+                   [value]="asunto()"
+                   (input)="asunto.set($any($event.target).value)" />
+          </div>
+
+          <div class="soporte-field">
+            <label class="soporte-label">MENSAJE</label>
+            <textarea class="soporte-textarea" rows="5" placeholder="Cuéntanos con más detalle..."
+                      [value]="mensaje()"
+                      (input)="mensaje.set($any($event.target).value)"></textarea>
+          </div>
+
+          @if (errorForm()) {
+            <p class="soporte-error">{{ errorForm() }}</p>
+          }
+          @if (exitoForm()) {
+            <p class="soporte-exito">✓ Solicitud enviada. Te responderemos por email en breve.</p>
+          }
+
+          <div class="soporte-form-acciones">
+            <button class="soporte-btn-primario" [disabled]="enviando()" (click)="enviarSolicitud()">
+              {{ enviando() ? 'Enviando...' : 'Enviar solicitud' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    }
+
+    <!-- TAB: Legal -->
+    @if (tabActiva() === 'legal') {
+      <div class="soporte-legal">
+
+        <!-- Términos y condiciones -->
+        <div class="legal-item">
+          <button class="legal-item-header" (click)="toggleLegal('terminos')">
+            <span class="legal-item-titulo">Términos y condiciones</span>
+            <svg class="legal-chevron" [class.abierto]="legalAbierto() === 'terminos'"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          @if (legalAbierto() === 'terminos') {
+            <div class="legal-item-contenido">
+              <p><strong>1. Uso de la plataforma.</strong> FIERA es una herramienta de entrenamiento de debate académico. Al crear una cuenta aceptas usarla de forma responsable y con fines formativos.</p>
+              <p><strong>2. Cuenta de usuario.</strong> Eres responsable de mantener la confidencialidad de tus credenciales de acceso y de toda la actividad realizada desde tu cuenta.</p>
+              <p><strong>3. Contenido generado.</strong> Los debates, intervenciones y resultados que generes se almacenan para ofrecerte historial y estadísticas personales.</p>
+              <p><strong>4. Modificaciones.</strong> Retorika puede actualizar estos términos; se notificarán los cambios relevantes a través de la plataforma.</p>
+              <p class="legal-nota">Texto provisional — pendiente de redacción legal definitiva.</p>
+            </div>
+          }
+        </div>
+
+        <!-- Política de privacidad -->
+        <div class="legal-item">
+          <button class="legal-item-header" (click)="toggleLegal('privacidad')">
+            <span class="legal-item-titulo">Política de privacidad</span>
+            <svg class="legal-chevron" [class.abierto]="legalAbierto() === 'privacidad'"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          @if (legalAbierto() === 'privacidad') {
+            <div class="legal-item-contenido">
+              <p><strong>1. Datos que recopilamos.</strong> Nombre, apellidos, email, club y datos de uso de la plataforma (debates, resultados, estadísticas).</p>
+              <p><strong>2. Finalidad.</strong> Usamos tus datos para ofrecerte la funcionalidad de entrenamiento, rankings y estadísticas personalizadas.</p>
+              <p><strong>3. Con quién los compartimos.</strong> No compartimos tus datos con terceros ajenos a Retorika salvo obligación legal.</p>
+              <p><strong>4. Tus derechos.</strong> Puedes solicitar acceso, rectificación o eliminación de tus datos escribiendo a nuestro email de soporte.</p>
+              <p class="legal-nota">Texto provisional — pendiente de redacción legal definitiva.</p>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+  </div>
+
+</div>

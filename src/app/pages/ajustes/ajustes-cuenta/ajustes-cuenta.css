@@ -1,0 +1,307 @@
+/* ============================================================
+   Ajustes — Cuenta
+============================================================ */
+
+* { box-sizing: border-box; }
+
+.cuenta-root {
+  max-width : 700px;
+  margin    : 0 auto;
+  padding   : 48px 40px;
+  position  : relative;
+  z-index   : 1;
+}
+
+/* ── Header ── */
+.cuenta-header {
+  margin-bottom: 24px;
+}
+
+.cuenta-volver {
+  display      : inline-flex;
+  align-items  : center;
+  gap          : 4px;
+  background   : transparent;
+  border       : none;
+  color        : #8a9ab8;
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  cursor       : pointer;
+  padding      : 0;
+  margin-bottom: 16px;
+  font-family  : inherit;
+  transition   : color 0.2s ease;
+}
+
+.cuenta-volver:hover { color: #ffffff; }
+
+.cuenta-titulo {
+  font-size    : 1.6rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 6px;
+}
+
+.cuenta-subtitulo {
+  font-size: 0.9rem;
+  color    : #8a9ab8;
+}
+
+.cuenta-loading {
+  color        : #8a9ab8;
+  font-size    : 0.9rem;
+  margin-bottom: 16px;
+}
+
+/* ── Cards ── */
+.cuenta-card {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 14px;
+  padding      : 24px;
+  margin-bottom: 16px;
+}
+
+.cuenta-card-header {
+  margin-bottom: 18px;
+}
+
+.cuenta-card-titulo {
+  font-size  : 1rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+/* ── Avatar ── */
+.cuenta-avatar-row {
+  display    : flex;
+  align-items: center;
+  gap        : 20px;
+}
+
+.cuenta-avatar {
+  width          : 84px;
+  height         : 84px;
+  border-radius  : 50%;
+  background     : linear-gradient(135deg, #156fe7, #105cb1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+  overflow       : hidden;
+  border         : 2px solid rgba(21,111,231,0.3);
+}
+
+.cuenta-avatar-img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: cover;
+}
+
+.cuenta-avatar-iniciales {
+  font-size  : 1.6rem;
+  font-weight: 700;
+  color      : #ffffff;
+}
+
+.cuenta-avatar-acciones {
+  display       : flex;
+  flex-direction: column;
+  gap           : 6px;
+}
+
+.cuenta-btn-secundario {
+  display      : inline-flex;
+  align-items  : center;
+  gap          : 8px;
+  background   : rgba(21,111,231,0.1);
+  border       : 1px solid rgba(21,111,231,0.3);
+  border-radius: 8px;
+  color        : #156fe7;
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  padding      : 9px 16px;
+  cursor       : pointer;
+  transition   : background 0.2s ease;
+  width        : fit-content;
+}
+
+.cuenta-btn-secundario:hover { background: rgba(21,111,231,0.18); }
+
+.cuenta-file-input {
+  display: none;
+}
+
+.cuenta-avatar-hint {
+  font-size: 0.75rem;
+  color    : #8a9ab8;
+}
+
+.cuenta-avatar-confirmacion {
+  display: flex;
+  gap    : 8px;
+}
+
+/* ── Botones genéricos ── */
+.cuenta-btn-primario {
+  background   : #156fe7;
+  color        : #ffffff;
+  border       : none;
+  border-radius: 8px;
+  padding      : 10px 20px;
+  font-size    : 0.88rem;
+  font-weight  : 700;
+  cursor       : pointer;
+  transition   : background 0.2s ease;
+  font-family  : inherit;
+}
+
+.cuenta-btn-primario:hover:not(:disabled) { background: #105cb1; }
+.cuenta-btn-primario:disabled { opacity: 0.6; cursor: default; }
+
+.cuenta-btn-cancelar {
+  background   : transparent;
+  border       : 1px solid #1e2d47;
+  border-radius: 8px;
+  color        : #8a9ab8;
+  padding      : 10px 20px;
+  font-size    : 0.88rem;
+  font-weight  : 600;
+  cursor       : pointer;
+  transition   : all 0.2s ease;
+  font-family  : inherit;
+}
+
+.cuenta-btn-cancelar:hover:not(:disabled) { border-color: rgba(21,111,231,0.4); color: #ffffff; }
+.cuenta-btn-cancelar:disabled { opacity: 0.6; cursor: default; }
+
+/* ── Tabs ── */
+.cuenta-tabs {
+  display      : flex;
+  gap          : 4px;
+  border-bottom: 1px solid #1e2d47;
+  margin-bottom: 20px;
+}
+
+.cuenta-tab {
+  background   : transparent;
+  border       : none;
+  border-bottom: 2px solid transparent;
+  color        : #8a9ab8;
+  font-size    : 0.88rem;
+  font-weight  : 600;
+  padding      : 10px 4px;
+  margin-right : 24px;
+  cursor       : pointer;
+  transition   : color 0.2s ease, border-color 0.2s ease;
+  font-family  : inherit;
+}
+
+.cuenta-tab:hover { color: #ffffff; }
+
+.cuenta-tab.activo {
+  color        : #156fe7;
+  border-bottom-color: #156fe7;
+}
+
+/* ── Formulario ── */
+.cuenta-form {
+  display       : flex;
+  flex-direction: column;
+  gap           : 16px;
+}
+
+.cuenta-form-row {
+  display: flex;
+  gap    : 16px;
+}
+
+.cuenta-form-row .cuenta-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.cuenta-field {
+  display       : flex;
+  flex-direction: column;
+  gap           : 6px;
+}
+
+.cuenta-label {
+  font-size     : 0.72rem;
+  font-weight   : 700;
+  color         : #8a9ab8;
+  letter-spacing: 0.08em;
+}
+
+.cuenta-input {
+  background   : #080e1a;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 12px 14px;
+  color        : #ffffff;
+  font-size    : 0.9rem;
+  font-family  : inherit;
+  outline      : none;
+  transition   : border-color 0.2s ease;
+  width        : 100%;
+}
+
+.cuenta-input:focus {
+  border-color: #156fe7;
+}
+
+.cuenta-input::placeholder { color: #3a4d6b; }
+
+.cuenta-input-wrapper {
+  display    : flex;
+  align-items: center;
+  background : #080e1a;
+  border     : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding-right: 12px;
+  transition : border-color 0.2s ease;
+}
+
+.cuenta-input-wrapper:focus-within { border-color: #156fe7; }
+
+.cuenta-input-wrapper .cuenta-input {
+  border : none;
+  background: transparent;
+}
+
+.cuenta-ojo {
+  background : transparent;
+  border     : none;
+  color      : #8a9ab8;
+  cursor     : pointer;
+  padding    : 0;
+  display    : flex;
+  align-items: center;
+}
+
+.cuenta-ojo:hover { color: #ffffff; }
+
+.cuenta-form-acciones {
+  display        : flex;
+  justify-content: flex-end;
+  margin-top     : 4px;
+}
+
+/* ── Mensajes ── */
+.cuenta-error {
+  color    : #ef4444;
+  font-size: 0.85rem;
+}
+
+.cuenta-exito {
+  color    : #22c55e;
+  font-size: 0.85rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .cuenta-root { padding: 32px 20px; }
+  .cuenta-form-row { flex-direction: column; gap: 16px; }
+  .cuenta-avatar-row { flex-direction: column; align-items: flex-start; }
+}

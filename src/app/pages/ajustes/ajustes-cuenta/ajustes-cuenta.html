@@ -1,0 +1,253 @@
+<!-- ============================================================
+     Ajustes — Cuenta
+     Página completa (no modal): avatar + tabs Datos/Contraseña
+============================================================ -->
+<div class="cuenta-root">
+
+  <!-- ── Header con volver ── -->
+  <div class="cuenta-header">
+    <button class="cuenta-volver" (click)="irAAjustes()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Ajustes
+    </button>
+    <h1 class="cuenta-titulo">Cuenta</h1>
+    <p class="cuenta-subtitulo">Gestiona tu foto, tus datos personales y tu contraseña.</p>
+  </div>
+
+  @if (cargandoUsuario()) {
+    <div class="cuenta-loading">
+      <p>Cargando datos de la cuenta...</p>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════
+       CARD: Foto de perfil
+  ══════════════════════════════════════════════════════════ -->
+  <div class="cuenta-card">
+    <div class="cuenta-card-header">
+      <div class="cuenta-card-titulo">Foto de perfil</div>
+    </div>
+
+    <div class="cuenta-avatar-row">
+
+      <div class="cuenta-avatar">
+        @if (fotoPreview()) {
+          <img [src]="fotoPreview()" alt="Preview" class="cuenta-avatar-img" />
+        } @else if (tieneImagen()) {
+          <img [src]="urlImagenPerfil()" alt="Avatar" class="cuenta-avatar-img" />
+        } @else {
+          <span class="cuenta-avatar-iniciales">{{ iniciales() }}</span>
+        }
+      </div>
+
+      <div class="cuenta-avatar-acciones">
+
+        @if (!fotoArchivo()) {
+          <label class="cuenta-btn-secundario">
+            <input type="file" accept="image/*" class="cuenta-file-input" (change)="seleccionarFoto($event)" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            Cambiar foto
+          </label>
+          <p class="cuenta-avatar-hint">JPG o PNG · Máximo 5 MB</p>
+        } @else {
+          <div class="cuenta-avatar-confirmacion">
+            <button class="cuenta-btn-primario" [disabled]="guardandoFoto()" (click)="guardarFoto()">
+              {{ guardandoFoto() ? 'Guardando...' : 'Guardar foto' }}
+            </button>
+            <button class="cuenta-btn-cancelar" [disabled]="guardandoFoto()" (click)="cancelarFoto()">
+              Cancelar
+            </button>
+          </div>
+        }
+
+        @if (fotoError()) {
+          <p class="cuenta-error">{{ fotoError() }}</p>
+        }
+        @if (fotoExito()) {
+          <p class="cuenta-exito">✓ Foto de perfil actualizada.</p>
+        }
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CARD: Tabs — Datos personales / Contraseña
+  ══════════════════════════════════════════════════════════ -->
+  <div class="cuenta-card">
+
+    <div class="cuenta-tabs">
+      <button class="cuenta-tab"
+              [class.activo]="tabActiva() === 'datos'"
+              (click)="tabActiva.set('datos')">
+        Datos personales
+      </button>
+      <button class="cuenta-tab"
+              [class.activo]="tabActiva() === 'password'"
+              (click)="tabActiva.set('password')">
+        Contraseña
+      </button>
+    </div>
+
+    <!-- TAB: Datos personales -->
+    @if (tabActiva() === 'datos') {
+      <div class="cuenta-form">
+        <div class="cuenta-form-row">
+          <div class="cuenta-field">
+            <label class="cuenta-label">NOMBRE</label>
+            <input class="cuenta-input" type="text" placeholder="Tu nombre"
+                   [value]="editNombre()"
+                   (input)="editNombre.set($any($event.target).value)" />
+          </div>
+          <div class="cuenta-field">
+            <label class="cuenta-label">APELLIDOS</label>
+            <input class="cuenta-input" type="text" placeholder="Tus apellidos"
+                   [value]="editApellidos()"
+                   (input)="editApellidos.set($any($event.target).value)" />
+          </div>
+        </div>
+
+        <div class="cuenta-form-row">
+          <div class="cuenta-field">
+            <label class="cuenta-label">USERNAME</label>
+            <input class="cuenta-input" type="text" placeholder="tu_username"
+                   [value]="editUsername()"
+                   (input)="editUsername.set($any($event.target).value)" />
+          </div>
+          <div class="cuenta-field">
+            <label class="cuenta-label">POSICIÓN / ROL</label>
+            <input class="cuenta-input" type="text" placeholder="Ej: Capitán de equipo"
+                   [value]="editPosicion()"
+                   (input)="editPosicion.set($any($event.target).value)" />
+          </div>
+        </div>
+
+        <div class="cuenta-field">
+          <label class="cuenta-label">EMAIL</label>
+          <input class="cuenta-input" type="email" placeholder="tu@email.com"
+                 [value]="editEmail()"
+                 (input)="editEmail.set($any($event.target).value)" />
+        </div>
+
+        @if (errorDatos()) {
+          <p class="cuenta-error">{{ errorDatos() }}</p>
+        }
+        @if (exitoDatos()) {
+          <p class="cuenta-exito">✓ Datos actualizados correctamente.</p>
+        }
+
+        <div class="cuenta-form-acciones">
+          <button class="cuenta-btn-primario" [disabled]="guardando()" (click)="guardarDatos()">
+            {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- TAB: Contraseña -->
+    @if (tabActiva() === 'password') {
+      <div class="cuenta-form">
+        <div class="cuenta-field">
+          <label class="cuenta-label">CONTRASEÑA ACTUAL</label>
+          <div class="cuenta-input-wrapper">
+            <input class="cuenta-input" [type]="verPassActual() ? 'text' : 'password'"
+                   placeholder="Tu contraseña actual"
+                   [value]="passActual()"
+                   (input)="passActual.set($any($event.target).value)" />
+            <button class="cuenta-ojo" type="button" (click)="verPassActual.set(!verPassActual())">
+              @if (verPassActual()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="cuenta-field">
+          <label class="cuenta-label">NUEVA CONTRASEÑA</label>
+          <div class="cuenta-input-wrapper">
+            <input class="cuenta-input" [type]="verPassNueva() ? 'text' : 'password'"
+                   placeholder="Mínimo 6 caracteres"
+                   [value]="passNueva()"
+                   (input)="passNueva.set($any($event.target).value)" />
+            <button class="cuenta-ojo" type="button" (click)="verPassNueva.set(!verPassNueva())">
+              @if (verPassNueva()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="cuenta-field">
+          <label class="cuenta-label">REPETIR NUEVA CONTRASEÑA</label>
+          <div class="cuenta-input-wrapper">
+            <input class="cuenta-input" [type]="verPassRepetir() ? 'text' : 'password'"
+                   placeholder="Repite la nueva contraseña"
+                   [value]="passRepetir()"
+                   (input)="passRepetir.set($any($event.target).value)" />
+            <button class="cuenta-ojo" type="button" (click)="verPassRepetir.set(!verPassRepetir())">
+              @if (verPassRepetir()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        @if (errorPassword()) {
+          <p class="cuenta-error">{{ errorPassword() }}</p>
+        }
+        @if (exitoPassword()) {
+          <p class="cuenta-exito">✓ Contraseña actualizada correctamente.</p>
+        }
+
+        <div class="cuenta-form-acciones">
+          <button class="cuenta-btn-primario" [disabled]="guardando()" (click)="guardarPassword()">
+            {{ guardando() ? 'Guardando...' : 'Guardar contraseña' }}
+          </button>
+        </div>
+      </div>
+    }
+
+  </div>
+
+</div>
