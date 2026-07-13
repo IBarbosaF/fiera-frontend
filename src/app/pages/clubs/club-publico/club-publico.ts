@@ -1,7 +1,8 @@
-import { Component, signal, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, signal, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink }                                              from '@angular/router';
 import { CommonModule }                                                                    from '@angular/common';
 import { ClubsService, Club }                                                              from '../../../core/services/clubs.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector        : 'app-club-publico',
@@ -72,4 +73,13 @@ export class ClubPublico implements OnInit {
   volver(): void {
     this.router.navigate(['/clubs/explorar']);
   }
+
+  private auth = inject(AuthService);
+
+  yaSoyMiembro = computed(() => {
+    const c = this.club();
+    const userId = this.auth.usuario()?.id;
+    if (!c || !userId) return false;
+    return c.usuarios?.some((u: any) => u.id === userId) ?? false;
+  });
 }
