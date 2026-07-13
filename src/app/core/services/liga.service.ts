@@ -75,10 +75,12 @@ export interface ConfigLiga {
   /* ── Paso 6 — Papel de FIERA ── */
   rolFiera: RolFiera | null;
 
-  /* ── Paso 7 — Reglas y fechas ── */
+  /* ── Paso 7 — Reglas y fechas ──
+     El backend (liga-controller) solo admite UN día de la
+     semana por liga, no una lista — de ahí "diaSemana" singular. */
   numeroDebates          : number;
   frecuencia             : FrecuenciaLiga;
-  diasSemana             : string[];        // ['Lun', 'Mié', ...]
+  diaSemana               : string | null;
   hora                   : string;          // 'HH:mm'
   fechaInicio            : string;          // 'YYYY-MM-DD'
   maxParticipantes       : LimiteParticipantes;
@@ -126,7 +128,7 @@ const CONFIG_INICIAL: ConfigLiga = {
   /* Paso 7 */
   numeroDebates          : 8,
   frecuencia             : 'semanal',
-  diasSemana             : [],
+  diaSemana              : null,
   hora                   : '18:00',
   fechaInicio            : '',
   maxParticipantes       : '16',
@@ -139,6 +141,56 @@ const STORAGE_LIGAS       = 'fiera_ligas';
 
 /* Límite de caracteres de la descripción (Paso 1) */
 const DESCRIPCION_MAX_LEN = 200;
+
+/* Ligas de ejemplo — solo se usan si el usuario no ha creado
+   ninguna liga todavía, para que Explorar ligas no arranque
+   vacío. Mismo patrón que los mocks de Ranking / Retos del día. */
+const LIGAS_SEED = [
+  {
+    id: 1,
+    nombre: 'Liga Retorika Open',
+    descripcion: 'Liga pública organizada por Retorika, abierta a debatientes de cualquier nivel.',
+    imagen: null,
+    acceso: 'publica',
+    tipoCompeticion: 'academico',
+    estructura: ESTRUCTURA_BASE.map(t => ({ ...t })),
+    modoPregunta: 'aleatoria',
+    mismaPreguntaTodasRondas: true,
+    origenPregunta: 'banco',
+    pregunta: '',
+    temaId: null,
+    rolFiera: 'juez',
+    numeroDebates: 8,
+    frecuencia: 'semanal',
+    diaSemana: 'Jue',
+    hora: '18:00',
+    fechaInicio: '2026-07-20',
+    maxParticipantes: '32',
+    maxParticipantesCustom: null,
+  },
+  {
+    id: 2,
+    nombre: 'Liga Universitaria de Debate',
+    descripcion: 'Competición entre clubes universitarios con formato de debate académico por equipos.',
+    imagen: null,
+    acceso: 'clubes_invitados',
+    tipoCompeticion: 'academico',
+    estructura: ESTRUCTURA_BASE.map(t => ({ ...t })),
+    modoPregunta: 'fija',
+    mismaPreguntaTodasRondas: true,
+    origenPregunta: 'manual',
+    pregunta: '¿Debería regularse el uso de inteligencia artificial en las aulas universitarias?',
+    temaId: null,
+    rolFiera: 'rival',
+    numeroDebates: 6,
+    frecuencia: 'quincenal',
+    diaSemana: 'Mar',
+    hora: '19:00',
+    fechaInicio: '2026-08-04',
+    maxParticipantes: '16',
+    maxParticipantesCustom: null,
+  },
+];
 
 
 /* ────────────────────────────────────────────────────────────
@@ -180,19 +232,6 @@ export class LigaService {
   }
 
   /* ----------------------------------------------------------
-     Paso 7 — toggleDiaSemana()
-     Añade o quita un día de la lista de días de la semana
-     en los que se celebran los debates.
-  ---------------------------------------------------------- */
-  toggleDiaSemana(dia: string): void {
-    const dias    = this._config().diasSemana;
-    const nuevos  = dias.includes(dia)
-      ? dias.filter(d => d !== dia)
-      : [...dias, dia];
-    this.actualizarConfig({ diasSemana: nuevos });
-  }
-
-  /* ----------------------------------------------------------
      guardarConfig() / cargarConfig() / resetConfig()
      Persistencia en localStorage del progreso del wizard
   ---------------------------------------------------------- */
@@ -215,11 +254,11 @@ export class LigaService {
 
   /* ----------------------------------------------------------
      Paso 8 — crearLiga()
-     TODO: reemplazar con llamada real al backend cuando
-     exista endpoint de ligas (POST /api/app/ligas/new-liga
-     o similar). Por ahora guarda en localStorage como
-     una liga más de la lista mock, igual que hacía
-     ClubsService antes de conectar con el API real.
+     TODO: reemplazar por la llamada real a
+     POST /api/app/ligas/new cuando terminemos de mapear
+     todos los campos del modelo Liga del backend.
+     Por ahora guarda en localStorage como una liga más de
+     la lista mock.
   ---------------------------------------------------------- */
   crearLiga(): { ok: boolean; id: number } {
     const ligas   = this.obtenerLigas();
@@ -237,6 +276,23 @@ export class LigaService {
     this.resetConfig();
 
     return { ok: true, id: nuevaId };
+  }
+
+  /* ----------------------------------------------------------
+     listarLigas()
+     Usado por ExplorarLigas. TODO: sustituir por
+     GET /api/app/ligas cuando cerremos el mapeo de campos.
+     La primera vez que se llama sin ligas guardadas, siembra
+     un par de ejemplo para que la pantalla no se vea vacía
+     (mismo patrón mock que Ranking/Retos del día).
+  ---------------------------------------------------------- */
+  listarLigas(): any[] {
+    const ligas = this.obtenerLigas();
+    if (ligas.length === 0) {
+      localStorage.setItem(STORAGE_LIGAS, JSON.stringify(LIGAS_SEED));
+      return LIGAS_SEED;
+    }
+    return ligas;
   }
 
   private obtenerLigas(): any[] {

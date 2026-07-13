@@ -1,0 +1,329 @@
+/* ============================================================
+   Explorar Ligas — dentro del MainLayout
+============================================================ */
+
+* { box-sizing: border-box; }
+
+.el-layout {
+  display   : flex;
+  height    : 100%;
+  min-height: 100vh;
+  overflow  : hidden;
+}
+
+/* ══ PANEL IZQUIERDO ══ */
+.el-panel-izq {
+  width         : 340px;
+  flex-shrink   : 0;
+  display       : flex;
+  flex-direction: column;
+  gap           : 16px;
+  padding       : 32px 24px;
+  border-right  : 1px solid rgba(21,111,231,0.12);
+  background    : linear-gradient(160deg, #0d1a33 0%, #080e1a 70%);
+  overflow-y    : auto;
+}
+
+/* ── Buscador ── */
+.el-buscador-wrapper {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 0 14px;
+  transition   : border-color 0.2s ease;
+}
+
+.el-buscador-wrapper:focus-within {
+  border-color: #156fe7;
+}
+
+.el-buscador-icon {
+  width     : 18px;
+  height    : 18px;
+  color     : #8a9ab8;
+  flex-shrink: 0;
+}
+
+.el-buscador-input {
+  flex      : 1;
+  background: transparent;
+  border    : none;
+  outline   : none;
+  color     : #ffffff;
+  font-size : 0.9rem;
+  padding   : 12px 0;
+  font-family: inherit;
+}
+
+.el-buscador-input::placeholder { color: #3a4d6b; }
+
+.el-buscador-clear {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  width          : 20px;
+  height         : 20px;
+  background     : transparent;
+  border         : none;
+  cursor         : pointer;
+  color          : #8a9ab8;
+  padding        : 0;
+}
+
+.el-buscador-clear:hover { color: #ffffff; }
+.el-buscador-clear svg   { width: 14px; height: 14px; }
+
+/* ── Filtros ── */
+.el-filtros-wrapper {
+  display  : flex;
+  flex-wrap: wrap;
+  gap      : 8px;
+}
+
+.el-filtro-chip {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 20px;
+  color        : #8a9ab8;
+  font-size    : 0.8rem;
+  font-weight  : 600;
+  padding      : 6px 14px;
+  cursor       : pointer;
+  font-family  : inherit;
+  transition   : all 0.2s ease;
+  white-space  : nowrap;
+}
+
+.el-filtro-chip:hover  { border-color: rgba(21,111,231,0.4); color: #ffffff; }
+.el-filtro-chip.activo { background: #156fe7; border-color: #156fe7; color: #ffffff; }
+
+/* ── Stats ── */
+.el-stats-wrapper {
+  display      : flex;
+  align-items  : center;
+  gap          : 20px;
+  background   : rgba(21,111,231,0.06);
+  border       : 1px solid rgba(21,111,231,0.15);
+  border-radius: 12px;
+  padding      : 16px 20px;
+}
+
+.el-stat-item {
+  display    : flex;
+  align-items: center;
+  gap        : 12px;
+  flex       : 1;
+}
+
+.el-stat-item svg   { width: 22px; height: 22px; color: #156fe7; flex-shrink: 0; }
+.el-stat-numero     { font-size: 1.25rem; font-weight: 700; color: #ffffff; line-height: 1; margin-bottom: 2px; }
+.el-stat-label      { font-size: 0.75rem; color: #8a9ab8; }
+
+/* ── Botón crear ── */
+.el-btn-crear-liga {
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 6px;
+  background     : #156fe7;
+  color          : #ffffff;
+  border         : none;
+  border-radius  : 8px;
+  padding        : 10px 16px;
+  font-size      : 0.875rem;
+  font-weight    : 600;
+  cursor         : pointer;
+  font-family    : inherit;
+  transition     : background 0.2s ease;
+}
+
+.el-btn-crear-liga:hover { background: #105cb1; }
+.el-btn-crear-liga svg   { width: 16px; height: 16px; }
+
+/* ══ PANEL DERECHO ══ */
+.el-panel-der {
+  flex      : 1;
+  overflow-y: auto;
+  padding   : 24px 28px;
+  min-width : 0;
+}
+
+/* ── Lista vacía ── */
+.el-lista-vacia {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  padding        : 80px 24px;
+  text-align     : center;
+  gap            : 12px;
+}
+
+.el-lista-vacia-icono {
+  width          : 56px;
+  height         : 56px;
+  border-radius  : 14px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  margin-bottom  : 8px;
+}
+
+.el-lista-vacia-icono svg { width: 26px; height: 26px; color: #156fe7; }
+.el-lista-vacia-titulo    { font-size: 1.1rem; font-weight: 700; color: #ffffff; }
+.el-lista-vacia-desc      { font-size: 0.88rem; color: #8a9ab8; }
+
+.el-btn-limpiar {
+  margin-top   : 8px;
+  background   : transparent;
+  border       : 1px solid #1e2d47;
+  border-radius: 8px;
+  color        : #8a9ab8;
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  padding      : 8px 20px;
+  cursor       : pointer;
+  font-family  : inherit;
+  transition   : all 0.2s ease;
+}
+
+.el-btn-limpiar:hover { border-color: rgba(21,111,231,0.4); color: #ffffff; }
+
+/* ── Grid de tarjetas ── */
+.el-ligas-grid {
+  display              : grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap                  : 14px;
+}
+
+.el-liga-card {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 14px;
+  padding      : 18px;
+  transition   : border-color 0.15s ease;
+}
+
+.el-liga-card:hover {
+  border-color: rgba(21,111,231,0.4);
+}
+
+.el-liga-card-top {
+  display      : flex;
+  align-items  : flex-start;
+  gap          : 12px;
+  margin-bottom: 14px;
+}
+
+.el-liga-icono {
+  width          : 42px;
+  height         : 42px;
+  border-radius  : 10px;
+  background     : rgba(21,111,231,0.1);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.el-liga-icono svg { width: 22px; height: 22px; color: #156fe7; }
+
+.el-liga-titulo-wrapper { flex: 1; min-width: 0; }
+.el-liga-titulo { font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-bottom: 3px; }
+.el-liga-tipo   { font-size: 0.78rem; color: #8a9ab8; }
+
+.el-liga-badge {
+  font-size    : 0.68rem;
+  font-weight  : 700;
+  padding      : 3px 9px;
+  border-radius: 20px;
+  white-space  : nowrap;
+  background   : rgba(255,58,114,0.1);
+  color        : #d63060;
+}
+
+.el-liga-badge.abierta {
+  background: rgba(3,210,110,0.12);
+  color     : #0a9e5a;
+}
+
+.el-liga-stats {
+  display      : flex;
+  gap          : 16px;
+  margin-bottom: 14px;
+}
+
+.el-liga-stat {
+  display    : flex;
+  align-items: center;
+  gap        : 5px;
+  font-size  : 0.78rem;
+  color      : #8a9ab8;
+}
+
+.el-liga-stat svg { width: 14px; height: 14px; }
+
+.el-liga-descripcion {
+  font-size    : 0.83rem;
+  color        : #8a9ab8;
+  line-height  : 1.5;
+  margin-bottom: 14px;
+  display          : -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow         : hidden;
+}
+
+.el-liga-footer {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 10px;
+}
+
+.el-liga-fiera {
+  display    : flex;
+  align-items: center;
+  gap        : 5px;
+  font-size  : 0.75rem;
+  color      : #8a9ab8;
+  white-space: nowrap;
+}
+
+.el-liga-fiera svg { width: 13px; height: 13px; color: #156fe7; }
+
+.el-btn-unirse {
+  background   : #156fe7;
+  color        : #ffffff;
+  border       : none;
+  border-radius: 8px;
+  padding      : 7px 14px;
+  font-size    : 0.8rem;
+  font-weight  : 600;
+  cursor       : pointer;
+  font-family  : inherit;
+  white-space  : nowrap;
+  transition   : background 0.2s ease;
+}
+
+.el-btn-unirse:hover { background: #105cb1; }
+
+.el-btn-unirse.secundario {
+  background: transparent;
+  border    : 1px solid rgba(21,111,231,0.4);
+  color     : #156fe7;
+}
+
+.el-btn-unirse.secundario:hover {
+  background: rgba(21,111,231,0.08);
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .el-panel-izq { display: none; }
+  .el-panel-der { padding: 16px; }
+}

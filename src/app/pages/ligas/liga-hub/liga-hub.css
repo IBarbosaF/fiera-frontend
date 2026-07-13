@@ -1,0 +1,144 @@
+/* ============================================================
+   Liga Hub — Menú de entrada al módulo de ligas
+============================================================ */
+
+.lh-layout {
+  min-height     : 100%;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  padding        : 48px 24px;
+}
+
+.lh-inner {
+  width    : 100%;
+  max-width: 720px;
+}
+
+.lh-header {
+  margin-bottom: 32px;
+  text-align   : center;
+}
+
+.lh-titulo {
+  font-size    : 1.6rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 8px;
+}
+
+.lh-subtitulo {
+  font-size: 0.92rem;
+  color    : #8a9ab8;
+}
+
+.lh-opciones {
+  display       : flex;
+  flex-direction: column;
+  gap           : 14px;
+}
+
+.lh-card {
+  display       : flex;
+  align-items   : center;
+  gap           : 18px;
+  background    : #0d1a33;
+  border        : 1px solid #1e2d47;
+  border-radius : 14px;
+  padding       : 22px;
+  cursor        : pointer;
+  transition    : border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.lh-card:hover {
+  transform: translateX(2px);
+}
+
+.lh-color-azul:hover    { border-color: rgba(21,111,231,0.5); }
+.lh-color-verde:hover   { border-color: rgba(3,210,110,0.5);  }
+.lh-color-fucsia:hover  { border-color: rgba(217,70,239,0.5); }
+
+.lh-card-icono {
+  width          : 52px;
+  height         : 52px;
+  border-radius  : 12px;
+  background     : rgba(21,111,231,0.12);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.lh-card-icono svg {
+  width : 24px;
+  height: 24px;
+  color : #156fe7;
+}
+
+.lh-card-icono--unirse {
+  background: rgba(3,210,110,0.12);
+}
+
+.lh-card-icono--unirse svg {
+  color: #0a9e5a;
+}
+
+.lh-card-icono--explorar {
+  background: rgba(217,70,239,0.12);
+}
+
+.lh-card-icono--explorar svg {
+  color: #d946ef;
+}
+
+.lh-card-texto {
+  flex: 1;
+}
+
+.lh-card-titulo {
+  font-size    : 1.05rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 4px;
+}
+
+.lh-card-desc {
+  font-size    : 0.85rem;
+  color        : #8a9ab8;
+  line-height  : 1.5;
+  margin-bottom: 10px;
+}
+
+.lh-card-tags {
+  display: flex;
+  gap    : 6px;
+}
+
+.lh-tag {
+  font-size    : 0.68rem;
+  font-weight  : 700;
+  letter-spacing: 0.04em;
+  color        : #8a9ab8;
+  background   : rgba(255,255,255,0.05);
+  border       : 1px solid #1e2d47;
+  border-radius: 20px;
+  padding      : 3px 10px;
+}
+
+.lh-card-flecha {
+  width      : 20px;
+  height     : 20px;
+  color      : #3a4d6b;
+  flex-shrink: 0;
+  transition : color 0.2s ease;
+}
+
+.lh-card:hover .lh-card-flecha {
+  color: #156fe7;
+}
+
+@media (max-width: 600px) {
+  .lh-card {
+    flex-wrap: wrap;
+  }
+}

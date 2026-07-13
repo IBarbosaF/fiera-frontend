@@ -223,6 +223,8 @@ export class Registro {
     this.error.set('');
     this.cargando.set(true);
 
+    const club = this.clubSeleccionado();
+
     this.authService.registrar({
       nombre      : this.nombre(),
       apellidos   : this.apellidos(),
@@ -231,6 +233,7 @@ export class Registro {
       password    : this.password(),
       experiencia : this.experienciaToInt(),
       posicion    : this.posicion() ?? '',
+      clubs       : club ? [{ id: club.id }] : [],
     }, this.imagenPerfil()).subscribe(resultado => {
       this.cargando.set(false);
 

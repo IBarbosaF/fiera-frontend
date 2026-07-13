@@ -203,6 +203,7 @@
     <!-- ==========================================
          PASO 4 — Estructura del debate
          Partes del debate y duración de cada turno
+         (medios minutos → formatMinutos())
     ========================================== -->
     @if (pasoActual() === 4) {
       <div class="cl-paso">
@@ -247,7 +248,8 @@
 
     <!-- ==========================================
          PASO 5 — Pregunta a debatir
-         Fija (misma o distinta por ronda) o aleatoria
+         Fija (misma o distinta por ronda) o aleatoria.
+         "Banco de preguntas" carga temas reales del backend.
     ========================================== -->
     @if (pasoActual() === 5) {
       <div class="cl-paso">
@@ -426,7 +428,11 @@
 
     <!-- ==========================================
          PASO 7 — Reglas y fechas
-         Nº de debates, frecuencia, calendario y aforo
+         Nº de debates, frecuencia, DÍA ÚNICO,
+         calendario propio y aforo.
+
+         El backend solo admite un día de la semana por
+         liga → selección única (no chips múltiples).
     ========================================== -->
     @if (pasoActual() === 7) {
       <div class="cl-paso">
@@ -473,8 +479,8 @@
             <div class="cl-dias-lista">
               @for (dia of DIAS_SEMANA; track dia) {
                 <button class="cl-dia-chip"
-                        [class.active]="diasSemana().includes(dia)"
-                        (click)="toggleDia(dia)">
+                        [class.active]="diaSemana() === dia"
+                        (click)="setDiaSemana(dia)">
                   {{ dia }}
                 </button>
               }
@@ -584,9 +590,8 @@
 
     <!-- ==========================================
          PASO 8 — Resumen
-         Solo lectura. Tabla de clasificación e insignias
-         son datos mock (hardcodeados) — ver CLASIFICACION_MOCK
-         e INSIGNIAS_MOCK en crear-liga.ts.
+         Solo lectura. Insignias mock (ver INSIGNIAS_MOCK
+         en crear-liga.ts). Tabla de clasificación aparcada.
     ========================================== -->
     @if (pasoActual() === 8) {
       <div class="cl-paso cl-paso-resumen">
@@ -608,7 +613,7 @@
             <div class="cl-resumen-fila"><span>Pregunta</span><strong>{{ preguntaLabel() }}</strong></div>
             <div class="cl-resumen-fila"><span>Estructura</span><strong>{{ estructuraLabel() }}</strong></div>
             <div class="cl-resumen-fila"><span>Debates</span><strong>{{ numeroDebates() }} debates</strong></div>
-            <div class="cl-resumen-fila"><span>Frecuencia</span><strong>{{ frecuenciaLabel() }} · {{ hora() }}</strong></div>
+            <div class="cl-resumen-fila"><span>Frecuencia</span><strong>{{ frecuenciaLabel() }} · {{ diaSemana() }} · {{ hora() }}</strong></div>
             <div class="cl-resumen-fila"><span>Fechas</span><strong>{{ fechaInicio() | date:'dd/MM/yyyy' }} – {{ fechaFinEstimada() | date:'dd/MM/yyyy' }}</strong></div>
             <div class="cl-resumen-fila"><span>Participantes máx.</span><strong>{{ maxParticipantesLabel() }}</strong></div>
           </div>

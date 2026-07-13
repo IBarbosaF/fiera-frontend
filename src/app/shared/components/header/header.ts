@@ -116,6 +116,7 @@ export class Header {
     { label: 'Comunidad',ruta: '/comunidad',   icono: 'comunidad' },
     { label: 'Club',     ruta: '/clubs',    icono: 'club'    },
     { label: 'Retos',    ruta: '/retos',    icono: 'ligas'   },
+    { label: 'Ligas',     ruta: '/ligas',    icono: 'ligas'   },
     { label: 'Ranking',  ruta: '/ranking',  icono: 'ranking' },
     { label: 'Recursos', ruta: '/recursos', icono: 'recursos'},
     { label: 'Logros',   ruta: '/logros',   icono: 'logros'  },

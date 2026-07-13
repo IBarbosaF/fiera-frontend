@@ -141,6 +141,12 @@ export class CrearLiga {
      PASO 4 — Estructura del debate
      Qué partes tendrá cada debate y su duración.
      Los minutos se ajustan de medio en medio (0.5).
+
+     NOTA: este paso todavía NO se envía al crear la liga
+     en el backend — está pendiente de confirmar si la
+     estructura vive en el objeto Debate individual en vez
+     de en Liga. Se mantiene por ahora solo como referencia
+     local para cuando la liga genere sus debates.
   ════════════════════════════════════════════ */
 
   estructura = computed(() => this.config().estructura);
@@ -267,12 +273,16 @@ export class CrearLiga {
 
   /* ════════════════════════════════════════════
      PASO 7 — Reglas y fechas
-     Calendario, frecuencia y límite de participantes
+     Calendario, frecuencia, día único y aforo.
+
+     El backend (liga-controller) solo admite UN día de la
+     semana por liga (campo "debatesDia": string) — de ahí
+     que aquí sea selección única, no chips múltiples.
   ════════════════════════════════════════════ */
 
   numeroDebates          = computed(() => this.config().numeroDebates);
   frecuencia              = computed(() => this.config().frecuencia);
-  diasSemana              = computed(() => this.config().diasSemana);
+  diaSemana               = computed(() => this.config().diaSemana);
   hora                    = computed(() => this.config().hora);
   fechaInicio             = computed(() => this.config().fechaInicio);
   maxParticipantes        = computed(() => this.config().maxParticipantes);
@@ -285,20 +295,6 @@ export class CrearLiga {
     { valor: 'quincenal', label: 'Quincenal' },
     { valor: 'mensual',   label: 'Mensual'   },
   ];
-
-  /* Dropdown propio de frecuencia (no usamos <select> nativo porque
-     su lista de opciones no se puede tematizar en oscuro de forma
-     consistente entre navegadores). */
-  frecuenciaAbierta = signal(false);
-
-  toggleFrecuenciaDropdown(): void {
-    this.frecuenciaAbierta.update(v => !v);
-  }
-
-  seleccionarFrecuencia(valor: FrecuenciaLiga): void {
-    this.setFrecuencia(valor);
-    this.frecuenciaAbierta.set(false);
-  }
 
   readonly OPCIONES_MAX_PARTICIPANTES: { valor: LimiteParticipantes; label: string }[] = [
     { valor: 'sin_limite',   label: 'Sin límite'        },
@@ -315,7 +311,9 @@ export class CrearLiga {
     mensual  : 30,
   };
 
-  /** Fecha fin estimada a partir de fechaInicio + (numeroDebates - 1) * frecuencia */
+  /** Fecha fin estimada a partir de fechaInicio + (numeroDebates - 1) * frecuencia
+      NOTA: aproximación simple, no tiene en cuenta el día concreto de la
+      semana — pendiente de mejorar si hace falta precisión exacta. */
   fechaFinEstimada = computed<Date | null>(() => {
     const inicio = this.fechaInicio();
     if (!inicio) return null;
@@ -346,26 +344,46 @@ export class CrearLiga {
     }
   }
 
+  /* Dropdown propio de frecuencia (no usamos <select> nativo porque
+     su lista de opciones no se puede tematizar en oscuro de forma
+     consistente entre navegadores). */
+  frecuenciaAbierta = signal(false);
+
+  toggleFrecuenciaDropdown(): void {
+    this.frecuenciaAbierta.update(v => !v);
+  }
+
+  seleccionarFrecuencia(valor: FrecuenciaLiga): void {
+    this.setFrecuencia(valor);
+    this.frecuenciaAbierta.set(false);
+  }
+
   setFrecuencia(valor: FrecuenciaLiga): void {
     this.ligaService.actualizarConfig({ frecuencia: valor });
   }
 
-  toggleDia(dia: string): void {
-    this.ligaService.toggleDiaSemana(dia);
+  /** Selección de un único día (sustituye al antiguo toggle múltiple) */
+  setDiaSemana(dia: string): void {
+    this.ligaService.actualizarConfig({ diaSemana: dia });
   }
 
   setHora(valor: string): void {
     this.ligaService.actualizarConfig({ hora: valor });
   }
 
-  setFechaInicio(valor: string): void {
-    this.ligaService.actualizarConfig({ fechaInicio: valor });
+  setMaxParticipantes(valor: LimiteParticipantes): void {
+    this.ligaService.actualizarConfig({ maxParticipantes: valor });
+  }
+
+  setMaxParticipantesCustom(valor: string): void {
+    const num = Number(valor);
+    this.ligaService.actualizarConfig({ maxParticipantesCustom: isNaN(num) ? null : num });
   }
 
   /* ── Selector de fecha propio (sustituye a <input type="date">) ──
-    El popup del calendario nativo del navegador es UI del sistema
-    operativo y no se puede tematizar en oscuro, así que montamos
-    uno propio con el mismo estilo que el resto de la app. */
+     El popup del calendario nativo del navegador es UI del sistema
+     operativo y no se puede tematizar en oscuro, así que montamos
+     uno propio con el mismo estilo que el resto de la app. */
   fechaInicioAbierta = signal(false);
   mesVisible         = signal<Date>(new Date());
 
@@ -385,12 +403,15 @@ export class CrearLiga {
     return iso ? new Date(iso + 'T00:00:00') : null;
   });
 
+  /** Texto del botón trigger, formato DD/MM/AAAA (o placeholder si no hay fecha) */
   fechaInicioLabel = computed(() => {
     const d = this.fechaInicioDate();
     if (!d) return 'dd/mm/aaaa';
     return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
   });
 
+  /** Cuadrícula de 42 días (6 semanas), empezando en lunes,
+      incluye días de meses adyacentes (se pintan en gris). */
   diasCalendario = computed<Date[]>(() => {
     const mes = this.mesVisible();
     const primerDiaMes = new Date(mes.getFullYear(), mes.getMonth(), 1);
@@ -405,6 +426,10 @@ export class CrearLiga {
       return dia;
     });
   });
+
+  setFechaInicio(valor: string): void {
+    this.ligaService.actualizarConfig({ fechaInicio: valor });
+  }
 
   toggleFechaInicioPicker(): void {
     if (!this.fechaInicioAbierta()) {
@@ -466,20 +491,11 @@ export class CrearLiga {
     return `${y}-${m}-${day}`;
   }
 
-  setMaxParticipantes(valor: LimiteParticipantes): void {
-    this.ligaService.actualizarConfig({ maxParticipantes: valor });
-  }
-
-  setMaxParticipantesCustom(valor: string): void {
-    const num = Number(valor);
-    this.ligaService.actualizarConfig({ maxParticipantesCustom: isNaN(num) ? null : num });
-  }
-
 
   /* ════════════════════════════════════════════
      PASO 8 — Resumen
-     Solo lectura + datos mock (clasificación e insignias)
-     hasta que exista backend de ligas.
+     Solo lectura + datos mock (insignias) hasta que
+     exista backend de ligas para esas partes concretas.
   ════════════════════════════════════════════ */
 
   /* Etiquetas legibles para el resumen */
@@ -547,6 +563,9 @@ export class CrearLiga {
      finalizarCreacion()
      Botón "CREAR LIGA" del Paso 8. Llama al servicio (mock)
      y navega al hub de ligas.
+     TODO: sustituir ligaService.crearLiga() por el POST real
+     a /api/app/ligas/new en cuanto cerremos el mapeo de campos
+     con el backend (estructura, imagen, tema, maxParticipantes).
   ---------------------------------------------------------- */
   finalizarCreacion(): void {
     const resultado = this.ligaService.crearLiga();
@@ -647,8 +666,8 @@ export class CrearLiga {
           this.error.set('Indica la fecha de inicio de la liga.');
           return false;
         }
-        if (this.diasSemana().length === 0) {
-          this.error.set('Selecciona al menos un día de la semana.');
+        if (!this.diaSemana()) {
+          this.error.set('Selecciona el día de la semana.');
           return false;
         }
         if (this.maxParticipantes() === 'personalizado' && !this.maxParticipantesCustom()) {
