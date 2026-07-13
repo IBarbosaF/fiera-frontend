@@ -239,20 +239,7 @@ export class Registro {
         return;
       }
 
-      const club = this.clubSeleccionado();
-      const usuarioCreado = this.authService.usuario();
-      console.log('🟣 Club seleccionado:', club);
-      console.log('🟣 Usuario creado (con id):', usuarioCreado);
-
-    if (club && usuarioCreado?.id) {
-      this.authService.actualizarClub(usuarioCreado.id, club.id).subscribe(() => {
-        this.cargando.set(false);
-        this.router.navigate(['/']);
-      });
-    } else {
-      this.cargando.set(false);
       this.router.navigate(['/']);
-    }
     });
   }
 }

@@ -122,37 +122,6 @@ export class AuthService {
   }
 
   /* ----------------------------------------------------------
-   actualizarClub()
-   Asocia un club al usuario recién registrado.
-   PUT /api/auth/update/{id} — multipart/form-data,
-   mandamos solo el campo 'clubs' con el club elegido.
-  ---------------------------------------------------------- */
-  actualizarClub(userId: number, clubId: number): Observable<boolean> {
-    const formData = new FormData();
-    formData.append('usuario', new Blob([JSON.stringify({
-      clubs: [{ id: clubId }]
-    })], { type: 'application/json' }));
-
-    return this.http.put<any>(`${API_BASE}/api/auth/update/${userId}`, formData).pipe(
-      tap(res => {
-        console.log('🟠 Respuesta al actualizar club:', res);
-        /* Si el backend devuelve el usuario actualizado, refrescamos la sesión */
-        const usuarioActualizado = res?.data?.usuario ?? res?.data ?? null;
-        if (usuarioActualizado) {
-          const actual = this._usuario();
-          this._usuario.set({ ...actual, ...usuarioActualizado });
-          localStorage.setItem(STORAGE_SESION, JSON.stringify({ ...actual, ...usuarioActualizado }));
-        }
-      }),
-      switchMap(() => of(true)),
-      catchError(err => {
-        console.error('🔴 Error al actualizar club:', err);
-        return of(false);
-      })
-    );
-  }
-
-  /* ----------------------------------------------------------
      actualizarUsuario()
      Actualiza cualquier subconjunto de campos del usuario.
      PUT /api/auth/update/{id} — multipart/form-data,
