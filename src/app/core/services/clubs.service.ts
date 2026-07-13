@@ -28,19 +28,20 @@ export interface Club {
   id                 : number;
   nombre             : string;
   siglas             : string;
-  institucion        : string | null;
+  institucion        : string;
   usuarios           : any[];
   admins?            : any[];
   ciudad?            : string | null;
   comunidad?         : string | null;
-  pais?              : string | null;
   provincia?         : string | null;
+  pais?              : string | null;
   direccion?         : string | null;
-  imgUrl?            : string | null;
-  fundacion?         : number | null;
   frecuenciaFormacion?: string | null;
-  tamaño?            : number | null;
-  creadoPor?         : number | null;
+  fundacion?         : number | null;
+  imgUrl?            : string | null;
+  tamaño?            : string | null;
+  status?            : string | null;
+  creadoPor?         : any | null;
 }
 
 // ── Servicio ───────────────────────────────────────────────────────────────
@@ -60,6 +61,6 @@ export class ClubsService {
   }
 
   getClubById(id: number) {
-    return this.http.get<Club>(`${API_BASE}/api/app/clubs/${id}`);
+    return this.http.get<Club>(`${API_BASE}/api/app/clubs/buscar/${id}`);
   }
 }

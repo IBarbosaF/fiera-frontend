@@ -52,7 +52,13 @@
         </div>
         <div class="hub-card-texto">
           <p class="hub-card-titulo">Tu club</p>
-          <p class="hub-card-desc">Gestiona los miembros, administradores y actividad de tu club.</p>
+          <p class="hub-card-desc">
+            @if (miClubId()) {
+              Gestiona los miembros, administradores y actividad de tu club.
+            } @else {
+              Aún no perteneces a ningún club. Explora y únete a uno.
+            }
+          </p>
           <div class="hub-card-tags">
             <span class="tag">Gestión</span>
             <span class="tag">Miembros</span>

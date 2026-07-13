@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Router, RouterLink }                 from '@angular/router';
-import { CommonModule }                       from '@angular/common';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Router, RouterLink }                                    from '@angular/router';
+import { CommonModule }                                          from '@angular/common';
+import { AuthService }                                           from '../../../core/services/auth.service';
 
 @Component({
   selector        : 'app-clubs-hub',
@@ -11,9 +12,26 @@ import { CommonModule }                       from '@angular/common';
   changeDetection : ChangeDetectionStrategy.OnPush,
 })
 export class ClubsHub {
-  constructor(private router: Router) {}
+
+  private router = inject(Router);
+  private auth   = inject(AuthService);
+
+  // Id del primer club del usuario logueado
+  miClubId = computed(() => {
+    const clubs = this.auth.usuario()?.clubs;
+    return clubs && clubs.length > 0 ? clubs[0].id : null;
+  });
 
   irACrear()    : void { this.router.navigate(['/clubs/crear']);    }
   irAExplorar() : void { this.router.navigate(['/clubs/explorar']); }
-  irAMiClub()   : void { this.router.navigate(['/clubs/1']);        } // TODO: id del club del usuario
+
+  irAMiClub(): void {
+    const id = this.miClubId();
+    if (id) {
+      this.router.navigate(['/clubs', id]);
+    } else {
+      // Si no tiene club, llevarle a explorar
+      this.router.navigate(['/clubs/explorar']);
+    }
+  }
 }
