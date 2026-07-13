@@ -28,9 +28,8 @@ export class ClubsHub {
   irAMiClub(): void {
     const id = this.miClubId();
     if (id) {
-      this.router.navigate(['/clubs', id]);
+      this.router.navigate(['/clubs', id, 'gestionar']);
     } else {
-      // Si no tiene club, llevarle a explorar
       this.router.navigate(['/clubs/explorar']);
     }
   }

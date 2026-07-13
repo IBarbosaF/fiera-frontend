@@ -112,7 +112,7 @@ export const routes: Routes = [
           import('./pages/clubs/club-publico/club-publico').then(m => m.ClubPublico)
       },
       {
-        path        : 'clubs/:id',
+        path        : 'clubs/:id/gestionar',
         loadComponent: () =>
           import('./pages/clubs/club-detalle/club-detalle').then(m => m.ClubDetalle)
       },

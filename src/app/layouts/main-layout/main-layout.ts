@@ -31,7 +31,7 @@ export class MainLayout {
   mostrarLeona = computed(() => {
     const url = this.urlActual();
     // Rutas donde NO se muestra la leona (contenido llena la pantalla)
-    const rutasSinLeona = ['/', '/clubs', '/perfil'];
+    const rutasSinLeona = ['/', '/perfil'];
     return !rutasSinLeona.includes(url);
   });
 }

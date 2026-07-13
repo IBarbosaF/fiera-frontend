@@ -14,14 +14,19 @@ import {
 } from '../../../core/services/liga.service';
 
 /* ============================================================
-   CrearLiga — Wizard de 8 pasos para crear una liga de debate
+   CrearLiga — Wizard de 7 pasos para crear una liga de debate
 
-   1. Información básica   5. Pregunta a debatir
-   2. Acceso               6. Papel de FIERA
-   3. Tipo de competición  7. Reglas y fechas
-   4. Estructura           8. Resumen
+   1. Información básica   5. Papel de FIERA
+   2. Acceso               6. Reglas y fechas
+   3. Tipo de competición  7. Resumen
+   4. Pregunta a debatir
 
    Ruta standalone (fuera de MainLayout), igual que registro.
+
+   NOTA: el antiguo "Paso 4 — Estructura del debate" (turnos e
+   intervalos) se quitó porque el modelo Liga del backend no
+   tiene ningún campo para eso — confirmado con el schema real.
+   Ver comentario equivalente en liga.service.ts.
 
    Cada paso tiene su propio bloque comentado más abajo con:
    · signals computed que leen del LigaService
@@ -50,11 +55,11 @@ export class CrearLiga {
 
   /* ── Stepper ── */
   pasoActual = signal<number>(1);
-  readonly TOTAL_PASOS = 8;
+  readonly TOTAL_PASOS = 7;
 
   readonly NOMBRES_PASO = [
-    'Información', 'Acceso', 'Tipo', 'Estructura',
-    'Pregunta', 'FIERA', 'Reglas y fechas', 'Resumen',
+    'Información', 'Acceso', 'Tipo', 'Pregunta',
+    'FIERA', 'Reglas y fechas', 'Resumen',
   ];
 
   /* ── Errores ── */
@@ -138,53 +143,9 @@ export class CrearLiga {
 
 
   /* ════════════════════════════════════════════
-     PASO 4 — Estructura del debate
-     Qué partes tendrá cada debate y su duración.
-     Los minutos se ajustan de medio en medio (0.5).
-
-     NOTA: este paso todavía NO se envía al crear la liga
-     en el backend — está pendiente de confirmar si la
-     estructura vive en el objeto Debate individual en vez
-     de en Liga. Se mantiene por ahora solo como referencia
-     local para cuando la liga genere sus debates.
-  ════════════════════════════════════════════ */
-
-  estructura = computed(() => this.config().estructura);
-
-  toggleTurnoActivo(id: string): void {
-    const turno = this.estructura().find(t => t.id === id);
-    if (turno) this.ligaService.actualizarTurno(id, { activo: !turno.activo });
-  }
-
-  /** Redondea a 1 decimal para evitar arrastres de coma flotante (0.1 + 0.2...) */
-  private redondearMedio(valor: number): number {
-    return Math.round(valor * 2) / 2;
-  }
-
-  incrementarMinutos(id: string): void {
-    const turno = this.estructura().find(t => t.id === id);
-    if (turno) this.ligaService.actualizarTurno(id, { minutos: this.redondearMedio(turno.minutos + 0.5) });
-  }
-
-  decrementarMinutos(id: string): void {
-    const turno = this.estructura().find(t => t.id === id);
-    if (turno && turno.minutos > 0.5) {
-      this.ligaService.actualizarTurno(id, { minutos: this.redondearMedio(turno.minutos - 0.5) });
-    }
-  }
-
-  /** Formatea "3.5" → "3:30 min" y "4" → "4 min" para el HTML */
-  formatMinutos(minutos: number): string {
-    const enteros = Math.floor(minutos);
-    const esMedio = minutos % 1 !== 0;
-    return esMedio ? `${enteros}:30 min` : `${enteros} min`;
-  }
-
-
-  /* ════════════════════════════════════════════
-     PASO 5 — Pregunta a debatir
+     PASO 4 — Pregunta a debatir
      Cómo se define el tema de cada debate.
-     "Escribir mi propia pregunta" → input manual.
+     "Escribir mi propia pregunta" → input manual (temaElegido).
      "Elegir del banco de preguntas" → carga real desde
      el backend (mismo endpoint que usa config-debate:
      GET /api/app/temas), no está hardcodeado.
@@ -255,7 +216,7 @@ export class CrearLiga {
 
 
   /* ════════════════════════════════════════════
-     PASO 6 — Papel de FIERA
+     PASO 5 — Papel de FIERA
      Qué rol tendrá FIERA dentro de la liga
   ════════════════════════════════════════════ */
 
@@ -272,12 +233,12 @@ export class CrearLiga {
 
 
   /* ════════════════════════════════════════════
-     PASO 7 — Reglas y fechas
+     PASO 6 — Reglas y fechas
      Calendario, frecuencia, día único y aforo.
 
-     El backend (liga-controller) solo admite UN día de la
-     semana por liga (campo "debatesDia": string) — de ahí
-     que aquí sea selección única, no chips múltiples.
+     El backend solo admite UN día de la semana por liga
+     (campo "debatesDia": string) — de ahí que aquí sea
+     selección única, no chips múltiples.
   ════════════════════════════════════════════ */
 
   numeroDebates          = computed(() => this.config().numeroDebates);
@@ -304,33 +265,19 @@ export class CrearLiga {
     { valor: 'personalizado', label: 'Personalizado'    },
   ];
 
-  /* Días → duración aprox. entre debates, usado para estimar la fecha fin */
-  private readonly DIAS_POR_FRECUENCIA: Record<FrecuenciaLiga, number> = {
-    semanal  : 7,
-    quincenal: 14,
-    mensual  : 30,
-  };
-
-  /** Fecha fin estimada a partir de fechaInicio + (numeroDebates - 1) * frecuencia
-      NOTA: aproximación simple, no tiene en cuenta el día concreto de la
-      semana — pendiente de mejorar si hace falta precisión exacta. */
-  fechaFinEstimada = computed<Date | null>(() => {
-    const inicio = this.fechaInicio();
-    if (!inicio) return null;
-
-    const diasEntreDebates = this.DIAS_POR_FRECUENCIA[this.frecuencia()];
-    const totalDias        = diasEntreDebates * (this.numeroDebates() - 1);
-
-    const fecha = new Date(inicio);
-    fecha.setDate(fecha.getDate() + totalDias);
-    return fecha;
-  });
+  /** Fecha fin estimada — delega en LigaService.calcularFechaFin()
+      para no duplicar la fórmula que también usa crearLiga(). */
+  fechaFinEstimada = computed<Date | null>(() =>
+    this.ligaService.calcularFechaFin(this.fechaInicio(), this.frecuencia(), this.numeroDebates())
+  );
 
   /** Texto "Duración aproximada: X semanas" que se muestra bajo las fechas */
   duracionAproxTexto = computed(() => {
-    const diasEntreDebates = this.DIAS_POR_FRECUENCIA[this.frecuencia()];
-    const totalDias        = diasEntreDebates * (this.numeroDebates() - 1);
-    const semanas           = Math.max(1, Math.round(totalDias / 7));
+    const fin = this.fechaFinEstimada();
+    if (!fin || !this.fechaInicio()) return '';
+    const inicio = new Date(this.fechaInicio());
+    const totalDias = Math.round((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
+    const semanas = Math.max(1, Math.round(totalDias / 7));
     return `${semanas} semana${semanas === 1 ? '' : 's'}`;
   });
 
@@ -362,7 +309,7 @@ export class CrearLiga {
     this.ligaService.actualizarConfig({ frecuencia: valor });
   }
 
-  /** Selección de un único día (sustituye al antiguo toggle múltiple) */
+  /** Selección de un único día */
   setDiaSemana(dia: string): void {
     this.ligaService.actualizarConfig({ diaSemana: dia });
   }
@@ -493,9 +440,10 @@ export class CrearLiga {
 
 
   /* ════════════════════════════════════════════
-     PASO 8 — Resumen
-     Solo lectura + datos mock (insignias) hasta que
-     exista backend de ligas para esas partes concretas.
+     PASO 7 — Resumen
+     Solo lectura + insignias mock (aún sin hueco en el
+     modelo real más allá del array "insignias" del backend,
+     que de momento no rellenamos al crear).
   ════════════════════════════════════════════ */
 
   /* Etiquetas legibles para el resumen */
@@ -520,13 +468,6 @@ export class CrearLiga {
     return this.pregunta() ? `${base} — "${this.pregunta()}"` : base;
   });
 
-  estructuraLabel = computed(() =>
-    this.estructura()
-      .filter(t => t.activo)
-      .map(t => `${t.nombre} (${this.formatMinutos(t.minutos)})`)
-      .join(' · ')
-  );
-
   maxParticipantesLabel = computed(() => {
     if (this.maxParticipantes() === 'sin_limite') return 'Sin límite';
     if (this.maxParticipantes() === 'personalizado') return `${this.maxParticipantesCustom() ?? '—'} participantes`;
@@ -538,19 +479,10 @@ export class CrearLiga {
     return op?.label ?? '—';
   });
 
-  /* ── Datos mock del Resumen (Paso 8) ──
-     La tabla de clasificación se ha quitado del HTML del resumen
-     a petición — de momento no se muestra en ningún sitio, pero
-     dejamos el array aquí listo para cuando decidamos dónde
-     mostrarla (¿ficha pública de la liga una vez creada?). */
-  readonly CLASIFICACION_MOCK = [
-    { pos: 1, nombre: 'María López',    victorias: 6, derrotas: 2, puntos: 6, porcentaje: 75, rtk: 1650 },
-    { pos: 2, nombre: 'Diego Ruiz',     victorias: 5, derrotas: 3, puntos: 5, porcentaje: 63, rtk: 1580 },
-    { pos: 3, nombre: 'Laura Martínez', victorias: 5, derrotas: 3, puntos: 5, porcentaje: 63, rtk: 1540 },
-    { pos: 4, nombre: 'Carlos Fernández', victorias: 4, derrotas: 4, puntos: 4, porcentaje: 50, rtk: 1500 },
-    { pos: 5, nombre: 'Ana Gómez',      victorias: 3, derrotas: 5, puntos: 3, porcentaje: 38, rtk: 1460 },
-  ];
-
+  /* ── Insignias mock del Resumen (Paso 7) ──
+     El backend tiene un array "insignias" en el modelo Liga,
+     pero de momento no lo rellenamos al crear — solo es
+     decorativo aquí hasta que definamos de dónde salen. */
   readonly INSIGNIAS_MOCK = [
     { nombre: 'Mejor orador',      icono: 'trofeo'  },
     { nombre: 'Mejor introductor', icono: 'medalla' },
@@ -559,19 +491,32 @@ export class CrearLiga {
     { nombre: 'Participante revelación', icono: 'estrella' },
   ];
 
+  /* ── Estado de creación (llamada real al backend) ── */
+  creandoLiga    = signal(false);
+  errorCreacion  = signal('');
+
   /* ----------------------------------------------------------
      finalizarCreacion()
-     Botón "CREAR LIGA" del Paso 8. Llama al servicio (mock)
-     y navega al hub de ligas.
-     TODO: sustituir ligaService.crearLiga() por el POST real
-     a /api/app/ligas/new en cuanto cerremos el mapeo de campos
-     con el backend (estructura, imagen, tema, maxParticipantes).
+     Botón "CREAR LIGA" del Paso 7. Llama a POST /api/app/ligas/new
+     de verdad. Ver liga.service.ts → crearLiga() para el mapeo
+     completo de campos confirmado por curl.
   ---------------------------------------------------------- */
   finalizarCreacion(): void {
-    const resultado = this.ligaService.crearLiga();
-    if (resultado.ok) {
-      this.router.navigate(['/ligas']);
-    }
+    this.errorCreacion.set('');
+    this.creandoLiga.set(true);
+
+    this.ligaService.crearLiga().subscribe({
+      next: () => {
+        this.creandoLiga.set(false);
+        this.router.navigate(['/ligas']);
+      },
+      error: (err) => {
+        this.creandoLiga.set(false);
+        this.errorCreacion.set(
+          err?.error?.message || 'No se pudo crear la liga. Inténtalo de nuevo.'
+        );
+      }
+    });
   }
 
 
@@ -637,13 +582,6 @@ export class CrearLiga {
         return true;
 
       case 4:
-        if (!this.estructura().some(t => t.activo)) {
-          this.error.set('Activa al menos un turno para la estructura del debate.');
-          return false;
-        }
-        return true;
-
-      case 5:
         if (this.modoPregunta() === 'fija' && !this.pregunta().trim()) {
           this.error.set(
             this.origenPregunta() === 'banco'
@@ -654,14 +592,14 @@ export class CrearLiga {
         }
         return true;
 
-      case 6:
+      case 5:
         if (!this.rolFiera()) {
           this.error.set('Selecciona el papel de FIERA en la liga.');
           return false;
         }
         return true;
 
-      case 7:
+      case 6:
         if (!this.fechaInicio()) {
           this.error.set('Indica la fecha de inicio de la liga.');
           return false;

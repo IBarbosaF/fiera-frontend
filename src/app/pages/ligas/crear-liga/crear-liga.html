@@ -1,5 +1,5 @@
 <!-- ============================================================
-     Crear Liga — Wizard de 8 pasos
+     Crear Liga — Wizard de 7 pasos
 
      Cada paso vive en su propio bloque @if (pasoActual() === N)
      comentado abajo. Para editar un paso, busca su comentario
@@ -21,9 +21,9 @@
     </div>
   </div>
 
-  <!-- ── Stepper (8 pasos) ── -->
+  <!-- ── Stepper (7 pasos) ── -->
   <div class="cl-stepper">
-    @for (paso of [1,2,3,4,5,6,7,8]; track paso) {
+    @for (paso of [1,2,3,4,5,6,7]; track paso) {
       <div class="cl-stepper-paso">
         <div class="cl-stepper-item"
              [class.activo]="pasoActual() === paso"
@@ -38,7 +38,7 @@
           </div>
           <span class="cl-stepper-label">{{ NOMBRES_PASO[paso - 1] }}</span>
         </div>
-        @if (paso < 8) {
+        @if (paso < 7) {
           <div class="cl-stepper-linea" [class.completada]="pasoActual() > paso"></div>
         }
       </div>
@@ -201,57 +201,11 @@
     }
 
     <!-- ==========================================
-         PASO 4 — Estructura del debate
-         Partes del debate y duración de cada turno
-         (medios minutos → formatMinutos())
-    ========================================== -->
-    @if (pasoActual() === 4) {
-      <div class="cl-paso">
-        <div class="cl-card">
-          <div class="cl-card-header">
-            <div class="cl-card-icono">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div>
-              <h2 class="cl-card-titulo">Estructura del debate</h2>
-              <p class="cl-card-subtitulo">Selecciona qué partes tendrá cada debate y configura la duración de cada turno.</p>
-            </div>
-          </div>
-
-          <div class="cl-turnos-lista">
-            @for (turno of estructura(); track turno.id) {
-              <div class="cl-turno-item" [class.inactivo]="!turno.activo">
-                <div class="cl-turno-checkbox"
-                     [class.marcado]="turno.activo"
-                     (click)="toggleTurnoActivo(turno.id)">
-                  @if (turno.activo) {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  }
-                </div>
-                <span class="cl-turno-nombre">{{ turno.nombre }}</span>
-                <div class="cl-turno-stepper">
-                  <button class="cl-turno-btn" (click)="decrementarMinutos(turno.id)" aria-label="Restar medio minuto">−</button>
-                  <span class="cl-turno-valor">{{ formatMinutos(turno.minutos) }}</span>
-                  <button class="cl-turno-btn" (click)="incrementarMinutos(turno.id)" aria-label="Sumar medio minuto">+</button>
-                </div>
-              </div>
-            }
-          </div>
-
-          <div class="cl-info-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <p>Cada participante hará un turno por cada parte seleccionada en el orden establecido.</p>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- ==========================================
-         PASO 5 — Pregunta a debatir
+         PASO 4 — Pregunta a debatir
          Fija (misma o distinta por ronda) o aleatoria.
          "Banco de preguntas" carga temas reales del backend.
     ========================================== -->
-    @if (pasoActual() === 5) {
+    @if (pasoActual() === 4) {
       <div class="cl-paso">
         <div class="cl-card">
           <div class="cl-card-header">
@@ -305,7 +259,7 @@
                   <div class="form-input-wrapper cl-detalle-input">
                     <input type="text"
                            class="form-input"
-                           placeholder="¿Debería implementarse una renta básica universal en toda España?"
+                           placeholder="¿Debería establecerse una renta básica universal?"
                            [value]="pregunta()"
                            (input)="setPreguntaManual($any($event.target).value)" />
                   </div>
@@ -376,10 +330,10 @@
     }
 
     <!-- ==========================================
-         PASO 6 — Papel de FIERA
+         PASO 5 — Papel de FIERA
          FIERA como juez o como rival de debate
     ========================================== -->
-    @if (pasoActual() === 6) {
+    @if (pasoActual() === 5) {
       <div class="cl-paso">
         <div class="cl-card">
           <div class="cl-card-header">
@@ -427,14 +381,14 @@
     }
 
     <!-- ==========================================
-         PASO 7 — Reglas y fechas
+         PASO 6 — Reglas y fechas
          Nº de debates, frecuencia, DÍA ÚNICO,
          calendario propio y aforo.
 
          El backend solo admite un día de la semana por
          liga → selección única (no chips múltiples).
     ========================================== -->
-    @if (pasoActual() === 7) {
+    @if (pasoActual() === 6) {
       <div class="cl-paso">
         <div class="cl-card">
           <div class="cl-card-header">
@@ -589,11 +543,12 @@
     }
 
     <!-- ==========================================
-         PASO 8 — Resumen
+         PASO 7 — Resumen
          Solo lectura. Insignias mock (ver INSIGNIAS_MOCK
-         en crear-liga.ts). Tabla de clasificación aparcada.
+         en crear-liga.ts). Botón final ya llama al backend
+         real — muestra estado de carga y errores del POST.
     ========================================== -->
-    @if (pasoActual() === 8) {
+    @if (pasoActual() === 7) {
       <div class="cl-paso cl-paso-resumen">
 
         <!-- Resumen de datos -->
@@ -611,7 +566,6 @@
             <div class="cl-resumen-fila"><span>Acceso</span><strong>{{ accesoLabel() }}</strong></div>
             <div class="cl-resumen-fila"><span>FIERA</span><strong>{{ rolFieraLabel() }}</strong></div>
             <div class="cl-resumen-fila"><span>Pregunta</span><strong>{{ preguntaLabel() }}</strong></div>
-            <div class="cl-resumen-fila"><span>Estructura</span><strong>{{ estructuraLabel() }}</strong></div>
             <div class="cl-resumen-fila"><span>Debates</span><strong>{{ numeroDebates() }} debates</strong></div>
             <div class="cl-resumen-fila"><span>Frecuencia</span><strong>{{ frecuenciaLabel() }} · {{ diaSemana() }} · {{ hora() }}</strong></div>
             <div class="cl-resumen-fila"><span>Fechas</span><strong>{{ fechaInicio() | date:'dd/MM/yyyy' }} – {{ fechaFinEstimada() | date:'dd/MM/yyyy' }}</strong></div>
@@ -644,6 +598,10 @@
           </div>
         </div>
 
+        @if (errorCreacion()) {
+          <p class="form-error">{{ errorCreacion() }}</p>
+        }
+
       </div>
     }
 
@@ -652,10 +610,10 @@
     }
 
     <!-- ── Navegación ──
-         En el paso 8 el botón "Continuar" se convierte en
-         "Crear liga" y llama a finalizarCreacion(). -->
+         En el paso 7 el botón "Continuar" se convierte en
+         "Crear liga" y llama a finalizarCreacion() (POST real). -->
     <div class="btn-group">
-      <button class="btn-atras" (click)="anterior()">
+      <button class="btn-atras" (click)="anterior()" [disabled]="creandoLiga()">
         <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 3 5 12 19 21 19 3"/></svg>
         ATRÁS
       </button>
@@ -666,9 +624,14 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         </button>
       } @else {
-        <button class="btn-continuar btn-continuar-flex btn-crear-liga" (click)="finalizarCreacion()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
-          CREAR LIGA
+        <button class="btn-continuar btn-continuar-flex btn-crear-liga" [disabled]="creandoLiga()" (click)="finalizarCreacion()">
+          @if (creandoLiga()) {
+            <span class="cl-spinner"></span>
+            CREANDO...
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            CREAR LIGA
+          }
         </button>
       }
     </div>

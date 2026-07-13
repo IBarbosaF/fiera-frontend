@@ -25,23 +25,24 @@ export interface ContactoClub {
 }
 
 export interface Club {
-  id                 : number;
-  nombre             : string;
-  siglas             : string;
-  institucion        : string;
-  usuarios           : any[];
-  admins?            : any[];
-  ciudad?            : string | null;
-  comunidad?         : string | null;
-  provincia?         : string | null;
-  pais?              : string | null;
-  direccion?         : string | null;
+  id                  : number;
+  nombre              : string;
+  siglas              : string;
+  institucion         : string;
+  imgUrl?             : string | null;
+  pais?               : string | null;
+  comunidad?          : string | null;
+  provincia?          : string | null;
+  ciudad?             : string | null;
+  direccion?          : string | null;
+  fundacion?          : number | null;
+  tamano?             : number | null;
+  status?             : string | null;
   frecuenciaFormacion?: string | null;
-  fundacion?         : number | null;
-  imgUrl?            : string | null;
-  tamaño?            : string | null;
-  status?            : string | null;
-  creadoPor?         : any | null;
+  usuarios            : any[];
+  admins?             : any[];
+  creadoPor?          : any | null;
+  torneos?            : any[];
 }
 
 // ── Servicio ───────────────────────────────────────────────────────────────
@@ -51,8 +52,11 @@ export class ClubsService {
   private http = inject(HttpClient);
 
   getClubs() {
-    return this.http.get<Club[]>(`${API_BASE}/api/app/clubs`).pipe(
-      map(clubs => clubs.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')))
+    return this.http.get<any[]>(`${API_BASE}/api/app/clubs`).pipe(
+      map(clubs => clubs
+        .map(c => ({ ...c, tamano: c['tamaño'] }))
+        .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+      )
     );
   }
 
@@ -61,6 +65,8 @@ export class ClubsService {
   }
 
   getClubById(id: number) {
-    return this.http.get<Club>(`${API_BASE}/api/app/clubs/buscar/${id}`);
+    return this.http.get<any>(`${API_BASE}/api/app/clubs/buscar/${id}`).pipe(
+      map(c => ({ ...c, tamano: c['tamaño'] }))
+    );
   }
 }

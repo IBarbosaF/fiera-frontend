@@ -22,7 +22,11 @@
       </button>
 
       <div class="club-header-avatar">
-        <span>{{ inicialesClub(c) }}</span>
+        @if (c.imgUrl) {
+          <img [src]="c.imgUrl" [alt]="c.nombre" />
+        } @else {
+          <span>{{ inicialesClub(c) }}</span>
+        }
       </div>
 
       <div class="club-header-info">
@@ -48,7 +52,7 @@
       }
     </div>
 
-    <!-- ── STATS ── -->
+    <!-- ── STATS RÁPIDAS ── -->
     <div class="club-stats">
       <div class="club-stat-item">
         <p class="club-stat-num">{{ c.usuarios?.length ?? 0 }}</p>
@@ -56,13 +60,18 @@
       </div>
       <div class="club-stat-sep"></div>
       <div class="club-stat-item">
-        <p class="club-stat-num">{{ c.fundacion ?? '—' }}</p>
-        <p class="club-stat-lbl">Fundación</p>
+        <p class="club-stat-num">{{ c.admins?.length ?? 0 }}</p>
+        <p class="club-stat-lbl">Administradores</p>
       </div>
       <div class="club-stat-sep"></div>
       <div class="club-stat-item">
-        <p class="club-stat-num">{{ c.ciudad ?? '—' }}</p>
-        <p class="club-stat-lbl">Ciudad</p>
+        <p class="club-stat-num">{{ c.tamano ?? '—' }}</p>
+        <p class="club-stat-lbl">Tamaño</p>
+      </div>
+      <div class="club-stat-sep"></div>
+      <div class="club-stat-item">
+        <p class="club-stat-num">{{ c.fundacion ?? '—' }}</p>
+        <p class="club-stat-lbl">Fundación</p>
       </div>
     </div>
 
@@ -75,6 +84,16 @@
         Debatientes
         <span class="tab-badge">{{ c.usuarios?.length ?? 0 }}</span>
       </button>
+      <button class="tab-btn" [class.activo]="tabActivo() === 'administradores'"
+              (click)="tabActivo.set('administradores')">
+        Admins
+        <span class="tab-badge">{{ c.admins?.length ?? 0 }}</span>
+      </button>
+      <button class="tab-btn" [class.activo]="tabActivo() === 'torneos'"
+              (click)="tabActivo.set('torneos')">
+        Torneos
+        <span class="tab-badge">{{ torneosStats().total }}</span>
+      </button>
       <button class="tab-btn" [class.activo]="tabActivo() === 'contacto'"
               (click)="tabActivo.set('contacto')">Contacto</button>
     </div>
@@ -82,7 +101,9 @@
     <!-- ── TAB CONTENIDO ── -->
     <div class="tab-contenido">
 
-      <!-- INFO -->
+      <!-- ============================================
+           TAB: INFORMACIÓN
+      ============================================ -->
       @if (tabActivo() === 'info') {
         <div class="info-seccion">
           <p class="info-seccion-titulo">DETALLES</p>
@@ -95,27 +116,33 @@
               <span class="info-fila-label">Ubicación</span>
               <span class="info-fila-valor">{{ ubicacion(c) }}</span>
             </div>
-            @if (c.fundacion) {
-              <div class="info-fila">
-                <span class="info-fila-label">Fundación</span>
-                <span class="info-fila-valor">Desde {{ c.fundacion }}</span>
-              </div>
-            }
-            @if (c.frecuenciaFormacion) {
-              <div class="info-fila">
-                <span class="info-fila-label">Formaciones</span>
-                <span class="info-fila-valor">{{ c.frecuenciaFormacion }}</span>
-              </div>
-            }
             <div class="info-fila">
-              <span class="info-fila-label">Debatientes</span>
-              <span class="info-fila-valor">{{ c.usuarios?.length ?? 0 }}</span>
+              <span class="info-fila-label">Fundación</span>
+              <span class="info-fila-valor">{{ c.fundacion ? 'Desde ' + c.fundacion : '—' }}</span>
+            </div>
+            <div class="info-fila">
+              <span class="info-fila-label">Tamaño</span>
+              <span class="info-fila-valor">{{ c.tamano ?? '—' }}</span>
+            </div>
+            <div class="info-fila">
+              <span class="info-fila-label">Formaciones</span>
+              <span class="info-fila-valor">{{ c.frecuenciaFormacion ?? '—' }}</span>
+            </div>
+            <div class="info-fila">
+              <span class="info-fila-label">Estado</span>
+              <span class="info-fila-valor">{{ c.status ?? '—' }}</span>
+            </div>
+            <div class="info-fila">
+              <span class="info-fila-label">Creado por</span>
+              <span class="info-fila-valor">{{ nombreCreador(c) }}</span>
             </div>
           </div>
         </div>
       }
 
-      <!-- MIEMBROS -->
+      <!-- ============================================
+           TAB: DEBATIENTES
+      ============================================ -->
       @if (tabActivo() === 'miembros') {
         @if (!c.usuarios?.length) {
           <div class="vacio">
@@ -129,9 +156,7 @@
           <div class="miembros-lista">
             @for (u of c.usuarios; track u.id) {
               <div class="miembro-fila">
-                <div class="miembro-avatar">
-                  {{ iniciales(u.nombre ?? 'Usuario') }}
-                </div>
+                <div class="miembro-avatar">{{ iniciales(u.nombre) }}</div>
                 <div class="miembro-info">
                   <p class="miembro-nombre">{{ u.nombre ?? 'Usuario' }}</p>
                   <p class="miembro-rol">Miembro</p>
@@ -142,10 +167,88 @@
         }
       }
 
-      <!-- CONTACTO -->
+      <!-- ============================================
+           TAB: ADMINISTRADORES
+      ============================================ -->
+      @if (tabActivo() === 'administradores') {
+        @if (!c.admins?.length) {
+          <div class="vacio">
+            <div class="vacio-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <p class="vacio-titulo">Sin administradores registrados</p>
+            <p class="vacio-desc">Este club aún no tiene administradores asignados.</p>
+          </div>
+        } @else {
+          <div class="miembros-lista">
+            @for (a of c.admins; track a.id) {
+              <div class="miembro-fila">
+                <div class="miembro-avatar miembro-avatar-admin">{{ iniciales(a.nombre) }}</div>
+                <div class="miembro-info">
+                  <p class="miembro-nombre">{{ a.nombre ?? 'Usuario' }}</p>
+                  <p class="miembro-rol">Administrador</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- ============================================
+           TAB: TORNEOS
+      ============================================ -->
+      @if (tabActivo() === 'torneos') {
+
+        <div class="info-seccion">
+          <p class="info-seccion-titulo">RESUMEN DE TORNEOS</p>
+          <div class="torneos-stats">
+            <div class="torneo-stat-card">
+              <p class="torneo-stat-num">{{ torneosStats().participados }}</p>
+              <p class="torneo-stat-lbl">Participados</p>
+            </div>
+            <div class="torneo-stat-card torneo-stat-ganado">
+              <p class="torneo-stat-num">{{ torneosStats().ganados }}</p>
+              <p class="torneo-stat-lbl">Ganados</p>
+            </div>
+            <div class="torneo-stat-card torneo-stat-perdido">
+              <p class="torneo-stat-num">{{ torneosStats().perdidos }}</p>
+              <p class="torneo-stat-lbl">Perdidos</p>
+            </div>
+            <div class="torneo-stat-card torneo-stat-empate">
+              <p class="torneo-stat-num">{{ torneosStats().empatados }}</p>
+              <p class="torneo-stat-lbl">Empatados</p>
+            </div>
+          </div>
+        </div>
+
+        @if (!c.torneos?.length) {
+          <div class="vacio">
+            <div class="vacio-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <p class="vacio-titulo">Sin torneos registrados</p>
+            <p class="vacio-desc">Este club aún no ha participado en ningún torneo.</p>
+          </div>
+        } @else {
+          <div class="miembros-lista">
+            @for (t of c.torneos; track $index) {
+              <div class="miembro-fila">
+                <div class="miembro-info">
+                  <p class="miembro-nombre">{{ t.nombre ?? 'Torneo' }}</p>
+                  <p class="miembro-rol">{{ t.resultado ?? 'Sin resultado' }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- ============================================
+           TAB: CONTACTO
+      ============================================ -->
       @if (tabActivo() === 'contacto') {
-        @if (c.direccion) {
-          <div class="contacto-lista">
+        <div class="contacto-lista">
+          @if (c.direccion) {
             <div class="contacto-item">
               <div class="contacto-icono">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -155,16 +258,18 @@
                 <p class="contacto-valor">{{ c.direccion }}</p>
               </div>
             </div>
+          }
+        </div>
+
+        @if (!c.direccion) {
+          <div class="vacio">
+            <div class="vacio-icono">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg>
+            </div>
+            <p class="vacio-titulo">Información de contacto pendiente</p>
+            <p class="vacio-desc">El club aún no ha añadido datos de contacto adicionales (email, teléfono, redes).</p>
           </div>
         }
-        <!-- TODO: añadir email, teléfono, instagram, web cuando el backend los tenga -->
-        <div class="vacio">
-          <div class="vacio-icono">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg>
-          </div>
-          <p class="vacio-titulo">Información de contacto pendiente</p>
-          <p class="vacio-desc">El club aún no ha añadido datos de contacto.</p>
-        </div>
       }
 
     </div>

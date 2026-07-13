@@ -743,6 +743,52 @@
   font-weight  : 600;
 }
 
+/* ── Torneos stats ── */
+.torneos-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.torneo-stat-card {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 10px;
+  padding      : 14px 10px;
+  text-align   : center;
+}
+
+.torneo-stat-num {
+  font-size    : 1.3rem;
+  font-weight  : 700;
+  color        : #ffffff;
+  margin-bottom: 4px;
+}
+
+.torneo-stat-lbl {
+  font-size: 0.7rem;
+  color    : #8a9ab8;
+}
+
+.torneo-stat-ganado  .torneo-stat-num { color: #03d26e; }
+.torneo-stat-perdido .torneo-stat-num { color: #ff3a72; }
+.torneo-stat-empate  .torneo-stat-num { color: #f5a623; }
+
+/* ── Avatar admin ── */
+.miembro-avatar-admin {
+  background: rgba(255,58,114,0.15);
+  color     : #ff3a72;
+}
+
+/* ── Avatar del header con imagen ── */
+.club-avatar-grande img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
 /* ── Responsive ── */
 @media (max-width: 860px) {
   .detalle-panel-izq {
@@ -751,5 +797,9 @@
 
   .detalle-panel-der {
     padding: 16px;
+  }
+
+  .torneos-stats {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
