@@ -7,16 +7,6 @@ import { DebateService } from '../../../core/services/debate.service';
 
 /* ============================================================
    PartidaDebate — Pantalla del debate en vivo
-
-   Gestiona:
-   - Secuencia de sub-turnos leída desde SubTurnoConfig
-   - Temporizador circular con countdown
-   - Grabación de voz del usuario (MediaRecorder)
-   - Reproducción del audio de FIERA (base64 → mp3)
-   - Historial de intervenciones
-   - Interrupciones (FIERA levanta la mano / Tú levantas la mano)
-   - Navegación a resultados al finalizar, esperando a que la
-     última petición pendiente al backend se resuelva primero
 ============================================================ */
 
 export interface SubTurno {
@@ -24,7 +14,7 @@ export interface SubTurno {
   intervencionId: number | null;
   nombre        : string;
   quien         : 'equipo' | 'fiera' | 'companero';
-  duracion      : number;   /* en segundos */
+  duracion      : number;
   postura       : 'favor' | 'contra';
 }
 
@@ -32,13 +22,11 @@ export interface ItemHistorial {
   titulo   : string;
   texto    : string;
   expandido: boolean;
-  esAudio  : boolean;  /* true si fue una intervención de voz */
+  esAudio  : boolean;
 }
 
-/* Circunferencia  2 * PI * 50 ≈ 314, coincide con r=50 del SVG */
-const CIRCUNFERENCIA = 314;
+const CIRCUNFERENCIA = 534;
 
-/* Fallbacks simulados */
 const RESPUESTAS_FIERA = [
   'La evidencia empírica no respalda esa afirmación de forma concluyente.',
   'Ese argumento incurre en una generalización excesiva que debilita la tesis.',
@@ -62,7 +50,6 @@ const RESPUESTAS_A_PREGUNTA = [
   'Agradezco la pregunta. Mi postura se sostiene incluso bajo ese supuesto.',
 ];
 
-/* Tiempo máximo de espera por la última petición pendiente (ms) */
 const TIMEOUT_ESPERA_FINAL = 12000;
 
 @Component({
@@ -79,7 +66,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
   router        = inject(Router);
   cdr           = inject(ChangeDetectorRef);
 
-  /* ── Estado del debate ── */
   secuencia      : SubTurno[] = [];
   subTurnoActual = signal(0);
   segundosRest   = signal(0);
@@ -87,40 +73,37 @@ export class PartidaDebate implements OnInit, OnDestroy {
   private intervalId          : ReturnType<typeof setInterval> | null = null;
   private timeoutInterrupcion : ReturnType<typeof setTimeout>  | null = null;
 
-  /* ── Historial ── */
   historial = signal<ItemHistorial[]>([]);
 
-  /* ── Estado grabación ── */
   grabando          = signal(false);
-  procesandoAudio   = signal(false);  /* esperando respuesta del backend */
+  procesandoAudio   = signal(false);
   errorMicrofono    = signal(false);
-  fieraHablando     = signal(false);  /* FIERA reproduciendo audio */
+  fieraHablando     = signal(false);
 
-  /* Marca si hay una petición a procesarTurno() en curso. Se usa
-     para que finalizarDebate() no navegue hasta que se resuelva,
-     evitando perder los resultados del último turno del usuario. */
   peticionPendiente = signal(false);
-  finalizandoDebate = signal(false); /* muestra un loader al cerrar el debate */
+  finalizandoDebate = signal(false);
+
+  /* Fase de "preparación" de 5s antes de cada sub-turno. Da
+     margen a FIERA para generar su respuesta antes de que
+     arranque el tiempo real, y bloquea toda interacción salvo
+     el logo (para salir del debate). */
+  preparando           = signal(false);
+  segundosPreparacion  = signal(5);
 
   private mediaRecorder  : MediaRecorder | null = null;
   private audioChunks    : Blob[]        = [];
   private streamActual   : MediaStream   | null = null;
   private audioActual    : HTMLAudioElement | null = null;
 
-  /* ── Modales ── */
   modalSalirAbierto         = signal(false);
   modalFieraLevantaAbierto  = signal(false);
   modalPreguntaFieraAbierto = signal(false);
   modalTuPreguntaAbierto    = signal(false);
   preguntaFieraTexto        = signal('');
 
-  /* ── SVG timer ── */
   svgOffset    = signal(0);
   timerUrgente = signal(false);
 
-  /* ----------------------------------------------------------
-     ngOnInit
-  ---------------------------------------------------------- */
   ngOnInit(): void {
     this.debateService.cargarConfig();
     this.secuencia = this.construirSecuencia();
@@ -136,9 +119,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     }
   }
 
-  /* ----------------------------------------------------------
-     construirSecuencia()
-  ---------------------------------------------------------- */
   private construirSecuencia(): SubTurno[] {
     const subturnos      = this.debateService.cargarSubturnos();
     const debateActivo   = this.debateService.getDebateActivo();
@@ -156,9 +136,56 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   /* ----------------------------------------------------------
-     iniciarSubTurno(indice)
+     REGLA 1 — ¿Ha terminado el debate?
+     Si el backend ya rellena debateFinalizado, confiamos en él.
+     Si sigue en null/undefined (aún no implementado), usamos
+     el cálculo manual basado en el índice de la secuencia local.
   ---------------------------------------------------------- */
-  iniciarSubTurno(indice: number): void {
+  private debateHaTerminado(indiceSiguiente: number): boolean {
+    const debateActivo = this.debateService.getDebateActivo();
+    const finalizadoBackend = debateActivo?.debateFinalizado;
+
+    if (finalizadoBackend === true || finalizadoBackend === false) {
+      return finalizadoBackend;
+    }
+    /* Fallback manual mientras el backend no lo implemente */
+    return indiceSiguiente >= this.secuencia.length;
+  }
+
+  /* ----------------------------------------------------------
+     REGLA 2 — ¿Qué sub-turno toca ahora?
+     Si el backend indica intervencionActivaId, intentamos
+     recolocarnos en ese índice de la secuencia local. Si no
+     lo encuentra (o no viene), seguimos con el índice manual.
+  ---------------------------------------------------------- */
+  private resolverIndiceTurno(indiceManual: number): number {
+    const debateActivo = this.debateService.getDebateActivo();
+    const activaId = debateActivo?.intervencionActivaId;
+
+    if (activaId != null) {
+      const idx = this.secuencia.findIndex(s => s.intervencionId === activaId);
+      if (idx !== -1) return idx;
+    }
+    return indiceManual;
+  }
+
+  /* ----------------------------------------------------------
+     iniciarSubTurno(indice)
+     Antes de arrancar el timer real, hay una fase de
+     "preparación" de 5s: si el turno es de FIERA, la petición
+     al backend se lanza en paralelo desde el primer segundo,
+     pero el resultado no se muestra hasta que termine la
+     cuenta atrás (aunque FIERA responda antes). Así el usuario
+     siempre tiene el mismo margen para prepararse.
+  ---------------------------------------------------------- */
+  iniciarSubTurno(indiceSolicitado: number): void {
+    if (this.debateHaTerminado(indiceSolicitado)) {
+      this.finalizarDebate();
+      return;
+    }
+
+    const indice = this.resolverIndiceTurno(indiceSolicitado);
+
     if (indice >= this.secuencia.length) {
       this.finalizarDebate();
       return;
@@ -166,15 +193,55 @@ export class PartidaDebate implements OnInit, OnDestroy {
 
     this.subTurnoActual.set(indice);
     const sub = this.secuencia[indice];
+
+    /* Si el turno es de FIERA, lanzamos la petición YA, en
+       paralelo con la cuenta atrás — pero su resultado no se
+       muestra hasta que llegue, sea antes o después de los 5s */
+    const promesaFiera = sub.quien === 'fiera'
+      ? this.obtenerRespuestaFiera(sub)
+      : null;
+
+    this.contarPreparacion(5).then(() => {
+      this.preparando.set(false);
+
+      if (sub.quien === 'fiera') {
+        this.fieraHablando.set(true);
+        this.cdr.markForCheck();
+        promesaFiera!.then(resultado => this.mostrarRespuestaFiera(sub, resultado));
+      } else {
+        this.programarInterrupcionFiera(sub);
+      }
+
+      this.arrancarTimerReal(sub);
+    });
+  }
+
+  /* Cuenta atrás de preparación — resuelve cuando llega a 0 */
+  private contarPreparacion(segundos: number): Promise<void> {
+    return new Promise((resolve) => {
+      this.preparando.set(true);
+      this.segundosPreparacion.set(segundos);
+      this.cdr.markForCheck();
+
+      const intervalo = setInterval(() => {
+        if (this.pausado) return;
+        const restantes = this.segundosPreparacion() - 1;
+        this.segundosPreparacion.set(restantes);
+        this.cdr.markForCheck();
+        if (restantes <= 0) {
+          clearInterval(intervalo);
+          resolve();
+        }
+      }, 1000);
+    });
+  }
+
+  /* Arranca el timer real del sub-turno (una vez pasada la
+     fase de preparación) */
+  private arrancarTimerReal(sub: SubTurno): void {
     this.segundosRest.set(sub.duracion);
     this.timerUrgente.set(false);
     this.actualizarSvg();
-
-    if (sub.quien === 'fiera') {
-      this.turnoFiera(sub);
-    } else {
-      this.programarInterrupcionFiera(sub);
-    }
 
     this.limpiarTimers();
     this.intervalId = setInterval(() => {
@@ -192,64 +259,65 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   /* ----------------------------------------------------------
-     turnoFiera()
-     Llama al backend, recibe texto + audio base64 y lo reproduce
+     obtenerRespuestaFiera()
+     Lanza la petición al backend SIN mostrar nada todavía.
+     Devuelve el texto/audio (o null si falla/no hay backend)
+     para que iniciarSubTurno() lo muestre cuando corresponda.
   ---------------------------------------------------------- */
-  private turnoFiera(sub: SubTurno): void {
+  private obtenerRespuestaFiera(sub: SubTurno): Promise<{ texto: string; audio: any } | null> {
     const debateActivo = this.debateService.getDebateActivo();
 
-    if (debateActivo && sub.intervencionId) {
-      this.fieraHablando.set(true);
-      this.peticionPendiente.set(true);
-      this.cdr.markForCheck();
+    return new Promise((resolve) => {
+      if (debateActivo && sub.intervencionId) {
+        this.peticionPendiente.set(true);
 
-      this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, '').subscribe({
-        next: (res) => {
-          const texto  = res?.respuestaFiera?.mensaje ?? '';
-          const audio  = res?.respuestaFiera?.audio;
-          const titulo = `${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — FIERA`;
+        this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, '').subscribe({
+          next: (res) => {
+            const texto = res?.respuestaFiera?.mensaje ?? '';
+            const audio = res?.respuestaFiera?.audio;
 
-          this.añadirAlHistorial(titulo, texto || '(FIERA está argumentando...)', false);
-
-          /* Avanzar turno en el backend tras procesar la intervención */
-          this.debateService.avanzarTurno(debateActivo.id).subscribe({
-            next : () => this.peticionPendiente.set(false),
-            error: () => this.peticionPendiente.set(false)
-          });
-
-          if (audio) {
-            this.reproducirAudioFiera(audio).finally(() => {
-              this.fieraHablando.set(false);
-              this.cdr.markForCheck();
+            this.debateService.avanzarTurno(debateActivo.id).subscribe({
+              next : () => this.peticionPendiente.set(false),
+              error: () => this.peticionPendiente.set(false)
             });
-          } else {
-            this.fieraHablando.set(false);
-            this.cdr.markForCheck();
+
+            resolve({ texto: texto || '(FIERA está preparando su respuesta...)', audio });
+          },
+          error: () => {
+            this.peticionPendiente.set(false);
+            const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
+            resolve({ texto: `${texto} (simulado)`, audio: null });
           }
-        },
-        error: () => {
+        });
+      } else {
+        setTimeout(() => {
           const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
-          this.añadirAlHistorial(`${sub.nombre} — FIERA (simulado)`, texto, false);
-          this.fieraHablando.set(false);
-          this.peticionPendiente.set(false);
-          this.cdr.markForCheck();
-        }
-      });
-    } else {
-      /* Sin conexión — fallback simulado */
-      setTimeout(() => {
-        const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
-        this.añadirAlHistorial(`${sub.nombre} — FIERA (simulado)`, texto, false);
+          resolve({ texto: `${texto} (simulado)`, audio: null });
+        }, 800);
+      }
+    });
+  }
+
+  /* Muestra en el historial y reproduce el audio de la
+     respuesta de FIERA ya calculada de antemano */
+  private mostrarRespuestaFiera(sub: SubTurno, resultado: { texto: string; audio: any } | null): void {
+    this.fieraHablando.set(true);
+    this.cdr.markForCheck();
+
+    const titulo = `${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — FIERA`;
+    this.añadirAlHistorial(titulo, resultado?.texto ?? '(FIERA no ha podido responder)', false);
+
+    if (resultado?.audio) {
+      this.reproducirAudioFiera(resultado.audio).finally(() => {
         this.fieraHablando.set(false);
         this.cdr.markForCheck();
-      }, 1500);
+      });
+    } else {
+      this.fieraHablando.set(false);
+      this.cdr.markForCheck();
     }
   }
 
-  /* ----------------------------------------------------------
-     reproducirAudioFiera()
-     Decodifica base64 → Blob mp3 → Audio.play()
-  ---------------------------------------------------------- */
   private reproducirAudioFiera(base64: string): Promise<void> {
     return new Promise((resolve) => {
       try {
@@ -273,7 +341,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
         this.audioActual.onerror = () => {
           URL.revokeObjectURL(url);
           this.audioActual = null;
-          resolve(); /* resuelve igualmente para no bloquear el flujo */
+          resolve();
         };
 
         this.audioActual.play().catch(() => resolve());
@@ -290,11 +358,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     }
   }
 
-  /* ----------------------------------------------------------
-     GRABACIÓN DE VOZ
-  ---------------------------------------------------------- */
-
-  /* Inicia la grabación al pulsar el botón de micrófono */
   async iniciarGrabacion(): Promise<void> {
     if (this.grabando()) return;
 
@@ -327,7 +390,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     }
   }
 
-  /* Detiene la grabación y dispara el envío */
   detenerGrabacion(): void {
     if (!this.grabando()) return;
     this.grabando.set(false);
@@ -337,7 +399,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  /* Envía el audio grabado al backend */
   private enviarAudioAlBackend(audio: Blob): void {
     const sub          = this.secuencia[this.subTurnoActual()];
     const debateActivo = this.debateService.getDebateActivo();
@@ -389,9 +450,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     }
   }
 
-  /* ----------------------------------------------------------
-     accionPrincipal — botón principal según turno
-  ---------------------------------------------------------- */
   accionPrincipal(texto: string, input: HTMLInputElement): void {
     const sub = this.secuencia[this.subTurnoActual()];
     if (sub.quien === 'equipo') {
@@ -403,7 +461,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     }
   }
 
-  /* Envío de texto (fallback cuando no se usa micrófono) */
   private enviarTexto(texto: string, input: HTMLInputElement): void {
     if (!texto.trim()) return;
 
@@ -432,9 +489,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     }
   }
 
-  /* ----------------------------------------------------------
-     SVG timer
-  ---------------------------------------------------------- */
   private actualizarSvg(): void {
     const sub = this.secuencia[this.subTurnoActual()];
     if (!sub) return;
@@ -442,9 +496,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     this.svgOffset.set(CIRCUNFERENCIA * (1 - progreso));
   }
 
-  /* ----------------------------------------------------------
-     Interrupciones
-  ---------------------------------------------------------- */
   private programarInterrupcionFiera(sub: SubTurno): void {
     const esRefutacion = sub.id.startsWith('ref');
     if (!esRefutacion) return;
@@ -500,9 +551,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     this.modalTuPreguntaAbierto.set(false);
   }
 
-  /* ----------------------------------------------------------
-     Modal Salir
-  ---------------------------------------------------------- */
   abrirModalSalir(): void {
     this.pausado = true;
     this.limpiarTimers();
@@ -532,13 +580,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
-  /* ----------------------------------------------------------
-     Finalizar debate.
-     Espera a que la última petición pendiente al backend se
-     resuelva (con un timeout de seguridad) antes de navegar,
-     para asegurarnos de que los resultados ya estén guardados
-     en el servicio cuando lleguemos a /resultados.
-  ---------------------------------------------------------- */
   private finalizarDebate(): void {
     this.limpiarTimers();
     this.detenerAudioFiera();
@@ -550,7 +591,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
       if (debateActivo) {
         this.debateService.finalizarDebateBackend(debateActivo.id).subscribe({
           next : () => this.router.navigate(['/resultados']),
-          error: () => this.router.navigate(['/resultados']) /* navegar igual si falla */
+          error: () => this.router.navigate(['/resultados'])
         });
       } else {
         this.router.navigate(['/resultados']);
@@ -558,9 +599,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     });
   }
 
-  /* Espera con polling a que peticionPendiente() sea false,
-     con un timeout máximo para no bloquear indefinidamente
-     si el backend no responde. */
   private esperarPeticionPendiente(): Promise<void> {
     return new Promise((resolve) => {
       if (!this.peticionPendiente()) {
@@ -581,9 +619,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     });
   }
 
-  /* ----------------------------------------------------------
-     Historial
-  ---------------------------------------------------------- */
   añadirAlHistorial(titulo: string, texto: string, esAudio: boolean): void {
     this.historial.update(h => [{ titulo, texto, expandido: false, esAudio }, ...h]);
     this.cdr.markForCheck();
@@ -595,9 +630,6 @@ export class PartidaDebate implements OnInit, OnDestroy {
     );
   }
 
-  /* ----------------------------------------------------------
-     Getters para el template
-  ---------------------------------------------------------- */
   get subTurnoInfo(): SubTurno | null {
     return this.secuencia[this.subTurnoActual()] ?? null;
   }

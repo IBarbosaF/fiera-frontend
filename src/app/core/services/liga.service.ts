@@ -58,7 +58,8 @@ export interface ConfigLiga {
   /* ── Paso 1 — Información básica ── */
   nombre       : string;
   descripcion  : string;
-  imagen       : string | null; // preview en base64, se convierte a Blob al enviar
+  imagen       : string | null; // preview en base64 de una imagen NUEVA (pendiente de subir)
+  imagenOriginalUrl: string | null; // filename ya guardado en el backend (modo edición) — solo lectura, no se reconvierte
 
   /* ── Paso 2 — Acceso ── */
   acceso: TipoAcceso | null;
@@ -98,6 +99,7 @@ const CONFIG_INICIAL: ConfigLiga = {
   nombre     : '',
   descripcion: '',
   imagen     : null,
+  imagenOriginalUrl: null,
 
   /* Paso 2 */
   acceso: null,
@@ -125,62 +127,11 @@ const CONFIG_INICIAL: ConfigLiga = {
   maxParticipantesCustom : null,
 };
 
-/* Claves de almacenamiento */
+/* Clave de almacenamiento del progreso del wizard (no del listado) */
 const STORAGE_CONFIG_LIGA = 'fiera_liga_config';
-const STORAGE_LIGAS       = 'fiera_ligas'; // TODO: quitar en cuanto ExplorarLigas use GET /api/app/ligas real
 
 /* Límite de caracteres de la descripción (Paso 1) */
 const DESCRIPCION_MAX_LEN = 200;
-
-/* Ligas de ejemplo — solo se usan si el usuario no ha creado
-   ninguna liga todavía, para que Explorar ligas no arranque
-   vacío. TODO: esto queda obsoleto en cuanto conectemos
-   GET /api/app/ligas (tarea aparte, listarLigas() de momento
-   sigue leyendo del mock local, NO del backend real). */
-const LIGAS_SEED = [
-  {
-    id: 1,
-    nombre: 'Liga Retorika Open',
-    descripcion: 'Liga pública organizada por Retorika, abierta a debatientes de cualquier nivel.',
-    imagen: null,
-    acceso: 'publica',
-    tipoCompeticion: 'academico',
-    modoPregunta: 'aleatoria',
-    mismaPreguntaTodasRondas: true,
-    origenPregunta: 'banco',
-    pregunta: '',
-    temaId: null,
-    rolFiera: 'juez',
-    numeroDebates: 8,
-    frecuencia: 'semanal',
-    diaSemana: 'Jue',
-    hora: '18:00',
-    fechaInicio: '2026-07-20',
-    maxParticipantes: '32',
-    maxParticipantesCustom: null,
-  },
-  {
-    id: 2,
-    nombre: 'Liga Universitaria de Debate',
-    descripcion: 'Competición entre clubes universitarios con formato de debate académico por equipos.',
-    imagen: null,
-    acceso: 'clubes_invitados',
-    tipoCompeticion: 'academico',
-    modoPregunta: 'fija',
-    mismaPreguntaTodasRondas: true,
-    origenPregunta: 'manual',
-    pregunta: '¿Debería regularse el uso de inteligencia artificial en las aulas universitarias?',
-    temaId: null,
-    rolFiera: 'rival',
-    numeroDebates: 6,
-    frecuencia: 'quincenal',
-    diaSemana: 'Mar',
-    hora: '19:00',
-    fechaInicio: '2026-08-04',
-    maxParticipantes: '16',
-    maxParticipantesCustom: null,
-  },
-];
 
 
 /* ────────────────────────────────────────────────────────────
@@ -266,6 +217,30 @@ const MAP_FRECUENCIA: Record<FrecuenciaLiga, string> = {
   mensual  : 'MENSUAL',
 };
 
+/* Mapas inversos — MAYÚSCULAS (backend) → minúsculas (uso interno).
+   Usados solo al cargar una liga existente en modo edición. */
+const MAP_ACCESO_INV: Record<string, TipoAcceso> = {
+  PUBLICA          : 'publica',
+  PRIVADA          : 'privada',
+  CLUBES_INVITADOS : 'clubes_invitados',
+};
+
+const MAP_TIPO_COMPETICION_INV: Record<string, TipoCompeticion> = {
+  ACADEMICO: 'academico',
+  CAREO    : 'careo',
+};
+
+const MAP_ROL_FIERA_INV: Record<string, RolFiera> = {
+  JUEZ : 'juez',
+  RIVAL: 'rival',
+};
+
+const MAP_FRECUENCIA_INV: Record<string, FrecuenciaLiga> = {
+  SEMANAL  : 'semanal',
+  QUINCENAL: 'quincenal',
+  MENSUAL  : 'mensual',
+};
+
 /* Días → intervalo real entre debates, para calcular fechaF.
    Aproximación simple (no tiene en cuenta el día concreto de
    la semana) — mismo criterio que ya usaba el componente. */
@@ -346,18 +321,15 @@ export class LigaService {
   }
 
   /* ----------------------------------------------------------
-     crearLiga()
-     POST real a /api/app/ligas/new. Sigue el mismo patrón
-     multipart que AuthService.registrar(): campo "liga" con
-     el JSON envuelto en Blob (type: application/json) +
-     campo "imagen" (puede ir vacío, probado por curl).
+     construirBody()
+     Construye el LigaRequest a partir del ConfigLiga actual.
+     Compartido por crearLiga() y actualizarLiga() para no
+     duplicar el mapeo de campos.
   ---------------------------------------------------------- */
-  crearLiga(): Observable<LigaResponse> {
-    const config = this._config();
-
+  private construirBody(config: ConfigLiga): LigaRequest {
     const fechaFin = this.calcularFechaFin(config.fechaInicio, config.frecuencia, config.numeroDebates);
 
-    const body: LigaRequest = {
+    return {
       nombre           : config.nombre,
       descripcion      : config.descripcion,
       acceso           : MAP_ACCESO[config.acceso!],
@@ -372,7 +344,24 @@ export class LigaService {
       fechaI           : `${config.fechaInicio}T00:00:00`,
       fechaF           : fechaFin ? this.formatearISO(fechaFin) + 'T00:00:00' : `${config.fechaInicio}T00:00:00`,
       maxParticipantes : this.resolverMaxParticipantes(config),
+      /* En edición sin imagen nueva, reenviamos el filename que ya
+         tenía para no perderlo. TODO: sin confirmar por curl si el
+         backend realmente respeta este campo en el PUT — probar en
+         la primera edición real de una liga con imagen. */
+      imgUrl           : !config.imagen && config.imagenOriginalUrl ? config.imagenOriginalUrl : undefined,
     };
+  }
+
+  /* ----------------------------------------------------------
+     crearLiga()
+     POST real a /api/app/ligas/new. Sigue el mismo patrón
+     multipart que AuthService.registrar(): campo "liga" con
+     el JSON envuelto en Blob (type: application/json) +
+     campo "imagen" (puede ir vacío, probado por curl).
+  ---------------------------------------------------------- */
+  crearLiga(): Observable<LigaResponse> {
+    const config = this._config();
+    const body   = this.construirBody(config);
 
     const formData = new FormData();
     formData.append('liga', new Blob([JSON.stringify(body)], { type: 'application/json' }));
@@ -390,6 +379,109 @@ export class LigaService {
         return res;
       })
     );
+  }
+
+  /* ----------------------------------------------------------
+     actualizarLiga()
+     PUT real a /api/app/ligas/update/{id}. Mismo formato
+     multipart que crearLiga() — NO probado aún por curl (a
+     diferencia del POST), así que si algo falla al guardar
+     una edición, lo primero a revisar es si el backend
+     realmente espera el mismo shape multipart en el PUT.
+  ---------------------------------------------------------- */
+  actualizarLiga(id: number): Observable<LigaResponse> {
+    const config = this._config();
+    const body   = this.construirBody(config);
+
+    const formData = new FormData();
+    formData.append('liga', new Blob([JSON.stringify(body)], { type: 'application/json' }));
+
+    if (config.imagen) {
+      formData.append('imagen', this.base64ToBlob(config.imagen), 'liga.jpg');
+    } else {
+      formData.append('imagen', '');
+    }
+
+    return this.http.put<LigaResponse>(`${API_BASE}/api/app/ligas/update/${id}`, formData).pipe(
+      map(res => {
+        this.resetConfig();
+        return res;
+      })
+    );
+  }
+
+  /* ----------------------------------------------------------
+     obtenerLiga()
+     GET /api/app/ligas/{id} — usado para precargar el wizard
+     en modo edición.
+  ---------------------------------------------------------- */
+  obtenerLiga(id: number): Observable<LigaResponse> {
+    return this.http.get<LigaResponse>(`${API_BASE}/api/app/ligas/${id}`);
+  }
+
+  /* ----------------------------------------------------------
+     eliminarLiga()
+     DELETE /api/app/ligas/delete/{id} — usado desde el modal
+     de detalle en ExplorarLigas.
+  ---------------------------------------------------------- */
+  eliminarLiga(id: number): Observable<void> {
+    return this.http.delete<void>(`${API_BASE}/api/app/ligas/delete/${id}`);
+  }
+
+  /* ----------------------------------------------------------
+     cargarLigaEnConfig()
+     Mapeo inverso: toma un LigaResponse real del backend y
+     rellena el _config del wizard para editar. Todo lo que el
+     backend no tiene equivalente (mismaPreguntaTodasRondas)
+     se deja con un valor por defecto razonable.
+  ---------------------------------------------------------- */
+  cargarLigaEnConfig(liga: LigaResponse): void {
+    const fechaInicio = liga.fechaI ? liga.fechaI.split('T')[0] : '';
+    const hora        = liga.debatesHora ? liga.debatesHora.slice(0, 5) : '18:00';
+
+    let maxParticipantes: LimiteParticipantes = '16';
+    let maxParticipantesCustom: number | null = null;
+
+    if (liga.maxParticipantes != null) {
+      if (liga.maxParticipantes === 0 || liga.maxParticipantes >= SIN_LIMITE_VALOR) {
+        maxParticipantes = 'sin_limite';
+      } else if ([8, 16, 32].includes(liga.maxParticipantes)) {
+        maxParticipantes = String(liga.maxParticipantes) as LimiteParticipantes;
+      } else {
+        maxParticipantes = 'personalizado';
+        maxParticipantesCustom = liga.maxParticipantes;
+      }
+    }
+
+    const origenPregunta: OrigenPregunta = liga.temaId ? 'banco' : 'manual';
+    const modoPregunta   : ModoPregunta   = (liga.temaElegido || liga.temaId) ? 'fija' : 'aleatoria';
+
+    this._config.set({
+      nombre     : liga.nombre ?? '',
+      descripcion: liga.descripcion ?? '',
+      imagen     : null, // no reconvertimos la imagen existente a base64
+      imagenOriginalUrl: liga.imgUrl || null,
+
+      acceso: liga.acceso ? (MAP_ACCESO_INV[liga.acceso] ?? null) : null,
+
+      tipoCompeticion: liga.tipo ? (MAP_TIPO_COMPETICION_INV[liga.tipo] ?? null) : null,
+
+      modoPregunta,
+      mismaPreguntaTodasRondas: true, // sin equivalente en el backend
+      origenPregunta,
+      pregunta: liga.temaElegido ?? '',
+      temaId  : liga.temaId,
+
+      rolFiera: liga.papelFiera ? (MAP_ROL_FIERA_INV[liga.papelFiera] ?? null) : null,
+
+      numeroDebates: liga.debatesNum ?? 8,
+      frecuencia   : liga.debatesFrecuencia ? (MAP_FRECUENCIA_INV[liga.debatesFrecuencia] ?? 'semanal') : 'semanal',
+      diaSemana    : liga.debatesDia || null,
+      hora,
+      fechaInicio,
+      maxParticipantes,
+      maxParticipantesCustom,
+    });
   }
 
   private resolverMaxParticipantes(config: ConfigLiga): number {
@@ -416,21 +508,27 @@ export class LigaService {
 
   /* ----------------------------------------------------------
      listarLigas()
-     Usado por ExplorarLigas. TODO: sustituir por
-     GET /api/app/ligas real (tarea aparte, pendiente).
-     Sigue leyendo del mock local con semilla de ejemplo.
+     GET /api/app/ligas real. Confirmado por curl: devuelve un
+     array plano (sin envoltorio de paginación tipo Pageable).
+
+     OJO: hay ligas antiguas en el backend con casi todos los
+     campos en null (datos previos al modelo actual) — el
+     consumidor (ExplorarLigas) debe tratar cada campo como
+     opcional y no asumir que viene relleno.
   ---------------------------------------------------------- */
-  listarLigas(): any[] {
-    const ligas = this.obtenerLigasMock();
-    if (ligas.length === 0) {
-      localStorage.setItem(STORAGE_LIGAS, JSON.stringify(LIGAS_SEED));
-      return LIGAS_SEED;
-    }
-    return ligas;
+  listarLigas(): Observable<LigaResponse[]> {
+    return this.http.get<LigaResponse[]>(`${API_BASE}/api/app/ligas`);
   }
 
-  private obtenerLigasMock(): any[] {
-    const datos = localStorage.getItem(STORAGE_LIGAS);
-    return datos ? JSON.parse(datos) : [];
+  /* ----------------------------------------------------------
+     urlImagen()
+     Construye la URL completa a partir del nombre de archivo
+     que guarda imgUrl (ej. "0eff1b30-...-liga.jpg"), mismo
+     patrón que usan usuarios/clubs: fiera.retorika.es/uploads/.
+     Devuelve null si la liga no tiene imagen.
+  ---------------------------------------------------------- */
+  urlImagen(imgUrl: string | null | undefined): string | null {
+    if (!imgUrl) return null;
+    return `${API_BASE}/uploads/${imgUrl}`;
   }
 }

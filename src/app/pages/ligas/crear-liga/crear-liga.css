@@ -1,18 +1,18 @@
 /* ============================================================
-   Crear Liga — Wizard de 8 pasos
+   Crear Liga — Wizard de 7 pasos
 
    Índice de este archivo (busca el comentario para saltar):
    1. Layout general y cabecera
-   2. Stepper de 8 pasos
+   2. Stepper de 7 pasos
    3. Card contenedora de cada paso
    4. Formulario genérico (inputs, textarea, contador, error)
    5. Subida de imagen (Paso 1)
-   6. Opciones tipo radio-card (Pasos 2, 3, 6)
-   7. Turnos de estructura (Paso 4)
-   8. Opción expandible + radios pequeños (Paso 5, 7)
-   9. Select, chips de días, fecha fin (Paso 7)
-   10. Resumen: filas, tabla, insignias (Paso 8)
-   11. Navegación (Atrás / Continuar / Crear liga)
+   6. Opciones tipo radio-card (Pasos 2, 3, 5)
+   7. Steppers numéricos (nº debates) + info box
+   8. Opción expandible + radios pequeños (Pasos 4, 6)
+   9. Dropdown propio (frecuencia), chips de días, calendario propio
+   10. Resumen: filas, insignias (Paso 7)
+   11. Navegación (Atrás / Continuar / Crear liga) + spinner
    12. Responsive
 ============================================================ */
 
@@ -90,7 +90,7 @@
 
 
 /* ────────────────────────────────────────────────────────────
-   2. STEPPER DE 8 PASOS
+   2. STEPPER DE 7 PASOS
 ──────────────────────────────────────────────────────────── */
 
 .cl-stepper {
@@ -231,6 +231,24 @@
   color      : #ffffff;
 }
 
+.cl-card-cargando {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  gap            : 14px;
+  padding        : 48px 28px;
+  text-align     : center;
+  color          : #8a9ab8;
+  font-size      : 0.9rem;
+}
+
+.cl-card-cargando .cl-spinner {
+  width : 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
 .cl-card-subtitulo {
   font-size : 0.82rem;
   color     : #8a9ab8;
@@ -274,7 +292,6 @@
 
 .form-input {
   flex      : 1;
-  min-width: 0;
   background: transparent;
   border    : none;
   outline   : none;
@@ -292,7 +309,9 @@
 /* Fix del "borde doble" en <input type="date"/"time">:
    Chrome dibuja su propio recuadro interno (datetime-edit) que
    no hereda border:none del padre. Lo neutralizamos a mano y
-   forzamos el tema oscuro nativo del control. */
+   forzamos el tema oscuro nativo del control. (Ya no se usa
+   para la fecha de inicio, que tiene calendario propio, pero
+   se deja por si se reutiliza <input type="time"> en otro sitio). */
 .form-input[type="date"],
 .form-input[type="time"] {
   color-scheme: dark;
@@ -315,22 +334,8 @@
 
 .form-input[type="date"]::-webkit-calendar-picker-indicator,
 .form-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter    : invert(0.7);
-  opacity   : 0.7;
-  cursor    : pointer;
-  background: transparent;
-}
-
-.form-input:focus,
-.form-input:focus-visible {
-  outline    : none !important;
-  box-shadow : none !important;
-}
-
-.form-textarea:focus,
-.form-textarea:focus-visible {
-  outline    : none !important;
-  box-shadow : none !important;
+  cursor : pointer;
+  opacity: 0.85;
 }
 
 .form-textarea {
@@ -435,7 +440,7 @@
 
 
 /* ────────────────────────────────────────────────────────────
-   6. OPCIONES TIPO RADIO-CARD (Pasos 2, 3, 6)
+   6. OPCIONES TIPO RADIO-CARD (Pasos 2, 3, 5)
 ──────────────────────────────────────────────────────────── */
 
 .cl-opciones-lista {
@@ -523,61 +528,8 @@
 
 
 /* ────────────────────────────────────────────────────────────
-   7. TURNOS DE ESTRUCTURA (Paso 4)
+   7. STEPPERS NUMÉRICOS (nº debates, Paso 6) + INFO BOX
 ──────────────────────────────────────────────────────────── */
-
-.cl-turnos-lista {
-  display       : flex;
-  flex-direction: column;
-  gap           : 10px;
-  margin-bottom : 20px;
-}
-
-.cl-turno-item {
-  display       : flex;
-  align-items   : center;
-  gap           : 14px;
-  background    : #080e1a;
-  border        : 1px solid #1e2d47;
-  border-radius : 10px;
-  padding       : 14px 16px;
-  transition    : opacity 0.2s ease;
-}
-
-.cl-turno-item.inactivo {
-  opacity: 0.5;
-}
-
-.cl-turno-checkbox {
-  width          : 22px;
-  height         : 22px;
-  border-radius  : 6px;
-  border         : 2px solid #1e2d47;
-  display        : flex;
-  align-items    : center;
-  justify-content: center;
-  flex-shrink    : 0;
-  cursor         : pointer;
-  transition     : all 0.2s ease;
-}
-
-.cl-turno-checkbox.marcado {
-  background  : #156fe7;
-  border-color: #156fe7;
-}
-
-.cl-turno-checkbox svg {
-  width : 13px;
-  height: 13px;
-  stroke: #ffffff;
-}
-
-.cl-turno-nombre {
-  flex       : 1;
-  font-size  : 0.92rem;
-  font-weight: 600;
-  color      : #ffffff;
-}
 
 .cl-turno-stepper {
   display      : flex;
@@ -648,7 +600,8 @@
 
 
 /* ────────────────────────────────────────────────────────────
-   8. OPCIÓN EXPANDIBLE + RADIOS PEQUEÑOS (Pasos 5, 7)
+   8. OPCIÓN EXPANDIBLE + RADIOS PEQUEÑOS (Pasos 4, 6)
+   + BANCO DE PREGUNTAS REAL (Paso 4)
 ──────────────────────────────────────────────────────────── */
 
 .cl-opcion-expandible {
@@ -756,15 +709,86 @@
   gap           : 8px;
 }
 
+/* Banco de preguntas real (Paso 4) */
+.cl-banco-preguntas {
+  margin-top: 6px;
+}
+
+.cl-banco-buscador {
+  margin-left: 0;
+  width      : 100%;
+  margin-bottom: 10px;
+}
+
+.cl-banco-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 6px;
+  max-height    : 220px;
+  overflow-y    : auto;
+}
+
+.cl-banco-lista::-webkit-scrollbar        { width: 4px; }
+.cl-banco-lista::-webkit-scrollbar-track  { background: transparent; }
+.cl-banco-lista::-webkit-scrollbar-thumb  { background: #1e2d47; border-radius: 2px; }
+
+.cl-banco-item {
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 8px;
+  padding      : 10px 12px;
+  cursor       : pointer;
+  transition   : border-color 0.2s ease, background 0.2s ease;
+}
+
+.cl-banco-item:hover {
+  border-color: rgba(21,111,231,0.4);
+}
+
+.cl-banco-item.selected {
+  border-color: #156fe7;
+  background  : rgba(21,111,231,0.08);
+}
+
+.cl-banco-categoria {
+  display      : inline-block;
+  font-size    : 0.68rem;
+  font-weight  : 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color        : #156fe7;
+  background   : rgba(21,111,231,0.12);
+  border-radius: 4px;
+  padding      : 2px 7px;
+  margin-bottom: 5px;
+}
+
+.cl-banco-enunciado {
+  font-size  : 0.85rem;
+  color      : #ffffff;
+  line-height: 1.4;
+}
+
+.cl-detalle-error {
+  color: #ef4444;
+}
+
+.cl-detalle-error a {
+  color         : #156fe7;
+  cursor        : pointer;
+  text-decoration: underline;
+  margin-left   : 4px;
+}
+
 
 /* ────────────────────────────────────────────────────────────
-   9. DROPDOWN PROPIO DE FRECUENCIA, CHIPS DE DÍAS,
-      FECHA FIN, BANCO DE PREGUNTAS (Pasos 5, 7)
+   9. DROPDOWN PROPIO (frecuencia), CHIPS DE DÍAS,
+      CALENDARIO PROPIO (fecha de inicio) — Paso 6
 ──────────────────────────────────────────────────────────── */
 
-/* Dropdown propio (sustituye al <select> nativo, que no se
+/* Dropdown propio (sustituye a <select> nativo, que no se
    puede tematizar en oscuro de forma consistente entre
-   navegadores — ver captura del fallo reportado). */
+   navegadores). Reutilizado también por el datepicker. */
 .cl-dropdown {
   position: relative;
 }
@@ -834,7 +858,46 @@
   font-weight: 600;
 }
 
-/* ── Calendario propio (Paso 7 — Fecha de inicio) ── */
+.cl-dias-lista {
+  display : flex;
+  gap     : 6px;
+  flex-wrap: wrap;
+}
+
+.cl-dia-chip {
+  width          : 42px;
+  height         : 40px;
+  border-radius  : 8px;
+  border         : 1px solid #1e2d47;
+  background     : #080e1a;
+  color          : #8a9ab8;
+  font-size      : 0.78rem;
+  font-weight    : 700;
+  cursor         : pointer;
+  transition     : all 0.2s ease;
+}
+
+.cl-dia-chip:hover {
+  border-color: rgba(21,111,231,0.4);
+}
+
+.cl-dia-chip.active {
+  background  : #156fe7;
+  border-color: #156fe7;
+  color       : #ffffff;
+}
+
+.cl-fecha-fin-info {
+  font-size    : 0.82rem;
+  color        : #8a9ab8;
+  margin-bottom: 20px;
+}
+
+.cl-fecha-fin-info strong {
+  color: #ffffff;
+}
+
+/* Calendario propio (fecha de inicio) */
 .cl-placeholder {
   color: #3a4d6b;
 }
@@ -969,119 +1032,9 @@
   text-decoration: underline;
 }
 
-.cl-dias-lista {
-  display : flex;
-  gap     : 6px;
-  flex-wrap: wrap;
-}
-
-.cl-dia-chip {
-  width          : 42px;
-  height         : 40px;
-  border-radius  : 8px;
-  border         : 1px solid #1e2d47;
-  background     : #080e1a;
-  color          : #8a9ab8;
-  font-size      : 0.78rem;
-  font-weight    : 700;
-  cursor         : pointer;
-  transition     : all 0.2s ease;
-}
-
-.cl-dia-chip:hover {
-  border-color: rgba(21,111,231,0.4);
-}
-
-.cl-dia-chip.active {
-  background  : #156fe7;
-  border-color: #156fe7;
-  color       : #ffffff;
-}
-
-.cl-fecha-fin-info {
-  font-size    : 0.82rem;
-  color        : #8a9ab8;
-  margin-bottom: 20px;
-}
-
-.cl-fecha-fin-info strong {
-  color: #ffffff;
-}
-
-/* Banco de preguntas real (Paso 5) */
-.cl-banco-preguntas {
-  margin-top: 6px;
-}
-
-.cl-banco-buscador {
-  margin-left: 0;
-  width      : 100%;
-  margin-bottom: 10px;
-}
-
-.cl-banco-lista {
-  display       : flex;
-  flex-direction: column;
-  gap           : 6px;
-  max-height    : 220px;
-  overflow-y    : auto;
-}
-
-.cl-banco-lista::-webkit-scrollbar        { width: 4px; }
-.cl-banco-lista::-webkit-scrollbar-track  { background: transparent; }
-.cl-banco-lista::-webkit-scrollbar-thumb  { background: #1e2d47; border-radius: 2px; }
-
-.cl-banco-item {
-  background   : #0d1a33;
-  border       : 1px solid #1e2d47;
-  border-radius: 8px;
-  padding      : 10px 12px;
-  cursor       : pointer;
-  transition   : border-color 0.2s ease, background 0.2s ease;
-}
-
-.cl-banco-item:hover {
-  border-color: rgba(21,111,231,0.4);
-}
-
-.cl-banco-item.selected {
-  border-color: #156fe7;
-  background  : rgba(21,111,231,0.08);
-}
-
-.cl-banco-categoria {
-  display      : inline-block;
-  font-size    : 0.68rem;
-  font-weight  : 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color        : #156fe7;
-  background   : rgba(21,111,231,0.12);
-  border-radius: 4px;
-  padding      : 2px 7px;
-  margin-bottom: 5px;
-}
-
-.cl-banco-enunciado {
-  font-size  : 0.85rem;
-  color      : #ffffff;
-  line-height: 1.4;
-}
-
-.cl-detalle-error {
-  color: #ef4444;
-}
-
-.cl-detalle-error a {
-  color         : #156fe7;
-  cursor        : pointer;
-  text-decoration: underline;
-  margin-left   : 4px;
-}
-
 
 /* ────────────────────────────────────────────────────────────
-   10. RESUMEN: FILAS, TABLA, INSIGNIAS (Paso 8)
+   10. RESUMEN: FILAS, INSIGNIAS (Paso 7)
 ──────────────────────────────────────────────────────────── */
 
 .cl-paso-resumen {
@@ -1127,48 +1080,6 @@
   line-height: 1.6;
 }
 
-.cl-tabla {
-  width          : 100%;
-  border-collapse: collapse;
-  margin-bottom  : 14px;
-}
-
-.cl-tabla th {
-  text-align   : left;
-  font-size    : 0.7rem;
-  font-weight  : 700;
-  letter-spacing: 0.05em;
-  color        : #8a9ab8;
-  padding      : 8px 10px;
-  border-bottom: 1px solid #1e2d47;
-  text-transform: uppercase;
-}
-
-.cl-tabla td {
-  font-size    : 0.85rem;
-  color        : #ffffff;
-  padding      : 10px;
-  border-bottom: 1px solid #1e2d47;
-}
-
-.cl-tabla tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.cl-tabla-nota {
-  font-size    : 0.75rem;
-  color        : #3a4d6b;
-  margin-bottom: 20px;
-}
-
-.cl-insignias-label {
-  font-size    : 0.72rem;
-  font-weight  : 700;
-  color        : #8a9ab8;
-  letter-spacing: 0.08em;
-  margin-bottom: 12px;
-}
-
 .cl-insignias-lista {
   display : flex;
   gap     : 12px;
@@ -1209,7 +1120,7 @@
 
 
 /* ────────────────────────────────────────────────────────────
-   11. NAVEGACIÓN (Atrás / Continuar / Crear liga)
+   11. NAVEGACIÓN (Atrás / Continuar / Crear liga) + SPINNER
 ──────────────────────────────────────────────────────────── */
 
 .btn-group {
@@ -1234,9 +1145,14 @@
   transition     : all 0.2s ease;
 }
 
-.btn-atras:hover {
+.btn-atras:hover:not(:disabled) {
   border-color: rgba(21,111,231,0.4);
   color       : #ffffff;
+}
+
+.btn-atras:disabled {
+  opacity: 0.5;
+  cursor : default;
 }
 
 .btn-atras svg {
@@ -1265,12 +1181,17 @@
   flex: 1;
 }
 
-.btn-continuar:hover {
+.btn-continuar:hover:not(:disabled) {
   background: #105cb1;
 }
 
-.btn-continuar:active {
+.btn-continuar:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+.btn-continuar:disabled {
+  opacity: 0.75;
+  cursor : default;
 }
 
 .btn-continuar svg {
@@ -1280,6 +1201,20 @@
 
 .btn-crear-liga {
   background: #156fe7;
+}
+
+/* Spinner del botón "CREANDO..." mientras se espera el POST real */
+.cl-spinner {
+  width        : 15px;
+  height       : 15px;
+  border       : 2px solid rgba(255,255,255,0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation    : cl-girar 0.7s linear infinite;
+}
+
+@keyframes cl-girar {
+  to { transform: rotate(360deg); }
 }
 
 
@@ -1299,5 +1234,9 @@
   .cl-dia-chip {
     width : 38px;
     height: 38px;
+  }
+
+  .cl-calendario {
+    width: 260px;
   }
 }

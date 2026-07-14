@@ -205,6 +205,7 @@
   border       : 1px solid #1e2d47;
   border-radius: 14px;
   padding      : 18px;
+  cursor       : pointer;
   transition   : border-color 0.15s ease;
 }
 
@@ -231,6 +232,27 @@
 }
 
 .el-liga-icono svg { width: 22px; height: 22px; color: #156fe7; }
+
+.el-liga-icono--img {
+  overflow: hidden;
+  padding : 0;
+}
+
+.el-liga-icono--img img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: cover;
+}
+
+.el-liga-aviso {
+  font-size    : 0.72rem;
+  color        : #d97706;
+  background   : rgba(217,119,6,0.1);
+  border       : 1px solid rgba(217,119,6,0.25);
+  border-radius: 6px;
+  padding      : 6px 10px;
+  margin-bottom: 12px;
+}
 
 .el-liga-titulo-wrapper { flex: 1; min-width: 0; }
 .el-liga-titulo { font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-bottom: 3px; }
@@ -326,4 +348,183 @@
 @media (max-width: 860px) {
   .el-panel-izq { display: none; }
   .el-panel-der { padding: 16px; }
+}
+
+/* ────────────────────────────────────────────────────────────
+   MODAL DE DETALLE (ver / editar / eliminar)
+   Reutiliza .modal-overlay global (ver header.css/styles.css)
+──────────────────────────────────────────────────────────── */
+
+.el-modal-card {
+  width        : 100%;
+  max-width    : 480px;
+  max-height   : 88vh;
+  overflow-y   : auto;
+  background   : #0d1a33;
+  border       : 1px solid #1e2d47;
+  border-radius: 16px;
+  padding      : 28px;
+  position     : relative;
+}
+
+.el-modal-close {
+  position       : absolute;
+  top            : 16px;
+  right          : 16px;
+  width          : 32px;
+  height         : 32px;
+  border-radius  : 50%;
+  background     : rgba(255,255,255,0.05);
+  border         : none;
+  color          : #8a9ab8;
+  cursor         : pointer;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  z-index        : 2;
+}
+
+.el-modal-close:hover {
+  color     : #ffffff;
+  background: rgba(255,255,255,0.1);
+}
+
+.el-modal-close svg { width: 16px; height: 16px; }
+
+.el-modal-banner {
+  width        : calc(100% + 56px);
+  margin       : -28px -28px 20px;
+  height       : 140px;
+  overflow     : hidden;
+  border-radius: 16px 16px 0 0;
+}
+
+.el-modal-banner img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: cover;
+  display   : block;
+}
+
+.el-modal-header {
+  display        : flex;
+  align-items    : flex-start;
+  justify-content: space-between;
+  gap            : 12px;
+  margin-bottom  : 12px;
+}
+
+.el-modal-titulo {
+  font-size  : 1.2rem;
+  font-weight: 700;
+  color      : #ffffff;
+  line-height: 1.3;
+}
+
+.el-modal-descripcion {
+  font-size    : 0.88rem;
+  color        : #8a9ab8;
+  line-height  : 1.55;
+  margin-bottom: 16px;
+}
+
+.el-modal-filas {
+  display       : flex;
+  flex-direction: column;
+  gap           : 4px;
+  margin-bottom : 20px;
+}
+
+.el-modal-fila {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 12px;
+  padding        : 8px 0;
+  border-bottom  : 1px solid #1e2d47;
+  font-size      : 0.83rem;
+}
+
+.el-modal-fila:last-child { border-bottom: none; }
+.el-modal-fila span       { color: #8a9ab8; }
+.el-modal-fila strong     { color: #ffffff; font-weight: 600; text-align: right; }
+
+.el-modal-acciones {
+  display: flex;
+  gap    : 10px;
+}
+
+.el-btn-modal-primario,
+.el-btn-modal-secundario,
+.el-btn-modal-peligro {
+  flex           : 1;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 8px;
+  border-radius  : 10px;
+  padding        : 12px;
+  font-size      : 0.85rem;
+  font-weight    : 600;
+  cursor         : pointer;
+  font-family    : inherit;
+  transition     : all 0.2s ease;
+}
+
+.el-btn-modal-primario svg,
+.el-btn-modal-secundario svg { width: 15px; height: 15px; }
+
+.el-btn-modal-primario {
+  background: #156fe7;
+  color     : #ffffff;
+  border    : none;
+}
+
+.el-btn-modal-primario:hover { background: #105cb1; }
+
+.el-btn-modal-secundario {
+  background: transparent;
+  color     : #8a9ab8;
+  border    : 1px solid #1e2d47;
+}
+
+.el-btn-modal-secundario:hover:not(:disabled) {
+  border-color: rgba(21,111,231,0.4);
+  color       : #ffffff;
+}
+
+.el-btn-modal-peligro {
+  background: #ff4d6d;
+  color     : #ffffff;
+  border    : none;
+}
+
+.el-btn-modal-peligro:hover:not(:disabled) { background: #e63958; }
+
+.el-btn-modal-secundario:disabled,
+.el-btn-modal-peligro:disabled {
+  opacity: 0.6;
+  cursor : default;
+}
+
+.el-modal-confirmacion p {
+  font-size    : 0.85rem;
+  color        : #8a9ab8;
+  line-height  : 1.5;
+  margin-bottom: 16px;
+}
+
+.el-modal-confirmacion strong { color: #ffffff; }
+
+.el-spinner {
+  width           : 14px;
+  height          : 14px;
+  border          : 2px solid rgba(255,255,255,0.35);
+  border-top-color: #ffffff;
+  border-radius   : 50%;
+  animation       : el-girar 0.7s linear infinite;
+}
+
+@keyframes el-girar {
+  to { transform: rotate(360deg); }
 }

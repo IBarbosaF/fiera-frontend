@@ -1,0 +1,234 @@
+<!-- ============================================================
+     Explorar Ligas — dentro del MainLayout
+     Datos reales de GET /api/app/ligas, sin mock.
+============================================================ -->
+<div class="el-layout">
+
+  <!-- ══ PANEL IZQUIERDO ══ -->
+  <aside class="el-panel-izq">
+
+    <!-- Buscador -->
+    <div class="el-buscador-wrapper">
+      <svg class="el-buscador-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input
+        type="text"
+        class="el-buscador-input"
+        placeholder="Buscar liga..."
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)" />
+      @if (busqueda()) {
+        <button class="el-buscador-clear" (click)="busqueda.set('')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      }
+    </div>
+
+    <!-- Filtros -->
+    <div class="el-filtros-wrapper">
+      @for (f of FILTROS; track f.valor) {
+        <button class="el-filtro-chip"
+                [class.activo]="filtro() === f.valor"
+                (click)="setFiltro(f.valor)">
+          {{ f.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Stats -->
+    <div class="el-stats-wrapper">
+      <div class="el-stat-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        <div>
+          <p class="el-stat-numero">{{ totalLigas() }}</p>
+          <p class="el-stat-label">Ligas encontradas</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón crear -->
+    <button class="el-btn-crear-liga" (click)="irACrear()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Crear liga
+    </button>
+
+  </aside>
+
+  <!-- ══ PANEL DERECHO ══ -->
+  <main class="el-panel-der">
+
+    @if (cargando()) {
+      <div class="el-lista-vacia">
+        <p class="el-lista-vacia-titulo">Cargando ligas...</p>
+      </div>
+    }
+
+    @else if (error()) {
+      <div class="el-lista-vacia">
+        <p class="el-lista-vacia-titulo">No se pudieron cargar las ligas</p>
+        <button class="el-btn-limpiar" (click)="cargarLigas()">Reintentar</button>
+      </div>
+    }
+
+    @else if (ligasFiltradas().length === 0) {
+      <div class="el-lista-vacia">
+        <div class="el-lista-vacia-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <p class="el-lista-vacia-titulo">No se encontraron ligas</p>
+        <p class="el-lista-vacia-desc">Prueba con otro término de búsqueda o filtro.</p>
+        <button class="el-btn-limpiar" (click)="busqueda.set(''); setFiltro('todas')">
+          Limpiar filtros
+        </button>
+      </div>
+    }
+
+    @else {
+      <div class="el-ligas-grid">
+        @for (liga of ligasFiltradas(); track liga.id) {
+          <div class="el-liga-card" [class.abierta]="esAbierta(liga)" (click)="verDetalle(liga)">
+
+            <div class="el-liga-card-top">
+              @if (imagenUrl(liga)) {
+                <div class="el-liga-icono el-liga-icono--img">
+                  <img [src]="imagenUrl(liga)" alt="" />
+                </div>
+              } @else {
+                <div class="el-liga-icono">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                </div>
+              }
+              <div class="el-liga-titulo-wrapper">
+                <p class="el-liga-titulo">{{ liga.nombre || 'Liga sin nombre' }}</p>
+                <p class="el-liga-tipo">{{ tipoLabel(liga) }}</p>
+              </div>
+              <span class="el-liga-badge" [class.abierta]="esAbierta(liga)">{{ accesoLabel(liga) }}</span>
+            </div>
+
+            <div class="el-liga-stats">
+              <span class="el-liga-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                {{ maxParticipantesLabel(liga) }}
+              </span>
+              <span class="el-liga-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                @if (tieneFecha(liga)) {
+                  {{ liga.fechaI | date:'dd/MM/yyyy' }}
+                } @else {
+                  Fecha no definida
+                }
+              </span>
+            </div>
+
+            <p class="el-liga-descripcion">{{ liga.descripcion || 'Sin descripción.' }}</p>
+
+            @if (esIncompleta(liga)) {
+              <p class="el-liga-aviso">Liga con datos incompletos (registro antiguo).</p>
+            }
+
+            <div class="el-liga-footer">
+              <span class="el-liga-fiera">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                {{ papelFieraLabel(liga) }}
+              </span>
+              <button class="el-btn-unirse" [class.secundario]="!esAbierta(liga)" (click)="$event.stopPropagation(); unirse(liga)">
+                {{ esAbierta(liga) ? 'Unirse' : 'Necesita código' }}
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+
+  </main>
+
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  MODAL DE DETALLE — ver / editar / eliminar             ║
+     ║  Solo lectura salvo los botones de acción.               ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+@if (ligaSeleccionada(); as liga) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="el-modal-card" (click)="$event.stopPropagation()">
+
+      <button class="el-modal-close" (click)="cerrarModal()" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      @if (imagenUrl(liga)) {
+        <div class="el-modal-banner">
+          <img [src]="imagenUrl(liga)" alt="" />
+        </div>
+      }
+
+      <div class="el-modal-header">
+        <h2 class="el-modal-titulo">{{ liga.nombre || 'Liga sin nombre' }}</h2>
+        <span class="el-liga-badge" [class.abierta]="esAbierta(liga)">{{ accesoLabel(liga) }}</span>
+      </div>
+
+      @if (liga.descripcion) {
+        <p class="el-modal-descripcion">{{ liga.descripcion }}</p>
+      }
+
+      @if (esIncompleta(liga)) {
+        <p class="el-liga-aviso">Liga con datos incompletos (registro antiguo).</p>
+      }
+
+      <div class="el-modal-filas">
+        <div class="el-modal-fila"><span>Tipo</span><strong>{{ tipoLabel(liga) }}</strong></div>
+        <div class="el-modal-fila"><span>FIERA</span><strong>{{ papelFieraLabel(liga) }}</strong></div>
+        <div class="el-modal-fila"><span>Pregunta</span><strong>{{ preguntaLabel(liga) }}</strong></div>
+        <div class="el-modal-fila"><span>Debates</span><strong>{{ liga.debatesNum ?? '—' }} debates</strong></div>
+        <div class="el-modal-fila"><span>Frecuencia</span><strong>{{ frecuenciaLabel(liga) }} · {{ liga.debatesDia || '—' }} · {{ liga.debatesHora || '—' }}</strong></div>
+        <div class="el-modal-fila">
+          <span>Fechas</span>
+          <strong>
+            @if (tieneFecha(liga)) {
+              {{ liga.fechaI | date:'dd/MM/yyyy' }} – {{ liga.fechaF | date:'dd/MM/yyyy' }}
+            } @else {
+              Sin definir
+            }
+          </strong>
+        </div>
+        <div class="el-modal-fila"><span>Participantes máx.</span><strong>{{ maxParticipantesLabel(liga) }}</strong></div>
+        <div class="el-modal-fila"><span>Participantes actuales</span><strong>{{ liga.usuariosIds?.length ?? 0 }}</strong></div>
+      </div>
+
+      @if (errorEliminar()) {
+        <p class="form-error">{{ errorEliminar() }}</p>
+      }
+
+      @if (!confirmandoEliminar()) {
+        <div class="el-modal-acciones">
+          <button class="el-btn-modal-secundario" (click)="pedirConfirmacionEliminar()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Eliminar
+          </button>
+          <button class="el-btn-modal-primario" (click)="irAEditar(liga)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
+        </div>
+      } @else {
+        <div class="el-modal-confirmacion">
+          <p>¿Seguro que quieres eliminar <strong>{{ liga.nombre }}</strong>? Esta acción no se puede deshacer.</p>
+          <div class="el-modal-acciones">
+            <button class="el-btn-modal-secundario" [disabled]="eliminando()" (click)="cancelarEliminar()">
+              Cancelar
+            </button>
+            <button class="el-btn-modal-peligro" [disabled]="eliminando()" (click)="confirmarEliminar()">
+              @if (eliminando()) {
+                <span class="el-spinner"></span>
+                Eliminando...
+              } @else {
+                Sí, eliminar
+              }
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+}

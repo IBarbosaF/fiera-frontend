@@ -72,6 +72,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/ligas/unirse-liga/unirse-liga').then(m => m.UnirseLiga)
       },
+      {
+        path        : 'ligas/explorar',
+        loadComponent: () =>
+          import('./pages/ligas/explorar-ligas/explorar-ligas').then(m => m.ExplorarLigas)
+      },
+      {
+        path: 'ligas/editar/:id',
+        loadComponent: () =>
+          import('./pages/ligas/crear-liga/crear-liga').then(m => m.CrearLiga)
+      },
       /* Crear Debate */
       {
         path        : 'crear-debate',

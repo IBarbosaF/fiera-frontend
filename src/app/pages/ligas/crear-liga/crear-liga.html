@@ -16,10 +16,27 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
     </div>
     <div>
-      <h1 class="cl-titulo">Crear liga de debate</h1>
-      <p class="cl-subtitulo">Configura todos los detalles para crear tu liga</p>
+      <h1 class="cl-titulo">{{ tituloWizard() }}</h1>
+      <p class="cl-subtitulo">{{ subtituloWizard() }}</p>
     </div>
   </div>
+
+  <!-- ── Estado de carga inicial (modo edición) ── -->
+  @if (cargandoLigaExistente()) {
+    <div class="cl-contenido">
+      <div class="cl-card cl-card-cargando">
+        <span class="cl-spinner"></span>
+        <p>Cargando datos de la liga...</p>
+      </div>
+    </div>
+  } @else if (errorCargaLiga()) {
+    <div class="cl-contenido">
+      <div class="cl-card cl-card-cargando">
+        <p class="form-error">{{ errorCargaLiga() }}</p>
+        <a routerLink="/ligas" class="cl-calendario-link">← Volver al hub de ligas</a>
+      </div>
+    </div>
+  } @else {
 
   <!-- ── Stepper (7 pasos) ── -->
   <div class="cl-stepper">
@@ -86,9 +103,9 @@
           <div class="form-group">
             <label class="form-label">IMAGEN O BANNER DE LA LIGA</label>
 
-            @if (imagen()) {
+            @if (imagenPreview()) {
               <div class="cl-imagen-preview">
-                <img [src]="imagen()" alt="Banner de la liga" />
+                <img [src]="imagenPreview()" alt="Banner de la liga" />
                 <button class="cl-imagen-quitar" (click)="eliminarImagen()" aria-label="Quitar imagen">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -627,15 +644,17 @@
         <button class="btn-continuar btn-continuar-flex btn-crear-liga" [disabled]="creandoLiga()" (click)="finalizarCreacion()">
           @if (creandoLiga()) {
             <span class="cl-spinner"></span>
-            CREANDO...
+            {{ textoBotonCargando() }}
           } @else {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
-            CREAR LIGA
+            {{ textoBotonFinal() }}
           }
         </button>
       }
     </div>
 
   </div>
+
+  }
 
 </div>

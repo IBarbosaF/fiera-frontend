@@ -3,6 +3,32 @@
      Layout: header fijo | timer fijo | chat scrollable | footer fijo
 ============================================================ -->
 <div class="debate-layout">
+  @if (preparando()) {
+    <div class="preparacion-overlay">
+      <div class="preparacion-anillo">
+        <div class="preparacion-anillo-track"></div>
+        <div class="preparacion-anillo-spin"></div>
+        @if (segundosPreparacion() > 0) {
+          <span class="preparacion-numero">{{ segundosPreparacion() }}</span>
+        } @else {
+          <div class="preparacion-puntos">
+            <span></span><span></span><span></span>
+          </div>
+        }
+      </div>
+      <p class="preparacion-titulo">
+        {{ segundosPreparacion() > 0
+          ? (esTuTurno ? 'Prepárate para intervenir' : 'FIERA está pensando su respuesta')
+          : 'Casi listo...' }}
+      </p>
+      <p class="preparacion-subtitulo">{{ subTurnoInfo?.nombre }}</p>
+
+      <div class="preparacion-tema">
+        <p class="preparacion-tema-label">Tema del debate</p>
+        <p class="preparacion-tema-texto">{{ debateService.config().tema?.enunciado || 'Tema libre' }}</p>
+      </div>
+    </div>
+  }
 
   <!-- ── HEADER ── -->
   <header class="debate-header">
@@ -136,7 +162,7 @@
   </main>
 
   <!-- ── FOOTER ── -->
-  <footer class="debate-footer">
+  <footer class="debate-footer" [class.bloqueado]="preparando()">
 
     <!-- Error micrófono -->
     @if (errorMicrofono()) {

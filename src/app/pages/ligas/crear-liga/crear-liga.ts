@@ -1,5 +1,5 @@
 import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { DebateService, TemaApi } from '../../../core/services/debate.service';
 import {
@@ -49,6 +49,40 @@ export class CrearLiga {
   ligaService   = inject(LigaService);
   debateService = inject(DebateService);
   router        = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  /* ── Modo edición ──
+     Ruta /ligas/editar/:id reutiliza este mismo componente.
+     Si hay :id en la URL, precargamos la liga real y el botón
+     final pasa de "CREAR LIGA" (POST) a "GUARDAR CAMBIOS" (PUT). */
+  ligaId = signal<number | null>(null);
+  modoEdicion = computed(() => this.ligaId() !== null);
+
+  cargandoLigaExistente = signal(false);
+  errorCargaLiga        = signal('');
+
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (!idParam) return;
+
+    const id = Number(idParam);
+    if (isNaN(id)) return;
+
+    this.ligaId.set(id);
+    this.cargandoLigaExistente.set(true);
+    this.ligaService.resetConfig();
+
+    this.ligaService.obtenerLiga(id).subscribe({
+      next: (liga) => {
+        this.ligaService.cargarLigaEnConfig(liga);
+        this.cargandoLigaExistente.set(false);
+      },
+      error: () => {
+        this.errorCargaLiga.set('No se pudo cargar la liga. Vuelve al listado e inténtalo de nuevo.');
+        this.cargandoLigaExistente.set(false);
+      }
+    });
+  }
 
   /* ── Acceso directo al config del servicio (usado en varios pasos) ── */
   config = this.ligaService.config;
@@ -77,6 +111,13 @@ export class CrearLiga {
   descripcion = computed(() => this.config().descripcion);
   imagen      = computed(() => this.config().imagen);
 
+  /** Preview a mostrar en el Paso 1: prioriza una imagen nueva
+      recién seleccionada; si no hay, cae a la imagen ya guardada
+      en el backend (solo aplica en modo edición). */
+  imagenPreview = computed(() =>
+    this.imagen() ?? this.ligaService.urlImagen(this.config().imagenOriginalUrl)
+  );
+
   descripcionLength = computed(() => this.descripcion().length);
 
   setNombre(valor: string): void {
@@ -103,7 +144,7 @@ export class CrearLiga {
   }
 
   eliminarImagen(): void {
-    this.ligaService.actualizarConfig({ imagen: null });
+    this.ligaService.actualizarConfig({ imagen: null, imagenOriginalUrl: null });
   }
 
 
@@ -491,21 +532,33 @@ export class CrearLiga {
     { nombre: 'Participante revelación', icono: 'estrella' },
   ];
 
+  /* ── Textos dinámicos según modo crear/editar ── */
+  tituloWizard    = computed(() => this.modoEdicion() ? 'Editar liga de debate' : 'Crear liga de debate');
+  subtituloWizard = computed(() => this.modoEdicion()
+    ? 'Actualiza los detalles de tu liga'
+    : 'Configura todos los detalles para crear tu liga');
+  textoBotonFinal    = computed(() => this.modoEdicion() ? 'GUARDAR CAMBIOS' : 'CREAR LIGA');
+  textoBotonCargando = computed(() => this.modoEdicion() ? 'GUARDANDO...' : 'CREANDO...');
+
   /* ── Estado de creación (llamada real al backend) ── */
   creandoLiga    = signal(false);
   errorCreacion  = signal('');
 
   /* ----------------------------------------------------------
      finalizarCreacion()
-     Botón "CREAR LIGA" del Paso 7. Llama a POST /api/app/ligas/new
-     de verdad. Ver liga.service.ts → crearLiga() para el mapeo
-     completo de campos confirmado por curl.
+     Botón final del Paso 7. En modo edición llama a PUT
+     (actualizarLiga), si no a POST (crearLiga). Ver
+     liga.service.ts para el mapeo completo de campos.
   ---------------------------------------------------------- */
   finalizarCreacion(): void {
     this.errorCreacion.set('');
     this.creandoLiga.set(true);
 
-    this.ligaService.crearLiga().subscribe({
+    const peticion = this.modoEdicion()
+      ? this.ligaService.actualizarLiga(this.ligaId()!)
+      : this.ligaService.crearLiga();
+
+    peticion.subscribe({
       next: () => {
         this.creandoLiga.set(false);
         this.router.navigate(['/ligas']);
@@ -513,7 +566,8 @@ export class CrearLiga {
       error: (err) => {
         this.creandoLiga.set(false);
         this.errorCreacion.set(
-          err?.error?.message || 'No se pudo crear la liga. Inténtalo de nuevo.'
+          err?.error?.message
+          || (this.modoEdicion() ? 'No se pudieron guardar los cambios. Inténtalo de nuevo.' : 'No se pudo crear la liga. Inténtalo de nuevo.')
         );
       }
     });

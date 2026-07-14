@@ -125,7 +125,9 @@ export interface RespuestaFiera {
 
 export interface ProcesarTurnoResponse {
   debateResponse: DebateApi;
-  respuestaFiera: RespuestaFiera;
+  /* El backend puede devolver null en el primer turno del usuario,
+     mientras FIERA todavía no ha generado su respuesta. */
+  respuestaFiera: RespuestaFiera | null;
 }
 
 export interface IntervencionApi {
@@ -138,6 +140,7 @@ export interface IntervencionApi {
   mensaje         : string;
   estado          : string;
   speakerInputType: string;
+  mensajeError?   : string | null;
 }
 
 /* Usuario participante en el debate (preparado para varios) */
@@ -148,6 +151,18 @@ export interface UsuarioDebate {
   imgPerfil?: string | null;
 }
 
+/* ----------------------------------------------------------
+   DebateApi
+   Corresponde al schema DebateResponse del backend — es la
+   estructura que llega dentro de ProcesarTurnoResponse y en
+   las respuestas de /start, /turnos/next y /finish.
+
+   Los campos de progreso (numeroDeParticipantes, debateFinalizado,
+   hayTurnosEnProceso, intervencionActivaId) están siendo
+   implementados en el backend — pueden llegar null mientras
+   tanto. El frontend debe tratarlos como opcionales y usar un
+   fallback manual cuando no vengan rellenos (ver partida-debate.ts).
+---------------------------------------------------------- */
 export interface DebateApi {
   id            : number;
   modo?         : string;
@@ -155,11 +170,22 @@ export interface DebateApi {
   status?       : string;
   temaElegido?  : string;
   posturaFiera? : string | null;
-  creadoA?      : string;   // ← nuevo: fecha de creación, viene de la columna 'creado_a'
+  creadoA?      : string;
+  codigo?       : string | null;
+  enlace?       : string | null;
+  preguntasFiera?: string[];
   usuarios      : UsuarioDebate[];
   intervenciones: IntervencionApi[];
   fiera         : { id: number; personalidad: string };
   resultados?   : ResultadoApi[];  /* uno por usuario, lo rellena el backend al finalizar */
+
+  /* ── Campos de progreso (DebateResponse) — pueden venir null
+     mientras el backend termina de implementarlos ── */
+  numeroDeParticipantes? : number | null;
+  numeroDeIntervenciones?: number | null;
+  debateFinalizado?      : boolean | null;
+  hayTurnosEnProceso?    : boolean | null;
+  intervencionActivaId?  : number | null;
 }
 
 /* ── Constantes de almacenamiento ── */
@@ -344,7 +370,7 @@ export class DebateService {
     return stored ? Number(stored) : null;
   }
 
-   /* ----------------------------------------------------------
+  /* ----------------------------------------------------------
      iniciarDebate()
      POST /{debateId}/start — obligatorio antes de mandar
      cualquier turno. Cambia el debate a EN_PROGRESO.
@@ -520,9 +546,8 @@ export class DebateService {
     return [];
   }
 
-  /* Devuelve el resultado del usuario actual.
-     TODO: filtrar por usuarioId real cuando haya login completo;
-     de momento devuelve el primero del array. */
+  /* Devuelve el resultado del usuario actual. Si no se pasa
+     usuarioId explícito, usa el del usuario logueado. */
   obtenerResultadoUsuario(usuarioId?: number): ResultadoApi | null {
     const lista = this.obtenerResultadosApi();
     if (!lista.length) return null;
