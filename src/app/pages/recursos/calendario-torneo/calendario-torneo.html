@@ -17,7 +17,7 @@
           </svg>
         </div>
         <div class="stat-texto">
-          <p class="stat-valor">{{ totalTorneos }}</p>
+          <p class="stat-valor">{{ totalTorneos() }}</p>
           <p class="stat-label">Torneos oficiales</p>
         </div>
       </div>
@@ -49,7 +49,7 @@
           </svg>
         </div>
         <div class="stat-texto">
-          <p class="stat-valor">{{ ligasRetorika }}</p>
+          <p class="stat-valor">{{ ligasRetorika() }}</p>
           <p class="stat-label">Ligas Retorika</p>
         </div>
       </div>
@@ -126,6 +126,12 @@
     <!-- Columna izquierda: próximos eventos -->
     <div class="proximos-col">
       <p class="proximos-titulo">Próximos eventos</p>
+
+      @if (cargando()) {
+        <p class="proximos-vacio">Cargando ligas...</p>
+      } @else if (errorCarga()) {
+        <p class="proximos-vacio">Error al cargar las ligas.</p>
+      } @else {
       <div class="proximos-lista">
         @for (evento of proximosEventos(); track evento.id) {
           <div class="proximo-item" (click)="abrirModalDirecto(evento)">
@@ -149,6 +155,7 @@
           <p class="proximos-vacio">No hay eventos próximos</p>
         }
       </div>
+      }
     </div>
 
     <!-- Columna derecha: calendario -->
@@ -195,9 +202,10 @@
       <div class="cal-grid">
         @for (dia of diasCalendario(); track dia.fecha.getTime()) {
           <div class="cal-celda"
-               [class.cal-celda--otro-mes]="!dia.esDelMes"
-               [class.cal-celda--hoy]="dia.esHoy"
-               [class.cal-celda--con-eventos]="dia.eventos.length > 0">
+              [class.cal-celda--otro-mes]="!dia.esDelMes"
+              [class.cal-celda--hoy]="dia.esHoy"
+              [class.cal-celda--con-eventos]="dia.eventos.length > 0"
+              (click)="abrirModalDia(dia)">
 
             <span class="cal-numero" [class.cal-numero--hoy]="dia.esHoy">
               {{ dia.fecha.getDate() }}
@@ -206,9 +214,8 @@
             <div class="cal-eventos">
               @for (evento of dia.eventos.slice(0, 2); track evento.id) {
                 <div class="cal-evento-pill"
-                     [class.cal-evento-pill--oficial]="evento.tipo === 'oficial'"
-                     [class.cal-evento-pill--retorika]="evento.tipo === 'retorika'"
-                     (click)="abrirModal(evento, $event)">
+                    [class.cal-evento-pill--oficial]="evento.tipo === 'oficial'"
+                    [class.cal-evento-pill--retorika]="evento.tipo === 'retorika'">
                   {{ evento.titulo }}
                 </div>
               }
@@ -226,6 +233,58 @@
   </div>
 
 </div>
+
+<!-- ══ MODAL DÍA ══ -->
+@if (modalDiaAbierto() && diaSeleccionado()) {
+  <div class="modal-overlay" (click)="cerrarModalDiaFuera($event)">
+    <div class="modal-card modal-dia">
+
+      <button class="modal-close" (click)="cerrarModalDia()">&times;</button>
+
+      <div class="modal-dia-header">
+        <div class="modal-dia-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3"  y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="modal-titulo">{{ formatearFechaDia(diaSeleccionado()!.fecha) }}</h2>
+          <p class="modal-dia-conteo">{{ diaSeleccionado()!.eventos.length }} evento{{ diaSeleccionado()!.eventos.length > 1 ? 's' : '' }}</p>
+        </div>
+      </div>
+
+      <div class="modal-dia-lista">
+        @for (evento of diaSeleccionado()!.eventos; track evento.id) {
+          <div class="modal-dia-item" (click)="abrirEventoDesdeModalDia(evento)">
+            <div class="modal-dia-item-dot"
+                 [class.modal-dia-item-dot--oficial]="evento.tipo === 'oficial'"
+                 [class.modal-dia-item-dot--retorika]="evento.tipo === 'retorika'">
+            </div>
+            <div class="modal-dia-item-info">
+              <p class="modal-dia-item-titulo">{{ evento.titulo }}</p>
+              <p class="modal-dia-item-meta">{{ evento.ciudad }} · {{ evento.organizador }}</p>
+            </div>
+            <span class="modal-dia-item-badge"
+                  [class.modal-dia-item-badge--oficial]="evento.tipo === 'oficial'"
+                  [class.modal-dia-item-badge--retorika]="evento.tipo === 'retorika'">
+              {{ evento.tipo === 'oficial' ? 'Oficial' : 'Retorika' }}
+            </span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="14" height="14"
+                 style="color: #3a4d6b; flex-shrink: 0;">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+}
 
 <!-- ══ MODAL DETALLE EVENTO ══ -->
 @if (modalAbierto() && eventoSeleccionado()) {
@@ -295,8 +354,13 @@
             <div>
               <p class="modal-info-label">Inscritos</p>
               <p class="modal-info-valor">
-                {{ eventoSeleccionado()!.inscritos }} / {{ eventoSeleccionado()!.maxInscritos }}
-                <span class="modal-plazas">({{ plazasLibres(eventoSeleccionado()!) }} plazas libres)</span>
+                {{ eventoSeleccionado()!.inscritos }} /
+                @if (eventoSeleccionado()!.maxParticipantes === 9999) {
+                  Sin límite
+                } @else {
+                  {{ eventoSeleccionado()!.maxParticipantes }}
+                  <span class="modal-plazas">({{ plazasLibres(eventoSeleccionado()!) }} plazas libres)</span>
+                }
               </p>
             </div>
           </div>

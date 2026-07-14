@@ -116,7 +116,7 @@
               <line x1="12" y1="20" x2="12" y2="4"/>
               <line x1="6"  y1="20" x2="6"  y2="14"/>
             </svg>
-            Nivel <strong class="stat-valor">{{ nivel }}</strong>
+            Nivel <strong class="stat-valor">{{ nivel() }}</strong>
           </span>
           <span class="stat-sep">|</span>
           <span class="stat-item">
@@ -125,7 +125,7 @@
               <circle cx="12" cy="8" r="6"/>
               <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
             </svg>
-            <strong>#{{ ranking }}</strong> del ranking
+            <strong>#{{ ranking() }}</strong> del ranking
           </span>
           <span class="stat-sep">|</span>
           <span class="stat-item stat-puntos">
@@ -133,7 +133,7 @@
                  stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            <strong class="stat-valor">{{ puntos }}</strong> puntos
+            <strong class="stat-valor">{{ puntos() }}</strong> puntos
           </span>
         </div>
       </div>
@@ -326,7 +326,7 @@
             <div class="debate-item" (click)="abrirModalEventoDirecto(evento)">
               <div class="debate-fecha">
                 <span class="debate-dia">{{ evento.inicio | slice:8:10 }}</span>
-                <span class="debate-mes">{{ eventosService.getMes(evento.inicio) }}</span>
+                <span class="debate-mes">{{ getMes(evento.inicio) }}</span>
               </div>
               <div class="debate-info">
                 <span class="debate-titulo">{{ evento.titulo }}</span>
@@ -344,32 +344,34 @@
         </div>
       </div>
 
-      <div class="dash-widget">
-        <div class="dash-widget-header">
-          <h3>Ranking general</h3>
-          <a class="dash-widget-link" routerLink="/ranking">Ver ranking completo →</a>
-        </div>
-        <div class="ranking-podio">
-          @for (j of topRanking; track j.posicion) {
-            <div class="ranking-jugador" [class.primero]="j.posicion === 1">
-              <div class="ranking-pos-badge pos-{{ j.posicion }}">{{ j.posicion }}</div>
-              <div class="ranking-avatar">{{ j.avatar }}</div>
-              <span class="ranking-nombre">{{ j.nombre }}</span>
-              <span class="ranking-puntos">{{ j.puntos }} pts</span>
-            </div>
-          }
-        </div>
-        <div class="ranking-tuposicion">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-               stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-            <line x1="18" y1="20" x2="18" y2="10"/>
-            <line x1="12" y1="20" x2="12" y2="4"/>
-            <line x1="6"  y1="20" x2="6"  y2="14"/>
-          </svg>
-          Tu posición: <strong>#{{ ranking }}</strong>
-          <span class="ranking-tuspuntos">{{ puntos }} puntos</span>
-        </div>
+    <div class="dash-widget">
+      <div class="dash-widget-header">
+        <h3>Ranking general</h3>
+        <a class="dash-widget-link" routerLink="/ranking">Ver ranking completo →</a>
       </div>
+      <div class="ranking-podio">
+        @for (j of rankingService.top3General(); track j.posicion) {
+          <div class="ranking-jugador"
+              [class.primero]="j.posicion === 1"
+              [style.order]="j.posicion === 1 ? 2 : j.posicion === 2 ? 1 : 3">
+            <div class="ranking-pos-badge pos-{{ j.posicion }}">{{ j.posicion }}</div>
+            <div class="ranking-avatar">{{ iniciales(j.usuario) }}</div>
+            <span class="ranking-nombre">{{ j.usuario.nombre }} {{ j.usuario.apellidos?.charAt(0) }}.</span>
+            <span class="ranking-puntos">{{ j.puntos }} pts</span>
+          </div>
+        }
+      </div>
+      <div class="ranking-tuposicion">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6"  y1="20" x2="6"  y2="14"/>
+        </svg>
+        Tu posición: <strong>#{{ rankingService.miPosicionGeneral()?.posicion ?? '—' }}</strong>
+        <span class="ranking-tuspuntos">{{ rankingService.miPosicionGeneral()?.puntos ?? '—' }} puntos</span>
+      </div>
+    </div>
     </div>
 
     <!-- RETO DEL DÍA -->
@@ -474,7 +476,7 @@
               <div>
                 <p class="modal-info-label">Inscritos</p>
                 <p class="modal-info-valor">
-                  {{ eventoSeleccionado()!.inscritos }} / {{ eventoSeleccionado()!.maxInscritos }}
+                  {{ eventoSeleccionado()!.inscritos }} / {{ eventoSeleccionado()!.maxParticipantes }}
                   <span class="modal-plazas">({{ plazasLibres(eventoSeleccionado()!) }} plazas libres)</span>
                 </p>
               </div>

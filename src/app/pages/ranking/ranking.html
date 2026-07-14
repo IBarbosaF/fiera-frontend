@@ -15,42 +15,41 @@
   <div class="periodo-tabs">
     @for (p of periodos; track p.valor) {
       <button class="periodo-tab"
-              [class.activo]="ranking.periodo() === p.valor"
-              (click)="seleccionarPeriodo(p.valor)">
+              [class.activo]="periodoActivo() === p.valor"
+              [class.deshabilitado]="!p.disponible"
+              (click)="seleccionarPeriodo(p)">
         {{ p.label }}
+        @if (!p.disponible) {
+          <span class="periodo-proximamente">Próx.</span>
+        }
       </button>
     }
   </div>
 
   <!-- ── Filtros ── -->
   <div class="filtros-ranking" (click)="$event.stopPropagation()">
-    @for (f of filtrosConfig; track f.campo) {
-      <div class="filtro-dropdown-wrapper">
-        <button class="filtro-dropdown-btn"
-                [class.activo]="!!ranking.filtros()[f.campo]"
-                (click)="toggleFiltro(f.campo)">
-          <span>{{ ranking.filtros()[f.campo] ?? f.label }}</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
+    <div class="filtro-dropdown-wrapper">
+      <button class="filtro-dropdown-btn"
+              [class.activo]="hayFiltrosActivos()"
+              (click)="toggleFiltro()">
+        <span>{{ ranking.filtros().tipoInstitucion ?? 'Tipo' }}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
 
-        @if (filtroAbierto() === f.campo) {
-          <div class="filtro-dropdown-menu">
-            @for (opcion of opcionesPara(f.campo); track opcion) {
-              <button class="filtro-dropdown-item"
-                      [class.selected]="ranking.filtros()[f.campo] === opcion"
-                      (click)="seleccionarValorFiltro(f.campo, opcion)">
-                {{ opcion }}
-              </button>
-            }
-            @empty {
-              <p class="filtro-dropdown-vacio">Sin opciones disponibles.</p>
-            }
-          </div>
-        }
-      </div>
-    }
+      @if (filtroAbierto()) {
+        <div class="filtro-dropdown-menu">
+          @for (tipo of ranking.tiposDisponibles(); track tipo) {
+            <button class="filtro-dropdown-item"
+                    [class.selected]="ranking.filtros().tipoInstitucion === tipo"
+                    (click)="seleccionarTipo(tipo)">
+              {{ tipo }}
+            </button>
+          }
+        </div>
+      }
+    </div>
 
     @if (hayFiltrosActivos()) {
       <button class="btn-limpiar-filtros" (click)="limpiarFiltros()">
@@ -62,9 +61,13 @@
     }
   </div>
 
+@if (filtroAbierto()) {
+  <div class="filtro-overlay" (click)="cerrarFiltro()"></div>
+}
+
   <!-- Overlay invisible para cerrar el dropdown al clicar fuera -->
   @if (filtroAbierto()) {
-    <div class="filtro-overlay" (click)="cerrarFiltros()"></div>
+    <div class="filtro-overlay" (click)="cerrarFiltro()"></div>
   }
 
   <!-- ── Contenido ── -->
@@ -72,6 +75,12 @@
 
     <div class="ranking-vacio">
       <p class="ranking-vacio-titulo">Cargando ranking...</p>
+    </div>
+
+  } @else if (ranking.error()) {
+    <div class="ranking-vacio">
+      <p class="ranking-vacio-titulo">No se pudo cargar el ranking</p>
+      <button class="btn-limpiar" (click)="ranking.cargarUsuarios()">Reintentar</button>
     </div>
 
   } @else if (ranking.rankingActivo().length === 0) {
@@ -130,7 +139,7 @@
           <div class="ranking-avatar">{{ iniciales(entry.usuario.nombre, entry.usuario.apellidos) }}</div>
           <div class="ranking-info">
             <p class="ranking-nombre">{{ entry.usuario.nombre }} {{ entry.usuario.apellidos }}</p>
-            <p class="ranking-meta">{{ entry.usuario.club }} · {{ entry.usuario.pais }}</p>
+            <p class="ranking-meta">{{ entry.club }} </p>
           </div>
           <span class="ranking-puntos">{{ entry.puntos }} pts</span>
         </div>
@@ -147,7 +156,7 @@
         <div class="ranking-avatar">{{ iniciales(mia.usuario.nombre, mia.usuario.apellidos) }}</div>
         <div class="ranking-info">
           <p class="ranking-nombre">Tu posición</p>
-          <p class="ranking-meta">{{ mia.usuario.club }}</p>
+          <p class="ranking-meta">{{ mia.club }}</p>
         </div>
         <span class="ranking-puntos">{{ mia.puntos }} pts</span>
       </div>

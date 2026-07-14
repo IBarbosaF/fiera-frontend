@@ -479,6 +479,7 @@
 
 .cal-celda--con-eventos {
   background: rgba(255, 255, 255, 0.02);
+  cursor    : pointer;
 }
 
 /* Número del día */
@@ -664,6 +665,106 @@
 }
 
 .modal-aviso strong { color: #ffffff; }
+
+/* ══ MODAL DÍA ══ */
+.modal-dia {
+  max-width: 420px;
+  width    : 90%;
+}
+
+.modal-dia-header {
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+  margin-bottom: 20px;
+}
+
+.modal-dia-icono {
+  width          : 40px;
+  height         : 40px;
+  border-radius  : 10px;
+  background     : rgba(21, 111, 231, 0.15);
+  color          : #156fe7;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  flex-shrink    : 0;
+}
+
+.modal-dia-conteo {
+  font-size : 0.8rem;
+  color     : var(--texto-muted);
+  margin-top: 2px;
+}
+
+.modal-dia-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+}
+
+.modal-dia-item {
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+  background   : rgba(255, 255, 255, 0.03);
+  border       : 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding      : 12px 14px;
+  cursor       : pointer;
+  transition   : background 0.15s, border-color 0.15s;
+}
+
+.modal-dia-item:hover {
+  background  : rgba(21, 111, 231, 0.06);
+  border-color: rgba(21, 111, 231, 0.3);
+}
+
+.modal-dia-item-dot {
+  width        : 10px;
+  height       : 10px;
+  border-radius: 50%;
+  flex-shrink  : 0;
+}
+
+.modal-dia-item-dot--oficial  { background: #156fe7; }
+.modal-dia-item-dot--retorika { background: #8b5cf6; }
+
+.modal-dia-item-info { flex: 1; min-width: 0; }
+
+.modal-dia-item-titulo {
+  font-size    : 0.88rem;
+  font-weight  : 600;
+  color        : #e8edf5;
+  margin-bottom: 3px;
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-dia-item-meta {
+  font-size: 0.74rem;
+  color    : var(--texto-muted);
+}
+
+.modal-dia-item-badge {
+  font-size    : 0.62rem;
+  font-weight  : 600;
+  padding      : 2px 7px;
+  border-radius: 6px;
+  flex-shrink  : 0;
+  white-space  : nowrap;
+}
+
+.modal-dia-item-badge--oficial {
+  background: rgba(21, 111, 231, 0.15);
+  color     : #6ba8f5;
+}
+
+.modal-dia-item-badge--retorika {
+  background: rgba(139, 92, 246, 0.15);
+  color     : #a78bfa;
+}
 
 /* ── Responsive ── */
 @media (max-width: 900px) {

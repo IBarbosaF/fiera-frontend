@@ -432,6 +432,18 @@
 
 .btn-limpiar:hover { border-color: rgba(21,111,231,0.4); color: #ffffff; }
 
+.periodo-tab.deshabilitado {
+  opacity: 0.4;
+  cursor : not-allowed;
+}
+
+.periodo-proximamente {
+  font-size    : 0.6rem;
+  margin-left  : 4px;
+  vertical-align: super;
+  color        : #f5a623;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .ranking-layout { padding: 24px 16px 64px; }
