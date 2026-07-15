@@ -635,7 +635,7 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   get esTuTurno(): boolean {
-    return this.subTurnoInfo?.quien === 'equipo';
+    return this.subTurnoInfo?.quien !== 'fiera';
   }
 
   get esRefutacion(): boolean {

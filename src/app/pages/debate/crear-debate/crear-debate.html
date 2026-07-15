@@ -207,7 +207,7 @@
       }
 
       <!-- ==========================================
-           PASO 2 ACADÉMICO — Invitar compañero
+          PASO 2 ACADÉMICO — Invitar compañero
       ========================================== -->
       @if (pasoActivo() === 2 && modoDebate() === 'academico') {
         <div class="cd-card">
@@ -221,30 +221,30 @@
 
           @if (tabInvitar() === 'codigo') {
             <div class="codigo-bloque">
-              <span class="codigo-texto">{{ codigoSesion() }}</span>
+              <span class="codigo-texto">{{ codigoSesion }}</span>
               <button class="btn-copiar" (click)="copiarCodigo()" title="Copiar código">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                    stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                 </svg>
               </button>
             </div>
-            <p class="codigo-expiry">El código expira en 24:00 min.</p>
+            <p class="codigo-expiry">Comparte este código con tu compañero para que se una.</p>
           }
 
           @if (tabInvitar() === 'enlace') {
             <div class="enlace-bloque">
-              <span class="enlace-texto">fiera.retorika.es/unirse/{{ codigoSesion() }}</span>
+              <span class="enlace-texto">{{ enlaceCompartir }}</span>
               <button class="btn-copiar" (click)="copiarEnlace()" title="Copiar enlace">
                 @if (enlaceCopiado()) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="#03d26e" stroke-width="2.5"
-                       stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                      stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 } @else {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                       stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                      stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                   </svg>
@@ -253,25 +253,9 @@
             </div>
           }
 
-          @if (companeros().length > 0) {
-            <p class="cd-section-label">Compañeros invitados</p>
-            <div class="companeros-lista">
-              @for (c of companeros(); track c.nombre) {
-                <div class="companero-item">
-                  <div class="companero-avatar">{{ c.iniciales }}</div>
-                  <div class="companero-info">
-                    <span class="companero-nombre">{{ c.nombre }}</span>
-                    <small>Pendiente de unirse</small>
-                  </div>
-                  <span class="estado-badge">Pendiente</span>
-                </div>
-              }
-            </div>
-          }
-
           <button class="btn-primary btn-full" (click)="compartirEnlace()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
               <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
               <polyline points="16 6 12 2 8 6"/>
               <line x1="12" y1="2" x2="12" y2="15"/>

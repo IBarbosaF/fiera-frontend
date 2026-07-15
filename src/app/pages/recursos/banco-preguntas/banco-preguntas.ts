@@ -2,22 +2,38 @@ import {
   Component,
   signal,
   computed,
-  ChangeDetectionStrategy
+  inject,
+  OnInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule }  from '@angular/forms';
+import { HttpClient }   from '@angular/common/http';
 
 /* ============================================================
    BancoPreguntas — Repositorio de preguntas de debate
-
-   Tres tabs: Oficiales (de torneos), Comunidad (creadas por usuarios) y Colección (preguntas favoritas)
-   TODO: conectar con backend cuando haya endpoints
-   TODO: roles/validación de superadmin — fuera de alcance por ahora
-   TODO: sistema de notificaciones — fuera de alcance por ahora
-   TODO: puntos y logros — fuera de alcance por ahora
+   Datos reales de GET /api/app/temas
+   Likes persistidos en localStorage
+   TODO: endpoint para preguntas de comunidad
+   TODO: roles/validación de superadmin
+   TODO: sistema de notificaciones
+   TODO: puntos y logros
 ============================================================ */
 
 export type TabPreguntas = 'oficiales' | 'comunidad' | 'coleccion';
+
+export interface TemaApi {
+  id       : number;
+  categoria: string;
+  enunciado: string;
+  torneo   : string;
+  año      : number;
+  status   : string;
+  likes    : number;
+  origen   : string;
+  usuario  : any;
+}
 
 export interface PreguntaOficial {
   id        : string;
@@ -41,71 +57,7 @@ export interface PreguntaComunidad {
   likedPorMi: boolean;
 }
 
-/* ── Mockdata: preguntas oficiales ── */
-// TODO: reemplazar con llamada al backend (/api/app/preguntas?origen=oficial)
-const MOCK_OFICIALES: PreguntaOficial[] = [
-  {
-    id: '1', pregunta: '¿Deberían los gobiernos prohibir el uso de la inteligencia artificial?',
-    torneo: 'Campeonato Mundial Escolar', club: 'Federación Mundial de Debate', anio: 2024,
-    tematica: 'Tecnología', likes: 142, likedPorMi: false,
-  },
-  {
-    id: '2', pregunta: '¿Es el crecimiento económico más importante que la sostenibilidad?',
-    torneo: 'World Universities Debating Championship', club: 'WUDC', anio: 2023,
-    tematica: 'Economía', likes: 98, likedPorMi: false,
-  },
-  {
-    id: '3', pregunta: '¿Debería el voto ser obligatorio en las democracias?',
-    torneo: 'Campeonato Nacional de Debate', club: 'Asociación Española de Debate', anio: 2022,
-    tematica: 'Política', likes: 76, likedPorMi: false,
-  },
-  {
-    id: '4', pregunta: '¿Debería limitarse el uso de redes sociales en menores de edad?',
-    torneo: 'Liga Retorika Madrid', club: 'Retorika', anio: 2024,
-    tematica: 'Sociedad', likes: 64, likedPorMi: false,
-  },
-  {
-    id: '5', pregunta: '¿Es ética la experimentación con animales en la investigación científica?',
-    torneo: 'Copa Hispana de Debate', club: 'Club Debate Universidad de Sevilla', anio: 2023,
-    tematica: 'Ética', likes: 51, likedPorMi: false,
-  },
-  {
-    id: '6', pregunta: '¿Debería existir una renta básica universal?',
-    torneo: 'Torneo Nacional Karl Popper', club: 'Asociación Española de Debate', anio: 2022,
-    tematica: 'Economía', likes: 88, likedPorMi: false,
-  },
-];
-
-/* ── Mockdata: preguntas comunidad ── */
-// TODO: reemplazar con llamada al backend (/api/app/preguntas?origen=comunidad)
-const MOCK_COMUNIDAD: PreguntaComunidad[] = [
-  {
-    id: 'c1', pregunta: '¿Las redes sociales hacen más daño que beneficio a la sociedad?',
-    usuario: '@DebatientePro', avatar: 'https://i.pravatar.cc/80?img=12', anio: 2024,
-    tematica: 'Sociedad', likes: 34, likedPorMi: true,
-  },
-  {
-    id: 'c2', pregunta: '¿Deberían las universidades ser gratuitas para todos?',
-    usuario: '@VozClara', avatar: 'https://i.pravatar.cc/80?img=47', anio: 2023,
-    tematica: 'Educación', likes: 29, likedPorMi: false,
-  },
-  {
-    id: 'c3', pregunta: '¿Debe permitirse la experimentación animal en la ciencia?',
-    usuario: '@Argumentador', avatar: 'https://i.pravatar.cc/80?img=33', anio: 2024,
-    tematica: 'Ética', likes: 21, likedPorMi: false,
-  },
-  {
-    id: 'c4', pregunta: '¿Es la inteligencia artificial una amenaza para el empleo?',
-    usuario: '@RetorikaFan', avatar: 'https://i.pravatar.cc/80?img=8', anio: 2024,
-    tematica: 'Tecnología', likes: 45, likedPorMi: false,
-  },
-  {
-    id: 'c5', pregunta: '¿Deberían los países desarrollados acoger más refugiados?',
-    usuario: '@LogicaPura', avatar: 'https://i.pravatar.cc/80?img=21', anio: 2023,
-    tematica: 'Política', likes: 18, likedPorMi: false,
-  },
-];
-
+const API_BASE   = 'https://fiera.retorika.es';
 const POR_PAGINA = 6;
 
 @Component({
@@ -116,52 +68,82 @@ const POR_PAGINA = 6;
   styleUrl        : './banco-preguntas.css',
   changeDetection : ChangeDetectionStrategy.OnPush
 })
-export class BancoPreguntas {
+export class BancoPreguntas implements OnInit {
+
+  private http = inject(HttpClient);
+  private cdr  = inject(ChangeDetectorRef);
+
+  private readonly STORAGE_LIKES_OFICIALES = 'fiera_likes_preguntas_oficiales';
+  private readonly STORAGE_LIKES_COMUNIDAD = 'fiera_likes_preguntas_comunidad';
 
   /* ── Estado ── */
-  tab           = signal<TabPreguntas>('oficiales');
-  busqueda      = signal('');
-  anioFiltro    = signal<number | null>(null);
-  tematicaFiltro= signal<string | null>(null);
-  paginaActual  = signal(1);
+  tab            = signal<TabPreguntas>('oficiales');
+  busqueda       = signal('');
+  anioFiltro     = signal<number | null>(null);
+  tematicaFiltro = signal<string | null>(null);
+  paginaActual   = signal(1);
+  cargando       = signal(false);
+  errorCarga     = signal(false);
 
-  modalNuevaAbierto = signal(false);
+  modalNuevaAbierto     = signal(false);
   modalCompartirAbierto = signal(false);
-  preguntaCompartir = signal<string>('');
+  preguntaCompartir     = signal<string>('');
 
   /* ── Data ── */
-  oficiales = signal<PreguntaOficial[]>(MOCK_OFICIALES);
-  comunidad = signal<PreguntaComunidad[]>(MOCK_COMUNIDAD);
+  oficiales = signal<PreguntaOficial[]>([]);
+  comunidad = signal<PreguntaComunidad[]>([]);
 
-  /* ── Stats globales (fijas, no dependen del filtro) ── */
-  readonly totalPreguntas = MOCK_OFICIALES.length + MOCK_COMUNIDAD.length;
-  readonly totalTorneos   = new Set(MOCK_OFICIALES.map(p => p.torneo)).size;
-  readonly aniosHistorial = (() => {
-    const todos = [...MOCK_OFICIALES.map(p => p.anio), ...MOCK_COMUNIDAD.map(p => p.anio)];
+  /* ── Stats ── */
+  totalPreguntas = computed(() =>
+    this.oficiales().length + this.comunidad().length
+  );
+
+  totalTorneos = computed(() =>
+    new Set(this.oficiales().map(p => p.torneo)).size
+  );
+
+  aniosHistorial = computed(() => {
+    const todos = [
+      ...this.oficiales().map(p => p.anio),
+      ...this.comunidad().map(p => p.anio)
+    ];
+    if (!todos.length) return 0;
     return Math.max(...todos) - Math.min(...todos) + 1;
-  })();
+  });
 
-  /* ── Temáticas disponibles para el filtro ── */
+  /* ── Colección ── */
+  totalColeccion = computed(() =>
+    this.oficiales().filter(p => p.likedPorMi).length +
+    this.comunidad().filter(p => p.likedPorMi).length
+  );
+
+  /* ── Temáticas disponibles ── */
   tematicas = computed<string[]>(() => {
     const lista = this.tab() === 'oficiales' ? this.oficiales()
                 : this.tab() === 'comunidad' ? this.comunidad()
-                : [...this.oficiales().filter(p => p.likedPorMi), ...this.comunidad().filter(p => p.likedPorMi)];
+                : [
+                    ...this.oficiales().filter(p => p.likedPorMi),
+                    ...this.comunidad().filter(p => p.likedPorMi)
+                  ];
     return [...new Set(lista.map(p => p.tematica))].sort();
   });
 
-  /* ── Años disponibles para el filtro ── */
+  /* ── Años disponibles ── */
   anios = computed<number[]>(() => {
     const lista = this.tab() === 'oficiales' ? this.oficiales()
                 : this.tab() === 'comunidad' ? this.comunidad()
-                : [...this.oficiales().filter(p => p.likedPorMi), ...this.comunidad().filter(p => p.likedPorMi)];
+                : [
+                    ...this.oficiales().filter(p => p.likedPorMi),
+                    ...this.comunidad().filter(p => p.likedPorMi)
+                  ];
     return [...new Set(lista.map(p => p.anio))].sort((a, b) => b - a);
   });
 
-  /* ── Preguntas filtradas (genérico según tab) ── */
+  /* ── Preguntas filtradas ── */
   preguntasFiltradas = computed<(PreguntaOficial | PreguntaComunidad)[]>(() => {
-    const q       = this.busqueda().toLowerCase().trim();
-    const anio    = this.anioFiltro();
-    const tematica= this.tematicaFiltro();
+    const q        = this.busqueda().toLowerCase().trim();
+    const anio     = this.anioFiltro();
+    const tematica = this.tematicaFiltro();
 
     let lista: (PreguntaOficial | PreguntaComunidad)[];
 
@@ -170,7 +152,6 @@ export class BancoPreguntas {
     } else if (this.tab() === 'comunidad') {
       lista = this.comunidad();
     } else {
-      // Tu colección: todas las que tienen like, de ambos orígenes
       lista = [
         ...this.oficiales().filter(p => p.likedPorMi),
         ...this.comunidad().filter(p => p.likedPorMi),
@@ -178,8 +159,8 @@ export class BancoPreguntas {
     }
 
     return lista.filter(p => {
-      if (anio && p.anio !== anio)                 return false;
-      if (tematica && p.tematica !== tematica)      return false;
+      if (anio && p.anio !== anio)             return false;
+      if (tematica && p.tematica !== tematica) return false;
       if (q && !p.pregunta.toLowerCase().includes(q)
             && !this.origenTexto(p).toLowerCase().includes(q)) return false;
       return true;
@@ -191,11 +172,6 @@ export class BancoPreguntas {
     Math.max(1, Math.ceil(this.preguntasFiltradas().length / POR_PAGINA))
   );
 
-  totalColeccion = computed(() =>
-    this.oficiales().filter(p => p.likedPorMi).length +
-    this.comunidad().filter(p => p.likedPorMi).length
-  );
-
   preguntasPagina = computed(() => {
     const inicio = (this.paginaActual() - 1) * POR_PAGINA;
     return this.preguntasFiltradas().slice(inicio, inicio + POR_PAGINA);
@@ -205,7 +181,6 @@ export class BancoPreguntas {
     const total  = this.totalPaginas();
     const actual = this.paginaActual();
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-
     const paginas: (number | '...')[] = [1];
     if (actual > 3) paginas.push('...');
     for (let i = Math.max(2, actual - 1); i <= Math.min(total - 1, actual + 1); i++) {
@@ -216,13 +191,75 @@ export class BancoPreguntas {
     return paginas;
   });
 
+  /* ── Carga inicial ── */
+  ngOnInit(): void {
+    this.cargarPreguntas();
+  }
+
+  cargarPreguntas(): void {
+    this.cargando.set(true);
+    this.errorCarga.set(false);
+
+    this.http.get<any>(`${API_BASE}/api/app/temas`).subscribe({
+      next: (res) => {
+        const temas: TemaApi[] = Array.isArray(res) ? res : (res?.data ?? []);
+
+        const likesOficiales = this.cargarLikesStorage(this.STORAGE_LIKES_OFICIALES);
+        const likesComunidad = this.cargarLikesStorage(this.STORAGE_LIKES_COMUNIDAD);
+
+        const oficiales: PreguntaOficial[] = temas
+          .filter(t => t.origen !== 'COMUNIDAD')
+          .map(t => ({
+            id        : String(t.id),
+            pregunta  : t.enunciado,
+            torneo    : t.torneo ?? '-',
+            club      : '-',
+            anio      : t.año,
+            tematica  : t.categoria,
+            likes     : t.likes ?? 0,
+            likedPorMi: likesOficiales.has(String(t.id)),
+          }));
+
+        const comunidad: PreguntaComunidad[] = temas
+          .filter(t => t.origen === 'COMUNIDAD')
+          .map(t => ({
+            id        : String(t.id),
+            pregunta  : t.enunciado,
+            usuario   : t.usuario?.username ? `@${t.usuario.username}` : '@usuario',
+            avatar    : t.usuario?.imgPerfil ?? `https://i.pravatar.cc/80?u=${t.id}`,
+            anio      : t.año,
+            tematica  : t.categoria,
+            likes     : t.likes ?? 0,
+            likedPorMi: likesComunidad.has(String(t.id)),
+          }));
+
+        this.oficiales.set(oficiales);
+        this.comunidad.set(comunidad);
+        this.cargando.set(false);
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('🔴 Error cargando preguntas:', err);
+        this.errorCarga.set(true);
+        this.cargando.set(false);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  /* ── localStorage likes ── */
+  private cargarLikesStorage(key: string): Set<string> {
+    const datos = localStorage.getItem(key);
+    return datos ? new Set(JSON.parse(datos)) : new Set();
+  }
+
   /* ── Helpers de tipo ── */
   esOficial(p: PreguntaOficial | PreguntaComunidad): p is PreguntaOficial {
     return 'torneo' in p;
   }
 
   origenTexto(p: PreguntaOficial | PreguntaComunidad): string {
-    return this.esOficial(p) ? `${p.torneo} ${p.club}` : `${p.usuario}`;
+    return this.esOficial(p) ? `${p.torneo} ${p.club}` : p.usuario;
   }
 
   /* ── Tab ── */
@@ -273,29 +310,30 @@ export class BancoPreguntas {
   /* ── Like ── */
   toggleLike(p: PreguntaOficial | PreguntaComunidad, e: MouseEvent): void {
     e.stopPropagation();
+    const nuevoEstado = !p.likedPorMi;
+
     if (this.esOficial(p)) {
       this.oficiales.update(lista => lista.map(item =>
         item.id === p.id
-          ? { ...item, likedPorMi: !item.likedPorMi, likes: item.likes + (item.likedPorMi ? -1 : 1) }
+          ? { ...item, likedPorMi: nuevoEstado }
           : item
       ));
+      const set = new Set(this.oficiales().filter(i => i.likedPorMi).map(i => i.id));
+      localStorage.setItem(this.STORAGE_LIKES_OFICIALES, JSON.stringify([...set]));
     } else {
       this.comunidad.update(lista => lista.map(item =>
         item.id === p.id
-          ? { ...item, likedPorMi: !item.likedPorMi, likes: item.likes + (item.likedPorMi ? -1 : 1) }
+          ? { ...item, likedPorMi: nuevoEstado }
           : item
       ));
+      const set = new Set(this.comunidad().filter(i => i.likedPorMi).map(i => i.id));
+      localStorage.setItem(this.STORAGE_LIKES_COMUNIDAD, JSON.stringify([...set]));
     }
   }
 
-  /* ── Modal pregunta nueva (visual, sin lógica de guardado real) ── */
-  abrirModalNueva(): void {
-    this.modalNuevaAbierto.set(true);
-  }
-
-  cerrarModalNueva(): void {
-    this.modalNuevaAbierto.set(false);
-  }
+  /* ── Modal pregunta nueva ── */
+  abrirModalNueva(): void  { this.modalNuevaAbierto.set(true);  }
+  cerrarModalNueva(): void { this.modalNuevaAbierto.set(false); }
 
   cerrarModalNuevaFuera(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
@@ -310,9 +348,7 @@ export class BancoPreguntas {
     this.modalCompartirAbierto.set(true);
   }
 
-  cerrarCompartir(): void {
-    this.modalCompartirAbierto.set(false);
-  }
+  cerrarCompartir(): void { this.modalCompartirAbierto.set(false); }
 
   cerrarCompartirFuera(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
@@ -325,13 +361,10 @@ export class BancoPreguntas {
     const urls: Record<string, string> = {
       whatsapp: `https://wa.me/?text=${texto}`,
       telegram: `https://t.me/share/url?text=${texto}`,
-      discord : '#', // TODO: discord no tiene share-url estándar
       gmail   : `https://mail.google.com/mail/?view=cm&su=Pregunta%20de%20debate&body=${texto}`,
       outlook : `https://outlook.live.com/mail/0/deeplink/compose?body=${texto}`,
     };
-    if (urls[canal] && urls[canal] !== '#') {
-      window.open(urls[canal], '_blank');
-    }
+    if (urls[canal]) window.open(urls[canal], '_blank');
     this.cerrarCompartir();
   }
 }

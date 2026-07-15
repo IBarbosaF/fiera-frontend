@@ -20,99 +20,146 @@
     </div>
 
     <!-- ══════════════════════════════════════════
-         PREGUNTA DEL DÍA
+         ESTADO — Cargando
     ══════════════════════════════════════════ -->
-    <div class="pd-pregunta-card">
-
-      <div class="pd-pregunta-autor">
-        <div class="pd-avatar">{{ preguntaHoy.iniciales }}</div>
-        <span class="pd-autor-nombre">{{ preguntaHoy.usuario }}</span>
+    @if (cargando()) {
+      <div class="pd-estado-card">
+        <div class="pd-spinner"></div>
+        <p class="pd-estado-texto">Cargando la pregunta de hoy...</p>
       </div>
-
-      <p class="pd-pregunta-texto">{{ preguntaHoy.pregunta }}</p>
-
-      <!-- ── Selector de corazones ── -->
-      <div class="pd-corazones-selector">
-        @for (i of [0, 1, 2]; track i) {
-          <button
-            class="pd-corazon-btn"
-            [class.deshabilitado]="yaVotado()"
-            [disabled]="yaVotado()"
-            (click)="seleccionar(i + 1)">
-            <svg viewBox="0 0 24 24"
-                 [attr.fill]="corazonesMostrados() > i ? 'currentColor' : 'none'"
-                 stroke="currentColor" stroke-width="1.8" width="32" height="32">
-              <path d="M12 21s-6.5-4.35-9.5-8.5C.5 9.5 2 6 5.5 6c2 0 3.5 1.2 4.5 2.6C11 7.2 12.5 6 14.5 6 18 6 19.5 9.5 21.5 12.5 18.5 16.65 12 21 12 21z"/>
-            </svg>
-          </button>
-        }
-      </div>
-
-      @if (!yaVotado()) {
-        <button
-          class="pd-btn-enviar"
-          [class.deshabilitado]="seleccion() === 0"
-          [disabled]="seleccion() === 0"
-          (click)="enviarVoto()">
-          Enviar valoración
-        </button>
-      } @else {
-        <div class="pd-ya-votado">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          Ya has votado hoy — vuelve mañana para una pregunta nueva.
-        </div>
-      }
-
-    </div>
+    }
 
     <!-- ══════════════════════════════════════════
-         RANKING COMPLETO
+         ESTADO — Error
     ══════════════════════════════════════════ -->
-    <div class="pd-ranking-bloque">
-
-      <div class="pd-ranking-header">
+    @else if (errorCarga()) {
+      <div class="pd-estado-card pd-estado-card--error">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-             stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-          <path d="M2 4l3 12h14l3-12-6 6-4-8-4 8-6-6zM4.5 19h15"/>
+             stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        <span class="pd-ranking-titulo">RANKING DE PREGUNTAS</span>
+        <p class="pd-estado-texto">No se ha podido cargar el Preguntón de hoy. Inténtalo más tarde.</p>
+        <button class="pd-btn-volver-error" (click)="volverAlHub()">Volver a Retos</button>
       </div>
+    }
 
-      <div class="pd-ranking-lista">
-        @for (item of ranking(); track item.posicion) {
-          <div class="pd-ranking-fila">
+    <!-- ══════════════════════════════════════════
+         ESTADO — Sin pregunta disponible
+    ══════════════════════════════════════════ -->
+    @else if (!preguntaHoy()) {
+      <div class="pd-estado-card">
+        <p class="pd-estado-texto">Todavía no hay ninguna pregunta de usuario validada para hoy. Vuelve más tarde.</p>
+        <button class="pd-btn-volver-error" (click)="volverAlHub()">Volver a Retos</button>
+      </div>
+    }
 
-            <div [class]="'pd-medalla pd-medalla--' + medallaClase(item.posicion)">
-              {{ item.posicion }}
-            </div>
+    <!-- ══════════════════════════════════════════
+         ESTADO — Activo (pregunta + ranking)
+    ══════════════════════════════════════════ -->
+    @else if (preguntaHoy(); as pregunta) {
 
-            <div class="pd-avatar pd-avatar--sm">{{ item.iniciales }}</div>
+      <!-- ── Pregunta del día ── -->
+      <div class="pd-pregunta-card">
 
-            <div class="pd-ranking-info">
-              <p class="pd-ranking-pregunta">{{ item.pregunta }}</p>
-              <div class="pd-ranking-meta">
-                <div class="pd-ranking-corazones">
-                  @for (lleno of corazonesRanking(item.corazones); track $index) {
-                    <svg viewBox="0 0 24 24" [attr.fill]="lleno ? 'currentColor' : 'none'"
-                         stroke="currentColor" stroke-width="1.8" width="13" height="13">
-                      <path d="M12 21s-6.5-4.35-9.5-8.5C.5 9.5 2 6 5.5 6c2 0 3.5 1.2 4.5 2.6C11 7.2 12.5 6 14.5 6 18 6 19.5 9.5 21.5 12.5 18.5 16.65 12 21 12 21z"/>
-                    </svg>
-                  }
-                </div>
-                <span class="pd-ranking-media">{{ item.corazones.toFixed(1) }}</span>
-                <span class="pd-ranking-usuario">{{ item.usuario }}</span>
-                <span class="pd-ranking-votos">{{ item.votos }} votos</span>
-              </div>
-            </div>
+        <div class="pd-pregunta-autor">
+          <div class="pd-avatar">{{ iniciales(pregunta) }}</div>
+          <span class="pd-autor-nombre">
+            {{ pregunta.usuario?.username ?? pregunta.usuario?.nombre ?? 'Usuario' }}
+          </span>
+        </div>
 
+        <p class="pd-pregunta-texto">{{ pregunta.enunciado }}</p>
+
+        <!-- ── Selector de corazones ── -->
+        <div class="pd-corazones-selector">
+          @for (i of [0, 1, 2]; track i) {
+            <button
+              class="pd-corazon-btn"
+              [class.deshabilitado]="yaVotado()"
+              [disabled]="yaVotado()"
+              (click)="seleccionar(i + 1)">
+              <svg viewBox="0 0 24 24"
+                   [attr.fill]="corazonesMostrados() > i ? 'currentColor' : 'none'"
+                   stroke="currentColor" stroke-width="1.8" width="32" height="32">
+                <path d="M12 21s-6.5-4.35-9.5-8.5C.5 9.5 2 6 5.5 6c2 0 3.5 1.2 4.5 2.6C11 7.2 12.5 6 14.5 6 18 6 19.5 9.5 21.5 12.5 18.5 16.65 12 21 12 21z"/>
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (!yaVotado()) {
+          <button
+            class="pd-btn-enviar"
+            [class.deshabilitado]="seleccion() === 0"
+            [disabled]="seleccion() === 0"
+            (click)="enviarVoto()">
+            Enviar valoración
+          </button>
+        } @else {
+          <div class="pd-ya-votado">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Ya has votado hoy — vuelve mañana para una pregunta nueva.
           </div>
         }
+
       </div>
 
-    </div>
+      <!-- ══════════════════════════════════════════
+           RANKING COMPLETO
+      ══════════════════════════════════════════ -->
+      <div class="pd-ranking-bloque">
+
+        <div class="pd-ranking-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <path d="M2 4l3 12h14l3-12-6 6-4-8-4 8-6-6zM4.5 19h15"/>
+          </svg>
+          <span class="pd-ranking-titulo">RANKING DE PREGUNTAS</span>
+        </div>
+
+        <div class="pd-ranking-lista">
+          @for (item of ranking(); track item.id; let i = $index) {
+            <div class="pd-ranking-fila">
+
+              <div [class]="'pd-medalla pd-medalla--' + medallaClase(i + 1)">
+                {{ i + 1 }}
+              </div>
+
+              <div class="pd-avatar pd-avatar--sm">{{ iniciales(item) }}</div>
+
+              <div class="pd-ranking-info">
+                <p class="pd-ranking-pregunta">{{ item.enunciado }}</p>
+                <div class="pd-ranking-meta">
+                  <div class="pd-ranking-corazones">
+                    @for (lleno of corazonesRanking(item.likes ?? 0); track $index) {
+                      <svg viewBox="0 0 24 24" [attr.fill]="lleno ? 'currentColor' : 'none'"
+                           stroke="currentColor" stroke-width="1.8" width="13" height="13">
+                        <path d="M12 21s-6.5-4.35-9.5-8.5C.5 9.5 2 6 5.5 6c2 0 3.5 1.2 4.5 2.6C11 7.2 12.5 6 14.5 6 18 6 19.5 9.5 21.5 12.5 18.5 16.65 12 21 12 21z"/>
+                      </svg>
+                    }
+                  </div>
+                  <span class="pd-ranking-usuario">
+                    {{ item.usuario?.username ?? item.usuario?.nombre ?? 'Usuario' }}
+                  </span>
+                  <span class="pd-ranking-votos">{{ item.likes ?? 0 }} likes</span>
+                </div>
+              </div>
+
+            </div>
+          }
+          @empty {
+            <p class="pd-ranking-vacio">Todavía no hay preguntas valoradas.</p>
+          }
+        </div>
+
+      </div>
+
+    }
 
   </div>
 

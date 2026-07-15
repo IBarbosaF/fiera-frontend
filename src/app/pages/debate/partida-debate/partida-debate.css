@@ -102,6 +102,12 @@
   white-space   : nowrap;
 }
 
+.debate-turno-badge.companero {
+  background: rgba(240, 167, 66, 0.12);
+  color     : #f0a742;
+  border    : 1px solid rgba(240, 167, 66, 0.25);
+}
+
 .debate-turno-badge.fiera {
   background: rgba(255, 58, 114, 0.12);
   color     : #ff3a72;

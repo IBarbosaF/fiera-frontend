@@ -256,17 +256,19 @@ export class CrearDebate implements OnInit {
   ];
 
   /* ────────────────────────────────────────────
-     PASO 2 (académico) — Invitar compañero
+   PASO 2 (académico) — Invitar compañero
   ──────────────────────────────────────────── */
   tabInvitar     = signal<'codigo' | 'enlace'>('codigo');
-  codigoSesion   = signal('FIERA-7XJ4');
-  companeros     = signal<Companero[]>([
-    { iniciales: 'ML', nombre: 'María López', estado: 'pendiente' },
-    { iniciales: 'CR', nombre: 'Carlos Ruiz', estado: 'pendiente' },
-  ]);
+
+  /* El código se genera UNA vez (vía el servicio) y se reutiliza
+    durante todo el wizard, para que coincida con el que
+    finalmente se manda al backend al crear el debate */
+  get codigoSesion(): string {
+    return this.debateService.getCodigoSesion() ?? '';
+  }
 
   copiarCodigo(): void {
-    navigator.clipboard?.writeText(this.codigoSesion()).catch(() => {});
+    navigator.clipboard?.writeText(this.codigoSesion).catch(() => {});
   }
 
   enlaceCopiado = signal(false);
@@ -281,7 +283,7 @@ export class CrearDebate implements OnInit {
     if (window.innerWidth < 768 && navigator.share) {
       navigator.share({
         title: 'FIERA — Debate',
-        text : `¡Únete a mi debate en FIERA! Código: ${this.codigoSesion()}`,
+        text : `¡Únete a mi debate en FIERA! Código: ${this.codigoSesion}`,
         url  : this.enlaceCompartir
       }).catch(() => {});
       return;
@@ -292,7 +294,7 @@ export class CrearDebate implements OnInit {
   modalCompartirAbierto = signal(false);
 
   get enlaceCompartir(): string {
-    return `https://fiera.retorika.es/unirse/${this.codigoSesion()}`;
+    return this.debateService.construirEnlaceDebate(this.codigoSesion);
   }
 
   /* ────────────────────────────────────────────
@@ -479,8 +481,15 @@ export class CrearDebate implements OnInit {
     const subturnos = this.expandirASubturnos();
     this.debateService.guardarConfig();
     this.debateService.guardarSubturnos(subturnos);
+
+      /* TODO prueba: id de usuario real existente en BD, usado
+        temporalmente para validar compi+compi VS FIERA hasta que
+        exista la unión dinámica por código con reasignación */
+      const hayCompanero  = subturnos.some(t => t.asignado === 'companero');
+      const companeroTest = hayCompanero ? 42 : null;
+
     this.debateService.getFieras().subscribe(() => {
-      this.debateService.crearDebate().subscribe({
+      this.debateService.crearDebate(companeroTest).subscribe({
         next: debate => {
           if (debate?.id) {
             this.debateService.setDebateId(debate.id);
@@ -514,5 +523,6 @@ export class CrearDebate implements OnInit {
   ngOnInit(): void {
     this.cargarTemas();
     this.debateService.getFieras().subscribe();
+    this.debateService.asegurarCodigoSesion();
   }
 }

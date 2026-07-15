@@ -206,11 +206,11 @@
 
                 <div class="mini-cal-grid">
                   @for (dia of diasCalendario(); track dia.fecha.getTime()) {
-                    <div class="mini-cal-celda"
-                         [class.mini-cal-celda--otro-mes]="!dia.esDelMes"
-                         [class.mini-cal-celda--hoy]="dia.esHoy"
-                         [class.mini-cal-celda--con-eventos]="dia.eventos.length > 0"
-                         (click)="dia.eventos.length ? abrirModalEventoDirecto(dia.eventos[0]) : null">
+                  <div class="mini-cal-celda"
+                      [class.mini-cal-celda--otro-mes]="!dia.esDelMes"
+                      [class.mini-cal-celda--hoy]="dia.esHoy"
+                      [class.mini-cal-celda--con-eventos]="dia.eventos.length > 0"
+                      (click)="abrirModalDia(dia)">
                       <span class="mini-cal-numero" [class.mini-cal-numero--hoy]="dia.esHoy">
                         {{ dia.fecha.getDate() }}
                       </span>
@@ -517,6 +517,39 @@
             <button class="btn-primary btn-full" disabled>Inscripción cerrada</button>
           }
         }
+      </div>
+    </div>
+  }
+
+  <!-- MODAL DÍA — lista de eventos si hay varios -->
+  @if (modalDiaAbierto() && diaSeleccionado()) {
+    <div class="modal-overlay" (click)="cerrarModalDiaFuera($event)">
+      <div class="modal-card modal-dia-eventos">
+        <button class="modal-close" (click)="cerrarModalDia()">&times;</button>
+
+        <h2 class="modal-titulo modal-dia-titulo">
+          {{ formatearFechaDia(diaSeleccionado()!.fecha) }}
+        </h2>
+
+        <div class="dia-eventos-lista">
+          @for (evento of diaSeleccionado()!.eventos; track evento.id) {
+            <div class="dia-evento-item" (click)="abrirEventoDesdeModalDia(evento)">
+              <div class="dia-evento-badge"
+                  [class.dia-evento-badge--oficial]="evento.tipo === 'oficial'"
+                  [class.dia-evento-badge--retorika]="evento.tipo === 'retorika'">
+                {{ evento.tipo === 'oficial' ? 'Oficial' : 'Retorika' }}
+              </div>
+              <div class="dia-evento-info">
+                <p class="dia-evento-nombre">{{ evento.titulo }}</p>
+                <p class="dia-evento-lugar">{{ evento.ciudad }}</p>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          }
+        </div>
       </div>
     </div>
   }

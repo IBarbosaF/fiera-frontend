@@ -2,6 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { AuthService } from './auth.service';
+import { RetosService } from './retos.service';
 
 /* ============================================================
    DebateService — Gestión del estado del debate
@@ -17,6 +18,15 @@ export interface TemaApi {
   enunciado: string;
   torneo   : string;
   año      : number;
+  status?  : string;
+  likes?   : number;
+  origen?  : string;
+  usuario? : {
+    id       : number;
+    nombre   : string;
+    username : string;
+    imgPerfil: string | null;
+  } | null;
 }
 
 export interface FieraApi {
@@ -62,6 +72,15 @@ export interface ConfigDebate {
    el debate. Hay UN resultado por cada usuario participante
    (preparado para debates con varios debatientes humanos).
 ---------------------------------------------------------- */
+/* ----------------------------------------------------------
+   ResultadoApi
+   Corresponde al schema real "Resultado" del backend: usuario
+   y debate son OBJETOS (no ids planos). Se mantienen también
+   usuarioId/debateId como opcionales por compatibilidad, ya
+   que en pruebas anteriores el backend devolvió ese formato
+   plano — usar SIEMPRE obtenerUsuarioIdDeResultado() para leer
+   el id, nunca acceder a los campos directamente.
+---------------------------------------------------------- */
 export interface ResultadoApi {
   id                : number | null;
   scoreTotal        : number;
@@ -70,8 +89,11 @@ export interface ResultadoApi {
   scoreEvidence     : number;
   scoreClarity      : number;
   feedback          : string;
-  debateId          : number;
-  usuarioId         : number;
+  usuario?          : { id: number } | null;
+  debate?           : { id: number } | null;
+  /* @deprecated formato plano visto en respuestas anteriores */
+  usuarioId?        : number;
+  debateId?         : number;
 }
 
 /* @deprecated — formato antiguo simulado, se mantiene temporalmente
@@ -111,6 +133,7 @@ export interface DebateRequest {
   creadoA       : string;
   temaElegido   : string;
   posturaFiera  : string;
+  codigo        : string;
   usuarios      : { id: number }[];
   tema          : { id: number } | null;
   fiera         : { id: number };
@@ -232,9 +255,11 @@ export class DebateService {
 
   private http = inject(HttpClient);
   private auth = inject(AuthService);
+  private retos = inject(RetosService);
 
   /* ── Signals de estado ── */
   private _config       = signal<ConfigDebate>({ ...CONFIG_INICIAL });
+  private _codigoSesion = signal<string | null>(null);
   private _debateId     = signal<number | null>(null);
   private _fieras       = signal<FieraApi[]>([]);
   private _subturnos    = signal<SubTurnoConfig[]>([]);
@@ -243,6 +268,7 @@ export class DebateService {
 
   /* ── Señales públicas de solo lectura ── */
   config       = this._config.asReadonly();
+  codigoSesion = this._codigoSesion.asReadonly();
   debateId     = this._debateId.asReadonly();
   fieras       = this._fieras.asReadonly();
   subturnos    = this._subturnos.asReadonly();
@@ -303,7 +329,11 @@ export class DebateService {
      Construye el body desde los subturnos del wizard y envía
      POST /api/app/debates/new-debate
   ---------------------------------------------------------- */
-  crearDebate() {
+  /* companeroId: parámetro TEMPORAL de prueba para validar el
+     flujo compi+compi VS FIERA con un segundo usuario real ya
+     existente en la BD. Cuando exista la unión dinámica por
+     código, este id vendrá de ahí en vez de pasarse a mano. */
+  crearDebate(companeroId?: number | null) {
     const config    = this._config();
     const subturnos = this.cargarSubturnos();
     const usuarioId = this.auth.usuario()?.id ?? 4;
@@ -320,7 +350,9 @@ export class DebateService {
        postura elegida por el usuario. */
     const intervenciones: IntervencionRequest[] = subturnos.map(t => ({
       nombre          : NOMBRE_MAP[t.nombre] ?? t.nombre.toLowerCase(),
-      usuario         : t.asignado === 'yo' ? { id: usuarioId } : null,
+      usuario         : t.asignado === 'yo' ? { id: usuarioId }
+                      : t.asignado === 'companero' && companeroId ? { id: companeroId }
+                      : null,
       duracion        : `00:${String(t.minutos).padStart(2, '0')}:00`,
       speaker         : t.asignado === 'fiera' ? 'fiera' : 'usuario',
       postura         : t.postura === 'favor' ? 'pro' : 'contra',
@@ -339,6 +371,13 @@ export class DebateService {
       ? (this.getFieraId(config.personalidad) ?? 1)
       : 1;
 
+    const codigo = this.asegurarCodigoSesion();
+
+    const usuariosBody: { id: number }[] = [{ id: usuarioId }];
+    if (companeroId && intervenciones.some(i => i.usuario?.id === companeroId)) {
+      usuariosBody.push({ id: companeroId });
+    }
+
     const body: DebateRequest = {
       modo         : config.modo,
       dificultad   : config.dificultad,
@@ -346,7 +385,8 @@ export class DebateService {
       creadoA      : new Date().toISOString(),
       temaElegido  : config.tema?.enunciado ?? '',
       posturaFiera,
-      usuarios     : [{ id: usuarioId }],
+      codigo,
+      usuarios     : usuariosBody,
       tema         : config.tema?.id ? { id: config.tema.id } : null,
       fiera        : { id: fieraId },
       intervenciones,
@@ -354,6 +394,100 @@ export class DebateService {
     };
 
     return this.http.post<DebateApi>(`${API_BASE}/api/app/debates/new-debate`, body);
+  }
+
+  /* ----------------------------------------------------------
+     getCodigoSesion()
+     Solo LEE el código de sesión ya generado (o null si aún
+     no existe). Segura de usar directamente en un getter del
+     componente que se evalúa durante el renderizado de la
+     plantilla — nunca escribe en la señal.
+  ---------------------------------------------------------- */
+  getCodigoSesion(): string | null {
+    return this._codigoSesion();
+  }
+
+  /* ----------------------------------------------------------
+     asegurarCodigoSesion()
+     Genera el código de invitación UNA sola vez por sesión de
+     wizard (si no existe ya) y lo guarda. IMPORTANTE: llamar
+     SIEMPRE desde fuera del renderizado de la plantilla —
+     ngOnInit(), constructor, un manejador de evento, etc.
+     Llamarla desde un getter usado en el HTML provoca el error
+     de Angular "NG0600: Writing to signals is not allowed
+     while Angular renders the template".
+  ---------------------------------------------------------- */
+  asegurarCodigoSesion(): string {
+    const actual = this._codigoSesion();
+    if (actual) return actual;
+    const nuevo = this.generarCodigo('DBT');
+    this._codigoSesion.set(nuevo);
+    return nuevo;
+  }
+
+  /* Limpia el código de sesión — llamar al empezar un wizard
+     nuevo (p. ej. junto a resetConfig()) para que el siguiente
+     debate genere un código distinto */
+  resetCodigoSesion(): void {
+    this._codigoSesion.set(null);
+  }
+
+  /* ----------------------------------------------------------
+     generarCodigo()
+     Código único con prefijo por tipo de entidad, para poder
+     distinguir a simple vista debates ('DBT'), ligas ('LIG'),
+     clubs ('CLB'), etc. cuando se implementen sus propios
+     códigos de invitación. 8 caracteres alfanuméricos en
+     mayúsculas, excluyendo 0/O/1/I para evitar confusión visual.
+  ---------------------------------------------------------- */
+  private generarCodigo(prefijo: string, longitud: number = 8): string {
+    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let codigo = '';
+    for (let i = 0; i < longitud; i++) {
+      codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    }
+    return `${prefijo}-${codigo}`;
+  }
+
+  /* ----------------------------------------------------------
+     unirseDebatePorCodigo()
+     POST /join/codigo-{codigo}-{userId}
+     Devuelve el DebateApi completo si el código existe, o
+     lanza error (404 con message: "No existe un debate con
+     ese código.") que el componente debe capturar y mostrar.
+  ---------------------------------------------------------- */
+  unirseDebatePorCodigo(codigo: string, userId?: number) {
+    const id = userId ?? this.auth.usuario()?.id ?? 4;
+    return this.http.post<DebateApi>(
+      `${API_BASE}/api/app/debates/join/codigo-${codigo}-${id}`,
+      {}
+    ).pipe(
+      tap(debate => {
+        if (debate) this.setDebateActivo(debate);
+      })
+    );
+  }
+
+  /* ----------------------------------------------------------
+     unirseDebatePorEnlace()
+     POST /join/enlace-{enlace}-{userId}
+  ---------------------------------------------------------- */
+  unirseDebatePorEnlace(enlace: string, userId?: number) {
+    const id = userId ?? this.auth.usuario()?.id ?? 4;
+    return this.http.post<DebateApi>(
+      `${API_BASE}/api/app/debates/join/enlace-${enlace}-${id}`,
+      {}
+    ).pipe(
+      tap(debate => {
+        if (debate) this.setDebateActivo(debate);
+      })
+    );
+  }
+
+  /* Construye el enlace de invitación (URL de la propia app)
+     a partir del código del debate */
+  construirEnlaceDebate(codigo: string): string {
+    return `${window.location.origin}${window.location.pathname}#/unirse-debate/${codigo}`;
   }
 
   /* ----------------------------------------------------------
@@ -523,6 +657,7 @@ export class DebateService {
 
   resetConfig(): void {
     this._config.set({ ...CONFIG_INICIAL });
+    this.resetCodigoSesion();
   }
 
   /* ----------------------------------------------------------
@@ -546,6 +681,12 @@ export class DebateService {
     return [];
   }
 
+  /* Extrae el usuarioId de un ResultadoApi sea cual sea el
+     formato en que llegue (objeto usuario{id} o plano usuarioId) */
+  private obtenerUsuarioIdDeResultado(r: ResultadoApi): number | undefined {
+    return r.usuario?.id ?? r.usuarioId;
+  }
+
   /* Devuelve el resultado del usuario actual. Si no se pasa
      usuarioId explícito, usa el del usuario logueado. */
   obtenerResultadoUsuario(usuarioId?: number): ResultadoApi | null {
@@ -553,7 +694,7 @@ export class DebateService {
     if (!lista.length) return null;
     const id = usuarioId ?? this.auth.usuario()?.id;
     if (id != null) {
-      return lista.find(r => r.usuarioId === id) ?? lista[0];
+      return lista.find(r => this.obtenerUsuarioIdDeResultado(r) === id) ?? lista[0];
     }
     return lista[0];
   }
@@ -572,32 +713,17 @@ export class DebateService {
     return datos ? JSON.parse(datos) : null;
   }
 
-  /* ── Reto del día — tema y duración compartidos por todos los usuarios ── */
+  /* ── Reto del día — Careo. Delega el hash de fecha en RetosService,
+     compartido con Preguntón (y Clash cuando toque) ── */
 
-  /** Hash simple y determinista a partir de la fecha (YYYY-MM-DD) */
-  private seedDelDia(fecha: string): number {
-    let hash = 0;
-    for (let i = 0; i < fecha.length; i++) {
-      hash = (hash << 5) - hash + fecha.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash);
-  }
-
-  private fechaHoy(): string {
-    return new Date().toISOString().split('T')[0];
-  }
-
-  /** Tema del Careo/reto del día — mismo para todos, cambia cada 24h */
+  /** Tema del Careo — mismo para todos, cambia cada 24h */
   getTemaDelDia(temas: TemaApi[]): TemaApi | null {
-    if (!temas.length) return null;
-    const seed = this.seedDelDia(this.fechaHoy());
-    return temas[seed % temas.length];
+    return this.retos.elegirDelDia(temas);
   }
 
-  /** Duración por turno del reto del día — 60 o 120 segundos, cambia cada 24h */
+  /** Duración por turno del Careo — 60 o 120 segundos, cambia cada 24h */
   getTiempoPorTurnoDelDia(): 60 | 120 {
-    const seed = this.seedDelDia(this.fechaHoy());
-    return seed % 2 === 0 ? 60 : 120;
+    return this.retos.seedDelDia() % 2 === 0 ? 60 : 120;
   }
+
 }

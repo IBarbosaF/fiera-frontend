@@ -1,59 +1,105 @@
 <!-- ============================================================
-     Unirse a un debate — box de código
+     UnirseDebate — Unirse a un debate mediante código
 ============================================================ -->
-<div class="ul-layout">
-  <div class="ul-card">
+<div class="unirse-layout">
 
-    @if (!exito()) {
+  <div class="unirse-card">
 
-      <!-- ── Estado: formulario de código ── -->
-      <div class="ul-icono">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <a routerLink="/" class="unirse-volver">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Volver al inicio
+    </a>
+
+    <!-- ── ESTADO: inicial (input de código) ── -->
+    @if (estado() === 'inicial') {
+      <div class="unirse-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </div>
+      <h1 class="unirse-titulo">Unirse a un debate</h1>
+      <p class="unirse-subtitulo">Introduce el código de invitación que te ha compartido el anfitrión.</p>
+
+      <div class="unirse-input-wrapper">
+        <input
+          type="text"
+          class="unirse-input"
+          placeholder="DBT-XXXXXXXX"
+          maxlength="12"
+          [value]="codigoInput()"
+          (input)="actualizarCodigo($any($event.target).value)"
+          (keydown.enter)="intentarUnirse()" />
       </div>
 
-      <h1 class="ul-titulo">{{ TITULO }}</h1>
-      <p class="ul-subtitulo">{{ SUBTITULO }}</p>
+      <button class="btn-primary btn-full" [disabled]="!codigoInput().trim()" (click)="intentarUnirse()">
+        UNIRSE AL DEBATE
+      </button>
+    }
 
-      <div class="ul-form-group">
-        <div class="ul-input-wrapper" [class.error]="error()">
-          <input type="text"
-                 class="ul-input"
-                 [placeholder]="PLACEHOLDER"
-                 [value]="codigo()"
-                 (input)="setCodigo($any($event.target).value)"
-                 (keydown.enter)="validarCodigo()" />
+    <!-- ── ESTADO: buscando (primera comprobación) ── -->
+    @if (estado() === 'buscando') {
+      <div class="unirse-spinner"></div>
+      <h1 class="unirse-titulo">Buscando el debate...</h1>
+      <p class="unirse-subtitulo">Un momento, estamos comprobando el código.</p>
+    }
+
+    <!-- ── ESTADO: esperando (reintentos automáticos) ── -->
+    @if (estado() === 'esperando') {
+      <div class="unirse-spinner"></div>
+      <h1 class="unirse-titulo">Esperando al anfitrión</h1>
+      <p class="unirse-subtitulo">
+        El anfitrión está configurando el debate, esto puede tardar unos minutos.
+        Te uniremos automáticamente en cuanto esté listo.
+      </p>
+
+      <div class="unirse-progreso-wrapper">
+        <div class="unirse-progreso-track">
+          <div class="unirse-progreso-fill" [style.width.%]="progresoEspera"></div>
         </div>
-        @if (error()) {
-          <p class="ul-error">{{ error() }}</p>
-        }
+        <div class="unirse-progreso-info">
+          <span>{{ tiempoTranscurrido }}</span>
+          <span>máx. 3:00</span>
+        </div>
       </div>
 
-      <button class="ul-btn-unirse" [disabled]="cargando()" (click)="validarCodigo()">
-        @if (cargando()) {
-          <span class="ul-spinner"></span>
-          Comprobando...
-        } @else {
-          UNIRSE
-        }
-      </button>
+      <button class="btn-secondary btn-full" (click)="cancelarEspera()">Cancelar</button>
+    }
 
-      <a class="ul-link-explorar" [routerLink]="RUTA_EXPLORAR">{{ TEXTO_EXPLORAR }}</a>
-
-    } @else {
-
-      <!-- ── Estado: éxito ── -->
-      <div class="ul-icono ul-icono-exito">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <!-- ── ESTADO: error ── -->
+    @if (estado() === 'error') {
+      <div class="unirse-icono unirse-icono-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
       </div>
+      <h1 class="unirse-titulo">No se pudo unir</h1>
+      <p class="unirse-subtitulo">{{ errorMensaje() }}</p>
 
-      <h1 class="ul-titulo">{{ EXITO_TITULO }}</h1>
-      <p class="ul-subtitulo">{{ EXITO_DESC }}</p>
+      <button class="btn-primary btn-full" (click)="reintentarDesdeError()">Probar de nuevo</button>
+    }
 
-      <button class="ul-btn-unirse" (click)="continuar()">
-        {{ CTA_EXITO }}
-      </button>
-
+    <!-- ── ESTADO: éxito ── -->
+    @if (estado() === 'exito') {
+      <div class="unirse-icono unirse-icono-exito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h1 class="unirse-titulo">¡Te has unido!</h1>
+      <p class="unirse-subtitulo">Entrando al debate...</p>
     }
 
   </div>
+
 </div>

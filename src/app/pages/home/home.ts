@@ -314,6 +314,41 @@ export class Home implements OnInit {
     return `${usuario.nombre?.charAt(0) ?? ''}${usuario.apellidos?.charAt(0) ?? ''}`.toUpperCase();
   }
 
+  /* ── Modal día — lista de eventos si hay más de uno ── */
+  diaSeleccionado = signal<DiaCalendario | null>(null);
+  modalDiaAbierto = signal(false);
+
+  abrirModalDia(dia: DiaCalendario): void {
+    if (dia.eventos.length === 0) return;
+    this.diaSeleccionado.set(dia);
+    this.modalDiaAbierto.set(true);
+  }
+
+  cerrarModalDia(): void {
+    this.modalDiaAbierto.set(false);
+    this.diaSeleccionado.set(null);
+  }
+
+  cerrarModalDiaFuera(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
+      this.cerrarModalDia();
+    }
+  }
+
+  abrirEventoDesdeModalDia(evento: EventoDebate): void {
+    this.cerrarModalDia();
+    setTimeout(() => {
+      this.eventoSeleccionado.set(evento);
+      this.modalEventoAbierto.set(true);
+    }, 150);
+  }
+
+  formatearFechaDia(fecha: Date): string {
+    return fecha.toLocaleDateString('es-ES', {
+      weekday: 'long', day: 'numeric', month: 'long'
+    });
+  }
+
   /* ----------------------------------------------------------
      Dropdowns — notificaciones y calendario
   ---------------------------------------------------------- */

@@ -24,6 +24,7 @@
 
   <!-- ══ STATS ══ -->
   <div class="stats-row">
+
     <div class="stat-card">
       <div class="stat-icono">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -35,7 +36,7 @@
         </svg>
       </div>
       <div>
-        <p class="stat-valor">{{ totalPreguntas.toLocaleString('es-ES') }}</p>
+        <p class="stat-valor">{{ totalPreguntas() }}</p>
         <p class="stat-label">Preguntas disponibles</p>
       </div>
     </div>
@@ -49,7 +50,7 @@
         </svg>
       </div>
       <div>
-        <p class="stat-valor">{{ totalTorneos }}</p>
+        <p class="stat-valor">{{ totalTorneos() }}</p>
         <p class="stat-label">Torneos registrados</p>
       </div>
     </div>
@@ -65,14 +66,16 @@
         </svg>
       </div>
       <div>
-        <p class="stat-valor">{{ aniosHistorial }}</p>
+        <p class="stat-valor">{{ aniosHistorial() }}</p>
         <p class="stat-label">Años de historial</p>
       </div>
     </div>
+
   </div>
 
   <!-- ══ TABS ══ -->
   <div class="tabs-row">
+
     <div class="tab-item"
          [class.activo]="tab() === 'oficiales'"
          (click)="setTab('oficiales')">
@@ -103,17 +106,18 @@
     </div>
 
     <div class="tab-item"
-      [class.activo]="tab() === 'coleccion'"
-      (click)="setTab('coleccion')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-        stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-    </svg>
-    <div>
-      <p class="tab-titulo">TU COLECCIÓN</p>
-      <p class="tab-desc">Tus preguntas favoritas ({{ totalColeccion() }})</p>
+         [class.activo]="tab() === 'coleccion'"
+         (click)="setTab('coleccion')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      <div>
+        <p class="tab-titulo">TU COLECCIÓN</p>
+        <p class="tab-desc">Tus preguntas favoritas ({{ totalColeccion() }})</p>
+      </div>
     </div>
-  </div>
+
   </div>
 
   <!-- ══ BUSCADOR + FILTROS ══ -->
@@ -169,8 +173,8 @@
   <!-- ══ TABLA ══ -->
   <div class="tabla-wrapper">
 
-    <!-- Cabecera tabla -->
-    <div class="tabla-header" [class.tabla-header--comunidad]="tab() === 'comunidad'">
+    <!-- Cabecera -->
+    <div class="tabla-header">
       <span class="th-pregunta">PREGUNTA</span>
       @if (tab() === 'oficiales') {
         <span class="th-torneo">TORNEO</span>
@@ -185,15 +189,24 @@
       <span class="th-like"></span>
     </div>
 
-    <!-- Filas -->
-    @if (preguntasPagina().length === 0) {
+    <!-- Contenido -->
+    @if (cargando()) {
+      <div class="tabla-vacia">
+        <p class="tabla-vacia-titulo">Cargando preguntas...</p>
+      </div>
+    } @else if (errorCarga()) {
+      <div class="tabla-vacia">
+        <p class="tabla-vacia-titulo">Error al cargar las preguntas</p>
+        <button class="btn-limpiar" (click)="cargarPreguntas()">Reintentar</button>
+      </div>
+    } @else if (preguntasPagina().length === 0) {
       <div class="tabla-vacia">
         <p class="tabla-vacia-titulo">No se encontraron preguntas</p>
         <p class="tabla-vacia-desc">Prueba con otro término o limpia los filtros.</p>
       </div>
     } @else {
       @for (p of preguntasPagina(); track p.id) {
-        <div class="tabla-row" [class.tabla-row--comunidad]="tab() === 'comunidad'">
+        <div class="tabla-row">
 
           <div class="td-pregunta">{{ p.pregunta }}</div>
 
@@ -206,7 +219,6 @@
               </svg>
               <div>
                 <p class="td-torneo-nombre">{{ p.torneo }}</p>
-                <p class="td-torneo-club">{{ p.club }}</p>
               </div>
             </div>
           } @else {
@@ -245,9 +257,9 @@
                     [class.liked]="p.likedPorMi"
                     (click)="toggleLike(p, $event)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round" width="16" height="16"
-                   [style.fill]="p.likedPorMi ? '#ff3a72' : 'none'"
-                   [style.stroke]="p.likedPorMi ? '#ff3a72' : 'currentColor'">
+                  stroke-linecap="round" stroke-linejoin="round" width="16" height="16"
+                  [style.fill]="p.likedPorMi ? '#ff3a72' : 'none'"
+                  [style.stroke]="p.likedPorMi ? '#ff3a72' : 'currentColor'">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
               <span class="like-count">{{ p.likes }}</span>
@@ -263,7 +275,10 @@
   <!-- ══ PAGINACIÓN ══ -->
   @if (totalPaginas() > 1) {
     <div class="paginacion-row">
-      <button class="pag-btn pag-btn--texto" [disabled]="paginaActual() === 1" (click)="anterior()">
+
+      <button class="pag-btn pag-btn--texto"
+              [disabled]="paginaActual() === 1"
+              (click)="anterior()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
           <polyline points="15 18 9 12 15 6"/>
@@ -283,19 +298,22 @@
         }
       }
 
-      <button class="pag-btn pag-btn--texto" [disabled]="paginaActual() === totalPaginas()" (click)="siguiente()">
+      <button class="pag-btn pag-btn--texto"
+              [disabled]="paginaActual() === totalPaginas()"
+              (click)="siguiente()">
         Siguiente
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </button>
+
     </div>
   }
 
 </div>
 
-<!-- ══ MODAL PREGUNTA NUEVA (visual) ══ -->
+<!-- ══ MODAL PREGUNTA NUEVA ══ -->
 @if (modalNuevaAbierto()) {
   <div class="modal-overlay" (click)="cerrarModalNuevaFuera($event)">
     <div class="modal-card modal-pregunta-nueva">
@@ -352,6 +370,7 @@
       <p class="modal-pregunta-preview">"{{ preguntaCompartir() }}"</p>
 
       <div class="compartir-opciones">
+
         <button class="compartir-opcion" (click)="compartirEn('whatsapp')">
           <span class="compartir-icono compartir-icono--whatsapp">
             <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
@@ -360,6 +379,7 @@
           </span>
           WhatsApp
         </button>
+
         <button class="compartir-opcion" (click)="compartirEn('telegram')">
           <span class="compartir-icono compartir-icono--telegram">
             <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
@@ -368,6 +388,7 @@
           </span>
           Telegram
         </button>
+
         <button class="compartir-opcion" (click)="compartirEn('gmail')">
           <span class="compartir-icono compartir-icono--gmail">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -378,6 +399,7 @@
           </span>
           Gmail
         </button>
+
         <button class="compartir-opcion" (click)="compartirEn('outlook')">
           <span class="compartir-icono compartir-icono--outlook">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -388,6 +410,7 @@
           </span>
           Outlook
         </button>
+
       </div>
 
     </div>

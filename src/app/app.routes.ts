@@ -93,6 +93,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/debate/unirse-debate/unirse-debate').then(m => m.UnirseDebate)
       },
+      {
+        path        : 'unirse-debate/:codigo',
+        loadComponent: () =>
+          import('./pages/debate/unirse-debate/unirse-debate').then(m => m.UnirseDebate)
+      },
       /* Ranking */
       {
         path        : 'ranking',

@@ -1020,6 +1020,72 @@
   padding  : 16px 0;
   text-align: center;
 }
+
+.modal-dia-eventos {
+  max-width: 380px;
+}
+
+.modal-dia-titulo {
+  text-transform: capitalize;
+  margin-bottom : 16px;
+}
+
+.dia-eventos-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 8px;
+}
+
+.dia-evento-item {
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+  background   : rgba(255,255,255,0.03);
+  border       : 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding      : 12px 14px;
+  cursor       : pointer;
+  transition   : background 0.2s, border-color 0.2s;
+}
+
+.dia-evento-item:hover {
+  background  : rgba(21,111,231,0.06);
+  border-color: rgba(21,111,231,0.3);
+}
+
+.dia-evento-item svg {
+  color      : var(--texto-muted);
+  flex-shrink: 0;
+}
+
+.dia-evento-badge {
+  font-size    : 0.62rem;
+  font-weight  : 700;
+  padding      : 3px 8px;
+  border-radius: 20px;
+  white-space  : nowrap;
+  flex-shrink  : 0;
+}
+
+.dia-evento-badge--oficial  { background: rgba(21,111,231,0.15); color: #6ba8f5; }
+.dia-evento-badge--retorika { background: rgba(139,92,246,0.15); color: #a78bfa; }
+
+.dia-evento-info { flex: 1; min-width: 0; }
+
+.dia-evento-nombre {
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  color        : #ffffff;
+  margin-bottom: 2px;
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+
+.dia-evento-lugar {
+  font-size: 0.75rem;
+  color    : var(--texto-muted);
+}
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════════════════════ */

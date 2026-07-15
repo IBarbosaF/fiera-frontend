@@ -52,8 +52,14 @@
     </div>
 
     <div class="debate-header-der">
-      <div class="debate-turno-badge" [class.fiera]="!esTuTurno">
-        {{ esTuTurno ? 'TU TURNO' : 'TURNO DE FIERA' }}
+      <div class="debate-turno-badge"
+          [class.fiera]="subTurnoInfo?.quien === 'fiera'"
+          [class.companero]="subTurnoInfo?.quien === 'companero'">
+        @switch (subTurnoInfo?.quien) {
+          @case ('fiera') { TURNO DE FIERA }
+          @case ('companero') { TURNO DE COMPAÑERO }
+          @default { TU TURNO }
+        }
       </div>
       <div class="debate-fiera-avatar" [class.hablando]="fieraHablando()">
         <img src="assets/fieraLogo.png" alt="FIERA" />
