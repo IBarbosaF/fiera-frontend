@@ -141,77 +141,10 @@
             </svg>
             Logros
           </div>
-          <span class="perfil-logros-contador">{{ logrosDesbloqueados }} / {{ logros.length }}</span>
         </div>
 
-        <div class="perfil-logros-grid">
-          @for (logro of logros; track logro.id) {
-            <div class="perfil-logro" [class.perfil-logro--bloqueado]="!logro.desbloqueado">
-              <div class="perfil-logro-icono">
-                @if (logro.icono === 'espada') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-                    <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/>
-                    <line x1="13" y1="19" x2="19" y2="13"/>
-                    <line x1="16" y1="16" x2="20" y2="20"/>
-                    <line x1="19" y1="21" x2="21" y2="19"/>
-                  </svg>
-                }
-                @if (logro.icono === 'fuego') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-                  </svg>
-                }
-                @if (logro.icono === 'escudo') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  </svg>
-                }
-                @if (logro.icono === 'trofeo') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-                    <polyline points="8 17 12 21 16 17"/>
-                    <line x1="12" y1="12" x2="12" y2="21"/>
-                    <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/>
-                  </svg>
-                }
-                @if (logro.icono === 'rayo') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                  </svg>
-                }
-                @if (logro.icono === 'brujula') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                      stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
-                  </svg>
-                }
-              </div>
-              <div class="perfil-logro-info">
-                <p class="perfil-logro-nombre">{{ logro.nombre }}</p>
-                <p class="perfil-logro-desc">{{ logro.descripcion }}</p>
-                @if (logro.desbloqueado && logro.fecha) {
-                  <span class="perfil-logro-fecha">{{ logro.fecha }}</span>
-                }
-              </div>
-              @if (!logro.desbloqueado) {
-                <div class="perfil-logro-lock">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                </div>
-              }
-            </div>
-          }
-        </div>
+        <p class="perfil-stats-vacio">Todavía no hay logros disponibles. Esta sección se activará próximamente.</p>
       </div>
-
     </div><!-- /col izq -->
 
     <!-- COL DER: Stats + Historial -->

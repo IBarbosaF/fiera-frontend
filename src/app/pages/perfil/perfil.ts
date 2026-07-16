@@ -6,16 +6,6 @@ import { AuthService, Usuario } from '../../core/services/auth.service';
 import { DebateApi, ResultadoApi } from '../../core/services/debate.service';
 import { DatePipe } from '@angular/common';
 
-/* Badge visual de logro — sigue siendo mock, no hay soporte
-   en el schema de Usuario para logros todavía */
-export interface Logro {
-  id          : string;
-  nombre      : string;
-  descripcion : string;
-  icono       : string;
-  desbloqueado: boolean;
-  fecha?      : string;
-}
 
 /* Fila de historial ya formateada para pintar en el HTML */
 export interface FilaHistorial {
@@ -150,21 +140,6 @@ export class Perfil implements OnInit {
   mediaEvidencia    = computed(() => this.mediaCampo('scoreEvidence'));
   mediaClaridad     = computed(() => this.mediaCampo('scoreClarity'));
 
-  /* ══════════════════════════════════════════
-     LOGROS — sigue mock, no hay campo en el schema
-  ══════════════════════════════════════════ */
-  logros: Logro[] = [
-    { id: 'primer-debate', nombre: 'Primera sangre',    descripcion: 'Completa tu primer debate',        icono: 'espada',  desbloqueado: true,  fecha: '1 jun 2025'  },
-    { id: 'racha-3',       nombre: 'En racha',          descripcion: '3 victorias consecutivas',         icono: 'fuego',   desbloqueado: true,  fecha: '14 jun 2025' },
-    { id: 'maestro-ref',   nombre: 'Maestro refutador', descripcion: 'Gana 5 debates en refutación',     icono: 'escudo',  desbloqueado: false  },
-    { id: 'imbatible',     nombre: 'Imbatible',         descripcion: '10 victorias en modo avanzado',    icono: 'trofeo',  desbloqueado: false  },
-    { id: 'velocista',     nombre: 'Velocista',         descripcion: 'Completa un debate express',       icono: 'rayo',    desbloqueado: true,  fecha: '10 jun 2025' },
-    { id: 'explorador',    nombre: 'Explorador',        descripcion: 'Debate en 5 categorías distintas', icono: 'brujula', desbloqueado: false  },
-  ];
-
-  get logrosDesbloqueados(): number {
-    return this.logros.filter(l => l.desbloqueado).length;
-  }
 
   get puntos()      { return this.usuario()?.puntos      ?? 0; }
   get ranking()     { return this.usuario()?.ranking     ?? '--'; }
