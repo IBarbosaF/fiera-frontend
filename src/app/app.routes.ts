@@ -14,6 +14,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/debate/partida-debate/partida-debate').then(m => m.PartidaDebate)
   },
+  {
+  path        : 'sala-espera',
+  loadComponent: () =>
+    import('./pages/debate/sala-espera/sala-espera').then(m => m.SalaEspera)
+  },
 
   /* ── Rutas con MainLayout — sidebar global ─────────────── */
   {

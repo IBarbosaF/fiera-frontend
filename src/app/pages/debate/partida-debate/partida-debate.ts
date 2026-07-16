@@ -16,6 +16,14 @@ export interface SubTurno {
   quien         : 'equipo' | 'fiera' | 'companero';
   duracion      : number;
   postura       : 'favor' | 'contra';
+  /* Hora real de inicio del turno (ISO), viene del backend tras
+     /turnos/next. Si no viene, se usa el timer local como fallback. */
+  startedAt?    : string | null;
+    /* Id real del usuario dueño de este turno (viene de la
+     intervención del backend) — se usa para saber si ESTE
+     dispositivo/usuario concreto puede interactuar, en vez de
+     solo distinguir "humano" de "FIERA" de forma genérica. */
+  usuarioId?    : number | null;
 }
 
 export interface ItemHistorial {
@@ -131,7 +139,8 @@ export class PartidaDebate implements OnInit, OnDestroy {
       nombre        : t.nombre,
       quien         : (t.asignado === 'yo' ? 'equipo' : t.asignado) as SubTurno['quien'],
       duracion      : t.segundos ?? t.minutos * 60,
-      postura       : t.postura
+      postura       : t.postura,
+      startedAt     : intervenciones[index]?.startedAt ?? null
     }));
   }
 
@@ -238,9 +247,35 @@ export class PartidaDebate implements OnInit, OnDestroy {
 
   /* Arranca el timer real del sub-turno (una vez pasada la
      fase de preparación) */
+  /* Lee el startedAt más reciente de esta intervención desde el
+     debate activo actual (más fiable que el valor capturado al
+     construir la secuencia al inicio, ya que se actualiza en
+     cada avanzarTurno()) */
+  private obtenerStartedAtFresco(sub: SubTurno): string | null {
+    const debateActivo = this.debateService.getDebateActivo();
+    const intervencion = debateActivo?.intervenciones.find(i => i.id === sub.intervencionId);
+    return intervencion?.startedAt ?? sub.startedAt ?? null;
+  }
+
   private arrancarTimerReal(sub: SubTurno): void {
-    this.segundosRest.set(sub.duracion);
-    this.timerUrgente.set(false);
+    /* Si el backend nos da la hora real de inicio del turno,
+       calculamos cuánto tiempo ha pasado ya (por ejemplo, si
+       otro dispositivo del mismo debate lo vio arrancar antes)
+       y sincronizamos el countdown real. Si no viene, se
+       comporta igual que antes: arranca desde la duración total. */
+    const startedAt = this.obtenerStartedAtFresco(sub);
+    let segundosIniciales = sub.duracion;
+
+    if (startedAt) {
+      const inicioMs      = new Date(startedAt).getTime();
+      const transcurridos = Math.floor((Date.now() - inicioMs) / 1000);
+      if (!Number.isNaN(transcurridos)) {
+        segundosIniciales = Math.max(0, sub.duracion - transcurridos);
+      }
+    }
+
+    this.segundosRest.set(segundosIniciales);
+    this.timerUrgente.set(segundosIniciales <= 30);
     this.actualizarSvg();
 
     this.limpiarTimers();
@@ -635,11 +670,21 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   get esTuTurno(): boolean {
-    return this.subTurnoInfo?.quien !== 'fiera';
+    return this.subTurnoInfo?.quien === 'equipo';
   }
 
   get esRefutacion(): boolean {
     return this.subTurnoInfo?.id.startsWith('ref') ?? false;
+  }
+
+    get textoBadgeTurno(): string {
+    const sub = this.subTurnoInfo;
+    if (!sub || sub.quien === 'fiera') return 'TURNO DE FIERA';
+    if (this.esTuTurno) return 'TU TURNO';
+
+    const debateActivo = this.debateService.getDebateActivo();
+    const usuario = debateActivo?.usuarios.find(u => u.id === sub.usuarioId);
+    return usuario ? `TURNO DE ${usuario.nombre.toUpperCase()}` : 'TURNO DE COMPAÑERO';
   }
 
   formatearSegundos(seg: number): string {

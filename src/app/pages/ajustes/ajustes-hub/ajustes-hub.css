@@ -19,6 +19,7 @@
 /* ── Header ── */
 .hub-header {
   margin-bottom: 32px;
+  text-align   : center;
 }
 
 .hub-titulo {

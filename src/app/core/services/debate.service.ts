@@ -127,18 +127,25 @@ export interface IntervencionRequest {
 }
 
 export interface DebateRequest {
-  modo          : string;
-  dificultad    : string;
-  status        : string;
-  creadoA       : string;
-  temaElegido   : string;
-  posturaFiera  : string;
-  codigo        : string;
-  usuarios      : { id: number }[];
-  tema          : { id: number } | null;
-  fiera         : { id: number };
-  intervenciones: IntervencionRequest[];
-  resultado     : null;
+  modo             : string;
+  dificultad       : string;
+  status           : string;
+  creadoA          : string;
+  temaElegido      : string;
+  posturaFiera     : string;
+  codigo           : string;
+  creador          : { id: number };
+  usuarios         : { id: number }[];
+  /* Lista de invitados de partida: incluye al creador y a
+     cualquier compañero que se pretenda que se una. Se compara
+     luego contra `usuarios` (quienes ya se han unido de verdad)
+     para decidir si el debate puede arrancar o hay que
+     reconfigurar con PUT /update/{id}. */
+  usuariosInvitados: { id: number }[];
+  tema             : { id: number } | null;
+  fiera            : { id: number };
+  intervenciones   : IntervencionRequest[];
+  resultado        : null;
 }
 
 export interface RespuestaFiera {
@@ -164,6 +171,10 @@ export interface IntervencionApi {
   estado          : string;
   speakerInputType: string;
   mensajeError?   : string | null;
+  /* Hora de inicio real del turno (ISO), la rellena el backend
+     al llamar a /turnos/next. Se usa para sincronizar el timer
+     entre varios dispositivos en un debate multi-usuario. */
+  startedAt?      : string | null;
 }
 
 /* Usuario participante en el debate (preparado para varios) */
@@ -172,6 +183,17 @@ export interface UsuarioDebate {
   nombre    : string;
   username  : string;
   imgPerfil?: string | null;
+}
+
+/* Datos mínimos para buscar/mostrar un usuario en el selector
+   de "invitar compañero" — el endpoint GET /usuarios devuelve
+   muchos más campos, pero solo nos interesan estos */
+export interface UsuarioBusqueda {
+  id       : number;
+  nombre   : string;
+  apellidos: string;
+  username : string;
+  imgPerfil: string | null;
 }
 
 /* ----------------------------------------------------------
@@ -305,6 +327,18 @@ export class DebateService {
   }
 
   /* ----------------------------------------------------------
+     getUsuarios()
+     GET /api/app/usuarios — trae TODOS los usuarios (el
+     endpoint no acepta filtros por query). Se usa para poder
+     buscar/seleccionar al compañero real a invitar al crear un
+     debate — el filtrado por nombre/username se hace en el
+     frontend sobre esta lista completa.
+  ---------------------------------------------------------- */
+  getUsuarios() {
+    return this.http.get<UsuarioBusqueda[]>(`${API_BASE}/api/app/usuarios`);
+  }
+
+  /* ----------------------------------------------------------
      guardarSubturnos() / cargarSubturnos()
      Persiste los subturnos expandidos del wizard
   ---------------------------------------------------------- */
@@ -373,24 +407,32 @@ export class DebateService {
 
     const codigo = this.asegurarCodigoSesion();
 
-    const usuariosBody: { id: number }[] = [{ id: usuarioId }];
+    /* `usuarios` = quién se ha unido DE VERDAD al debate — al
+       crearlo, solo el creador (el compañero aún no se ha unido
+       realmente, aunque ya tenga turnos asignados por adelantado).
+       `usuariosInvitados` = la lista completa de quién debería
+       unirse. sala-espera compara ambas listas para saber quién
+       falta por unirse. */
+    const usuariosInvitadosBody: { id: number }[] = [{ id: usuarioId }];
     if (companeroId && intervenciones.some(i => i.usuario?.id === companeroId)) {
-      usuariosBody.push({ id: companeroId });
+      usuariosInvitadosBody.push({ id: companeroId });
     }
 
     const body: DebateRequest = {
-      modo         : config.modo,
-      dificultad   : config.dificultad,
-      status       : 'CREATED',
-      creadoA      : new Date().toISOString(),
-      temaElegido  : config.tema?.enunciado ?? '',
+      modo             : config.modo,
+      dificultad       : config.dificultad,
+      status           : 'CREATED',
+      creadoA          : new Date().toISOString(),
+      temaElegido      : config.tema?.enunciado ?? '',
       posturaFiera,
       codigo,
-      usuarios     : usuariosBody,
-      tema         : config.tema?.id ? { id: config.tema.id } : null,
-      fiera        : { id: fieraId },
+      creador          : { id: usuarioId },
+      usuarios         : [{ id: usuarioId }],
+      usuariosInvitados: usuariosInvitadosBody,
+      tema             : config.tema?.id ? { id: config.tema.id } : null,
+      fiera            : { id: fieraId },
       intervenciones,
-      resultado    : null
+      resultado        : null
     };
 
     return this.http.post<DebateApi>(`${API_BASE}/api/app/debates/new-debate`, body);
@@ -488,6 +530,71 @@ export class DebateService {
      a partir del código del debate */
   construirEnlaceDebate(codigo: string): string {
     return `${window.location.origin}${window.location.pathname}#/unirse-debate/${codigo}`;
+  }
+
+  /* ----------------------------------------------------------
+     obtenerDebateCompleto()
+     GET /api/app/debates/{id} — trae el objeto Debate COMPLETO
+     (el schema pesado, con usuarios anidados enteros, ligas,
+     clash, etc.) — distinto del DebateApi/DebateResponse ligero
+     que usa el resto del servicio. Es necesario como paso
+     previo a actualizarDebate(), ya que PUT /update/{id} exige
+     mandar el objeto entero, no un parcial.
+
+     Se tipa como `any` a propósito: el schema completo es muy
+     profundo y no aporta modelarlo entero en TypeScript solo
+     para hacer de intermediario en un round-trip GET→PUT.
+  ---------------------------------------------------------- */
+  obtenerDebateCompleto(debateId: number) {
+    return this.http.get<any>(`${API_BASE}/api/app/debates/${debateId}`);
+  }
+
+  /* ----------------------------------------------------------
+     actualizarDebate()
+     PUT /api/app/debates/update/{id} — exige el objeto Debate
+     COMPLETO (no parcial). Se le pasa el objeto ya modificado,
+     normalmente obtenido antes con obtenerDebateCompleto() y
+     mutado con reconfigurarConUnidos() o a mano.
+  ---------------------------------------------------------- */
+  actualizarDebate(debateId: number, debateCompleto: any) {
+    return this.http.put<any>(
+      `${API_BASE}/api/app/debates/update/${debateId}`,
+      debateCompleto
+    );
+  }
+
+  /* ----------------------------------------------------------
+     invitadosPendientes()
+     Compara usuariosInvitados vs usuarios de un debate
+     completo. Devuelve los ids de los invitados que TODAVÍA
+     no se han unido.
+  ---------------------------------------------------------- */
+  invitadosPendientes(debateCompleto: any): number[] {
+    const invitadosIds = (debateCompleto?.usuariosInvitados ?? []).map((u: any) => u.id);
+    const unidosIds     = (debateCompleto?.usuarios ?? []).map((u: any) => u.id);
+    return invitadosIds.filter((id: number) => !unidosIds.includes(id));
+  }
+
+  /* ----------------------------------------------------------
+     reconfigurarConUnidos()
+     Construye (sin mandar todavía) el objeto Debate listo para
+     el PUT que reconfigura el debate dejando en
+     usuariosInvitados SOLO a quienes sí se han unido a tiempo.
+
+     ⚠️ Pendiente de decidir con el equipo qué hacer con las
+     intervenciones que estaban asignadas a un invitado que
+     nunca llegó a unirse (¿se las queda el creador? ¿pasan a
+     FIERA? ¿el debate simplemente no puede reconfigurarse y
+     hay que crearlo de cero?) — de momento esta función SOLO
+     ajusta usuariosInvitados, no toca intervenciones.
+  ---------------------------------------------------------- */
+  reconfigurarConUnidos(debateCompleto: any): any {
+    const unidosIds = (debateCompleto.usuarios ?? []).map((u: any) => u.id);
+    return {
+      ...debateCompleto,
+      usuariosInvitados: (debateCompleto.usuariosInvitados ?? [])
+        .filter((u: any) => unidosIds.includes(u.id)),
+    };
   }
 
   /* ----------------------------------------------------------
@@ -725,5 +832,4 @@ export class DebateService {
   getTiempoPorTurnoDelDia(): 60 | 120 {
     return this.retos.seedDelDia() % 2 === 0 ? 60 : 120;
   }
-
 }

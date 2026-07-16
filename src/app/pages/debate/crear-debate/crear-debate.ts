@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DebateService, TemaApi, SubTurnoConfig } from '../../../core/services/debate.service';
+import { UsuarioBusqueda } from '../../../core/services/debate.service';
 
 /* ============================================================
    CrearDebate — Wizard dinámico
@@ -102,6 +103,17 @@ export class CrearDebate implements OnInit {
 
   /* ── Navegación ── */
   siguiente(): void {
+    if (this.pasoActivo() === 6 && this.modoDebate() === 'academico') {
+      const hayCompanero = this.intervenciones().some(
+        t => t.asignadoF === 'companero' || t.asignadoC === 'companero'
+      );
+      if (hayCompanero && !this.companeroSeleccionado()) {
+        this.errorSinCompanero.set(true);
+        return;
+      }
+    }
+    this.errorSinCompanero.set(false);
+
     if (this.pasoActivo() < this.totalPasos()) {
       this.pasoActivo.update(p => p + 1);
     }
@@ -256,45 +268,53 @@ export class CrearDebate implements OnInit {
   ];
 
   /* ────────────────────────────────────────────
-   PASO 2 (académico) — Invitar compañero
+    PASO 2 (académico) — Buscar e invitar compañero
+    El código/enlace ya NO se elige/muestra aquí — ahora se
+    selecciona a la PERSONA real que va a debatir, para que sus
+    turnos queden correctamente asignados desde la creación del
+    debate. El código se muestra más tarde, en sala-espera, una
+    vez el debate ya existe de verdad en el backend.
   ──────────────────────────────────────────── */
-  tabInvitar     = signal<'codigo' | 'enlace'>('codigo');
+  usuariosDisponibles   = signal<UsuarioBusqueda[]>([]);
+  cargandoUsuarios      = signal(false);
+  errorUsuarios         = signal(false);
+  busquedaCompanero     = signal('');
+  companeroSeleccionado = signal<UsuarioBusqueda | null>(null);
+  errorSinCompanero     = signal(false);
 
-  /* El código se genera UNA vez (vía el servicio) y se reutiliza
-    durante todo el wizard, para que coincida con el que
-    finalmente se manda al backend al crear el debate */
-  get codigoSesion(): string {
-    return this.debateService.getCodigoSesion() ?? '';
+  get usuariosFiltrados(): UsuarioBusqueda[] {
+    const texto = this.busquedaCompanero().trim().toLowerCase();
+    const lista = this.usuariosDisponibles();
+    if (!texto) return lista.slice(0, 20);
+    return lista.filter(u =>
+      `${u.nombre} ${u.apellidos}`.toLowerCase().includes(texto) ||
+      u.username.toLowerCase().includes(texto)
+    ).slice(0, 20);
   }
 
-  copiarCodigo(): void {
-    navigator.clipboard?.writeText(this.codigoSesion).catch(() => {});
+  cargarUsuarios(): void {
+    if (this.usuariosDisponibles().length) return; /* ya cargados */
+    this.cargandoUsuarios.set(true);
+    this.errorUsuarios.set(false);
+    this.debateService.getUsuarios().subscribe({
+      next : usuarios => { this.usuariosDisponibles.set(usuarios); this.cargandoUsuarios.set(false); },
+      error: ()        => { this.errorUsuarios.set(true); this.cargandoUsuarios.set(false); }
+    });
   }
 
-  enlaceCopiado = signal(false);
-
-  copiarEnlace(): void {
-    navigator.clipboard?.writeText(this.enlaceCompartir).catch(() => {});
-    this.enlaceCopiado.set(true);
-    setTimeout(() => this.enlaceCopiado.set(false), 2000);
+  seleccionarCompanero(usuario: UsuarioBusqueda): void {
+    this.companeroSeleccionado.set(usuario);
   }
 
-  compartirEnlace(): void {
-    if (window.innerWidth < 768 && navigator.share) {
-      navigator.share({
-        title: 'FIERA — Debate',
-        text : `¡Únete a mi debate en FIERA! Código: ${this.codigoSesion}`,
-        url  : this.enlaceCompartir
-      }).catch(() => {});
-      return;
-    }
-    this.modalCompartirAbierto.set(true);
+  quitarCompanero(): void {
+    this.companeroSeleccionado.set(null);
   }
 
-  modalCompartirAbierto = signal(false);
-
-  get enlaceCompartir(): string {
-    return this.debateService.construirEnlaceDebate(this.codigoSesion);
+  /** Formato compacto "L. Perea" — inicial del nombre + primer apellido */
+  formatearNombreCorto(u: UsuarioBusqueda): string {
+    const inicial  = u.nombre?.charAt(0)?.toUpperCase() ?? '';
+    const apellido = u.apellidos?.split(' ')[0] ?? '';
+    return `${inicial}. ${apellido}`.trim();
   }
 
   /* ────────────────────────────────────────────
@@ -482,25 +502,26 @@ export class CrearDebate implements OnInit {
     this.debateService.guardarConfig();
     this.debateService.guardarSubturnos(subturnos);
 
-      /* TODO prueba: id de usuario real existente en BD, usado
-        temporalmente para validar compi+compi VS FIERA hasta que
-        exista la unión dinámica por código con reasignación */
-      const hayCompanero  = subturnos.some(t => t.asignado === 'companero');
-      const companeroTest = hayCompanero ? 42 : null;
+    const hayCompanero = subturnos.some(t => t.asignado === 'companero');
+    const companeroId  = hayCompanero ? this.companeroSeleccionado()?.id ?? null : null;
 
     this.debateService.getFieras().subscribe(() => {
-      this.debateService.crearDebate(companeroTest).subscribe({
+      this.debateService.crearDebate(companeroId).subscribe({
         next: debate => {
           if (debate?.id) {
             this.debateService.setDebateId(debate.id);
             this.debateService.setDebateActivo(debate);
 
-            /* Arrancar el debate en el backend (obligatorio antes
-              de poder mandar turnos) y solo entonces navegar */
-            this.debateService.iniciarDebate(debate.id).subscribe({
-              next : () => this.router.navigate(['partida-debate']),
-              error: () => this.router.navigate(['partida-debate']) /* fallback: navegar igual */
-            });
+            if (hayCompanero) {
+              /* Hay invitados pendientes de unirse — pasamos por
+                la sala de espera antes de arrancar el debate */
+              this.router.navigate(['sala-espera']);
+            } else {
+              this.debateService.iniciarDebate(debate.id).subscribe({
+                next : () => this.router.navigate(['partida-debate']),
+                error: () => this.router.navigate(['partida-debate'])
+              });
+            }
           } else {
             this.router.navigate(['partida-debate']);
           }
@@ -524,5 +545,6 @@ export class CrearDebate implements OnInit {
     this.cargarTemas();
     this.debateService.getFieras().subscribe();
     this.debateService.asegurarCodigoSesion();
+    this.cargarUsuarios();
   }
 }

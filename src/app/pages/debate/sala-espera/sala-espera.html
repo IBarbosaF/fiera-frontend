@@ -1,0 +1,120 @@
+<!-- ============================================================
+     SalaEspera — Esperando a que se unan los invitados
+============================================================ -->
+<div class="sala-layout">
+
+  <div class="sala-card">
+
+    <!-- ── ESTADO: esperando ── -->
+    @if (estado() === 'esperando') {
+      <div class="sala-spinner"></div>
+      <h1 class="sala-titulo">Esperando a tu compañero</h1>
+      <p class="sala-subtitulo">Comparte el código para que se una a tu debate.</p>
+
+      <div class="codigo-bloque">
+        <span class="codigo-texto">{{ codigoSesion }}</span>
+        <button class="btn-copiar" (click)="copiarCodigo()" title="Copiar código">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (invitados().length > 0) {
+        <div class="invitados-lista">
+          @for (inv of invitados(); track inv.id) {
+            <div class="invitado-item" [class.unido]="inv.unido">
+              <div class="invitado-avatar">{{ inv.nombre.charAt(0) }}</div>
+              <span class="invitado-nombre">{{ inv.nombre }}</span>
+              @if (inv.unido) {
+                <span class="invitado-badge unido">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                       stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Unido
+                </span>
+              } @else {
+                <span class="invitado-badge pendiente">Esperando...</span>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <div class="sala-progreso-wrapper">
+        <div class="sala-progreso-track">
+          <div class="sala-progreso-fill" [style.width.%]="progresoEspera"></div>
+        </div>
+        <div class="sala-progreso-info">
+          <span>{{ tiempoTranscurrido }}</span>
+          <span>máx. 3:00</span>
+        </div>
+      </div>
+
+      <button class="btn-secondary btn-full" (click)="cancelarYVolver()">Cancelar</button>
+    }
+
+    <!-- ── ESTADO: iniciando ── -->
+    @if (estado() === 'iniciando') {
+      <div class="sala-spinner"></div>
+      <h1 class="sala-titulo">¡Todos listos!</h1>
+      <p class="sala-subtitulo">Iniciando el debate...</p>
+    }
+
+    <!-- ── ESTADO: timeout ── -->
+    @if (estado() === 'timeout') {
+      <div class="sala-icono sala-icono-warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h1 class="sala-titulo">No se han unido todos</h1>
+      <p class="sala-subtitulo">
+        Ha pasado el tiempo máximo de espera y no todos los invitados se han unido todavía.
+      </p>
+
+      @if (invitados().length > 0) {
+        <div class="invitados-lista">
+          @for (inv of invitados(); track inv.id) {
+            <div class="invitado-item" [class.unido]="inv.unido">
+              <div class="invitado-avatar">{{ inv.nombre.charAt(0) }}</div>
+              <span class="invitado-nombre">{{ inv.nombre }}</span>
+              @if (inv.unido) {
+                <span class="invitado-badge unido">Unido</span>
+              } @else {
+                <span class="invitado-badge pendiente">No se unió</span>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <button class="btn-primary btn-full" (click)="cancelarYVolver()">
+        Cancelar y reconfigurar
+      </button>
+    }
+
+    <!-- ── ESTADO: error ── -->
+    @if (estado() === 'error') {
+      <div class="sala-icono sala-icono-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h1 class="sala-titulo">Algo salió mal</h1>
+      <p class="sala-subtitulo">{{ errorMensaje() }}</p>
+      <a routerLink="/crear-debate" class="btn-primary btn-full">Volver al inicio</a>
+    }
+
+  </div>
+
+</div>

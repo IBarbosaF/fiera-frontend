@@ -379,6 +379,133 @@
 }
 .btn-skip:hover { color: #fff; }
 
+/* ── Buscador de compañero ── */
+.buscador-wrapper {
+  position     : relative;
+  margin-bottom: 14px;
+}
+
+.buscador-icono {
+  position  : absolute;
+  left      : 14px;
+  top       : 50%;
+  transform : translateY(-50%);
+  color     : var(--texto-muted, #8a9ab8);
+  pointer-events: none;
+}
+
+.buscador-input {
+  width        : 100%;
+  background   : rgba(255,255,255,0.04);
+  border       : 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding      : 11px 14px 11px 40px;
+  color        : #e2e8f0;
+  font-size    : 13px;
+  font-family  : inherit;
+  outline      : none;
+  transition   : border-color 0.2s;
+}
+.buscador-input:focus        { border-color: var(--azul-principal, #156fe7); }
+.buscador-input::placeholder { color: var(--texto-muted, #8a9ab8); }
+
+.estado-texto {
+  text-align: center;
+  padding   : 20px 0;
+  color     : var(--texto-muted, #8a9ab8);
+  font-size : 13px;
+}
+
+/* ── Lista de usuarios ── */
+.usuarios-lista {
+  display       : flex;
+  flex-direction: column;
+  gap           : 6px;
+  max-height    : 260px;
+  overflow-y    : auto;
+  margin-bottom : 16px;
+}
+.usuarios-lista::-webkit-scrollbar       { width: 4px; }
+.usuarios-lista::-webkit-scrollbar-track { background: transparent; }
+.usuarios-lista::-webkit-scrollbar-thumb { background: rgba(21,111,231,0.3); border-radius: 4px; }
+
+.usuario-item {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  padding      : 9px 12px;
+  border-radius: 10px;
+  border       : 1px solid rgba(255,255,255,0.06);
+  background   : rgba(255,255,255,0.02);
+  cursor       : pointer;
+  transition   : all 0.2s;
+}
+.usuario-item:hover { border-color: rgba(21,111,231,0.4); background: rgba(21,111,231,0.06); }
+
+.usuario-item-info      { display: flex; flex-direction: column; text-align: left; }
+.usuario-item-nombre    { font-size: 13px; font-weight: 500; color: #e2e8f0; }
+.usuario-item-username  { font-size: 11px; color: var(--texto-muted, #8a9ab8); }
+
+/* ── Avatar circular con inicial ── */
+.companero-avatar-grande {
+  width          : 40px;
+  height         : 40px;
+  border-radius  : 50%;
+  background     : rgba(21,111,231,0.15);
+  color          : var(--azul-principal, #156fe7);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 16px;
+  font-weight    : 700;
+  flex-shrink    : 0;
+}
+.companero-avatar-grande.pequeño { width: 32px; height: 32px; font-size: 13px; }
+
+/* ── Compañero ya elegido ── */
+.companero-elegido {
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+  background   : rgba(3,210,110,0.06);
+  border       : 1px solid rgba(3,210,110,0.25);
+  border-radius: 12px;
+  padding      : 14px 16px;
+  margin-bottom: 20px;
+}
+
+.companero-elegido-info      { display: flex; flex-direction: column; flex: 1; text-align: left; }
+.companero-elegido-nombre    { font-size: 14px; font-weight: 600; color: #fff; }
+.companero-elegido-username  { font-size: 12px; color: var(--texto-muted, #8a9ab8); }
+
+.btn-quitar-companero {
+  background   : rgba(255,255,255,0.06);
+  border       : 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding      : 7px;
+  cursor       : pointer;
+  color        : var(--texto-muted, #8a9ab8);
+  display      : flex;
+  align-items  : center;
+  transition   : all 0.2s;
+  flex-shrink  : 0;
+}
+.btn-quitar-companero:hover { color: #ff3a72; border-color: rgba(255,58,114,0.3); }
+
+/* ── Aviso de error: falta seleccionar compañero ── */
+.aviso-sin-companero {
+  display      : flex;
+  align-items  : center;
+  gap          : 8px;
+  background   : rgba(255,58,114,0.08);
+  border       : 1px solid rgba(255,58,114,0.25);
+  border-radius: 10px;
+  padding      : 10px 14px;
+  margin-bottom: 16px;
+  font-size    : 12px;
+  color        : #ff3a72;
+}
+
 /* ── PASO FIERA — Cards ── */
 .cards-grid-3 {
   display: grid; grid-template-columns: repeat(3, 1fr);
