@@ -3,7 +3,8 @@ import {
   ChangeDetectionStrategy, ChangeDetectorRef
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DebateService } from '../../../core/services/debate.service';
+import { DebateService, NOMBRE_MAP } from '../../../core/services/debate.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 /* ============================================================
    PartidaDebate — Pantalla del debate en vivo
@@ -19,7 +20,7 @@ export interface SubTurno {
   /* Hora real de inicio del turno (ISO), viene del backend tras
      /turnos/next. Si no viene, se usa el timer local como fallback. */
   startedAt?    : string | null;
-    /* Id real del usuario dueño de este turno (viene de la
+  /* Id real del usuario dueño de este turno (viene de la
      intervención del backend) — se usa para saber si ESTE
      dispositivo/usuario concreto puede interactuar, en vez de
      solo distinguir "humano" de "FIERA" de forma genérica. */
@@ -71,6 +72,7 @@ const TIMEOUT_ESPERA_FINAL = 12000;
 export class PartidaDebate implements OnInit, OnDestroy {
 
   debateService = inject(DebateService);
+  auth          = inject(AuthService);
   router        = inject(Router);
   cdr           = inject(ChangeDetectorRef);
 
@@ -90,6 +92,17 @@ export class PartidaDebate implements OnInit, OnDestroy {
 
   peticionPendiente = signal(false);
   finalizandoDebate = signal(false);
+
+  /* ----------------------------------------------------------
+     Control de ciclo de vida del turno.
+     El avance de turno tiene un ÚNICO dueño (avanzarYContinuar):
+     ni el timer ni los envíos avanzan por su cuenta. Estos flags
+     garantizan que por cada sub-turno haya exactamente UN
+     avanzarTurno y que no se pueda enviar el contenido dos veces.
+  ---------------------------------------------------------- */
+  private avanzando        = false;  /* avanzarTurno en curso */
+  private enviando         = false;  /* procesarTurno en vuelo */
+  private contenidoEnviado = false;  /* el contenido de este turno ya se mandó */
 
   /* Fase de "preparación" de 5s antes de cada sub-turno. Da
      margen a FIERA para generar su respuesta antes de que
@@ -133,15 +146,60 @@ export class PartidaDebate implements OnInit, OnDestroy {
     const intervenciones = debateActivo?.intervenciones ?? [];
     const activos        = subturnos.filter(t => t.activo);
 
-    return activos.map((t, index): SubTurno => ({
-      id            : t.id,
-      intervencionId: intervenciones[index]?.id ?? null,
-      nombre        : t.nombre,
-      quien         : (t.asignado === 'yo' ? 'equipo' : t.asignado) as SubTurno['quien'],
-      duracion      : t.segundos ?? t.minutos * 60,
-      postura       : t.postura,
-      startedAt     : intervenciones[index]?.startedAt ?? null
-    }));
+    /* Emparejamiento robusto: buscamos la intervención real del
+       backend por NOMBRE TÉCNICO + POSTURA (el mismo criterio
+       con el que se construyó al crear el debate), en vez de
+       por posición en el array — el backend puede devolver las
+       intervenciones en un orden distinto al que se enviaron,
+       lo que rompía silenciosamente el emparejamiento por índice
+       (usuarioId/startedAt acababan en el sub-turno equivocado). */
+    const posturaBackend = (p: 'favor' | 'contra') => p === 'favor' ? 'pro' : 'contra';
+    const usadas = new Set<number>(); /* ids de intervencion ya asignados */
+
+    return activos.map((t): SubTurno => {
+      const nombreBackend = NOMBRE_MAP[t.nombre] ?? t.nombre.toLowerCase();
+      const posturaEsperada = posturaBackend(t.postura);
+
+      const intervencion = intervenciones.find(i =>
+        !usadas.has(i.id) &&
+        i.nombre === nombreBackend &&
+        i.postura === posturaEsperada
+      );
+
+      if (intervencion) usadas.add(intervencion.id);
+
+      return {
+        id            : t.id,
+        intervencionId: intervencion?.id ?? null,
+        nombre        : t.nombre,
+        quien         : (t.asignado === 'yo' ? 'equipo' : t.asignado) as SubTurno['quien'],
+        duracion      : t.segundos ?? t.minutos * 60,
+        postura       : t.postura,
+        startedAt     : intervencion?.startedAt ?? null,
+        usuarioId     : intervencion?.usuarioId ?? null
+      };
+    });
+  }
+
+  /* ----------------------------------------------------------
+     Id del turno que el backend considera ACTIVO ahora mismo.
+     El campo top-level intervencionActivaId sigue llegando null,
+     pero el `estado` POR intervención sí viene relleno
+     (startDebate marca el primero como ACTIVE), así que esa es
+     la fuente de verdad para saber qué turnId mandar y a qué
+     sub-turno saltar. */
+  private idTurnoActivoBackend(): number | null {
+    const d = this.debateService.getDebateActivo();
+    return d?.intervenciones.find(i => i.estado === 'ACTIVE')?.id ?? null;
+  }
+
+  /* ¿El turno ACTIVE del backend es el último de la secuencia?
+   Si lo es, no hay que avanzar (POST /next daría 400): toca finalizar. */
+  private esUltimoTurno(): boolean {
+    const activaId = this.idTurnoActivoBackend();
+    if (activaId == null) return true;
+    const idx = this.secuencia.findIndex(s => s.intervencionId === activaId);
+    return idx === -1 || idx >= this.secuencia.length - 1;
   }
 
   /* ----------------------------------------------------------
@@ -163,13 +221,12 @@ export class PartidaDebate implements OnInit, OnDestroy {
 
   /* ----------------------------------------------------------
      REGLA 2 — ¿Qué sub-turno toca ahora?
-     Si el backend indica intervencionActivaId, intentamos
-     recolocarnos en ese índice de la secuencia local. Si no
-     lo encuentra (o no viene), seguimos con el índice manual.
+     Nos recolocamos en el sub-turno cuyo intervencionId coincide
+     con el turno ACTIVO del backend (estado: ACTIVE). Si no se
+     encuentra (o no viene), seguimos con el índice manual.
   ---------------------------------------------------------- */
   private resolverIndiceTurno(indiceManual: number): number {
-    const debateActivo = this.debateService.getDebateActivo();
-    const activaId = debateActivo?.intervencionActivaId;
+    const activaId = this.idTurnoActivoBackend();
 
     if (activaId != null) {
       const idx = this.secuencia.findIndex(s => s.intervencionId === activaId);
@@ -200,6 +257,12 @@ export class PartidaDebate implements OnInit, OnDestroy {
       return;
     }
 
+    /* Reset de estado por sub-turno: cada turno empieza limpio
+       (sin envíos ni avances previos colgando). */
+    this.avanzando        = false;
+    this.enviando         = false;
+    this.contenidoEnviado = false;
+
     this.subTurnoActual.set(indice);
     const sub = this.secuencia[indice];
 
@@ -216,12 +279,18 @@ export class PartidaDebate implements OnInit, OnDestroy {
       if (sub.quien === 'fiera') {
         this.fieraHablando.set(true);
         this.cdr.markForCheck();
-        promesaFiera!.then(resultado => this.mostrarRespuestaFiera(sub, resultado));
+        /* Turno de FIERA: esperamos su respuesta y SÓLO ENTONCES
+           arrancamos el timer, para no cortarla si el modelo
+           tarda más que la duración del turno. Así el countdown
+           de FIERA es un margen de lectura, no una carrera. */
+        promesaFiera!.then(resultado => {
+          this.mostrarRespuestaFiera(sub, resultado);
+          this.arrancarTimerReal(sub);
+        });
       } else {
         this.programarInterrupcionFiera(sub);
+        this.arrancarTimerReal(sub);
       }
-
-      this.arrancarTimerReal(sub);
     });
   }
 
@@ -286,39 +355,145 @@ export class PartidaDebate implements OnInit, OnDestroy {
       this.timerUrgente.set(restantes <= 30);
       this.actualizarSvg();
       if (restantes <= 0) {
+        /* El timer YA NO decide el avance: solo cuenta. Al llegar
+           a 0 delega en avanzarYContinuar(), que hace un único
+           avanzarTurno y salta al turno ACTIVO real del backend. */
         this.limpiarTimers();
         this.detenerGrabacion();
-        setTimeout(() => this.iniciarSubTurno(this.subTurnoActual() + 1), 800);
+        this.avanzarYContinuar();
       }
     }, 1000);
   }
 
   /* ----------------------------------------------------------
+     avanzarYContinuar()
+     ÚNICO punto que avanza el turno en el backend. Espera a que
+     termine cualquier procesarTurno en vuelo, hace UN solo
+     avanzarTurno y luego mueve el puntero al turno que el backend
+     marque como ACTIVE. Si ya hay un avance en curso, no hace
+     nada (evita dobles avanzarTurno).
+  ---------------------------------------------------------- */
+  private avanzarYContinuar(): void {
+    if (this.avanzando) return;
+    this.avanzando = true;
+
+    /* Si estamos en el último turno, no se avanza (el backend
+      daría 400 en /next): se finaliza el debate. Pero antes hay
+      que esperar a que termine el procesarTurno en vuelo (p. ej.
+      la conclusión de FIERA), o se finalizaría con la última
+      intervención vacía. */
+    if (this.esUltimoTurno()) {
+      const finalizar = () => { this.avanzando = false; this.finalizarDebate(); };
+
+      if (this.enviando) {
+        const inicio = Date.now();
+        const wait = setInterval(() => {
+          if (!this.enviando || Date.now() - inicio >= TIMEOUT_ESPERA_FINAL) {
+            clearInterval(wait);
+            finalizar();
+          }
+        }, 150);
+      } else {
+        finalizar();
+      }
+      return;
+    }
+
+    const proceder = () => {
+      const debateActivo = this.debateService.getDebateActivo();
+      if (!debateActivo) {
+        this.avanzando = false;
+        this.continuarSegunBackend();
+        return;
+      }
+      this.peticionPendiente.set(true);
+      this.debateService.avanzarTurno(debateActivo.id).subscribe({
+        next : () => { this.peticionPendiente.set(false); this.avanzando = false; this.continuarSegunBackend(); },
+        error: () => { this.peticionPendiente.set(false); this.avanzando = false; this.continuarSegunBackend(); }
+      });
+    };
+
+    /* Si hay un procesarTurno en vuelo (humano o FIERA), esperamos
+       a que acabe para no avanzar antes de que el backend registre
+       la intervención. */
+    if (this.enviando) {
+      const inicio = Date.now();
+      const wait = setInterval(() => {
+        if (!this.enviando || Date.now() - inicio >= TIMEOUT_ESPERA_FINAL) {
+          clearInterval(wait);
+          proceder();
+        }
+      }, 150);
+    } else {
+      proceder();
+    }
+  }
+
+  /* ----------------------------------------------------------
+     continuarSegunBackend()
+     Coloca el puntero local en el sub-turno cuyo intervencionId
+     coincide con el ACTIVE del backend. Si ya no hay ACTIVE, el
+     debate ha terminado. Si el ACTIVE no está en nuestra
+     secuencia local (p. ej. intervenciones "fantasma" que no
+     creó este wizard), finaliza por seguridad en vez de mandar
+     a un turno inexistente.
+  ---------------------------------------------------------- */
+  private continuarSegunBackend(): void {
+    const activaId = this.idTurnoActivoBackend();
+
+    if (activaId == null) {
+      this.finalizarDebate();
+      return;
+    }
+
+    const idx = this.secuencia.findIndex(s => s.intervencionId === activaId);
+    if (idx === -1) {
+      console.warn('[debate] turno ACTIVE no encontrado en la secuencia local:', activaId);
+      this.finalizarDebate();
+      return;
+    }
+
+    /* Anti-bucle: solo finalizamos si el ACTIVE NO se movió tras avanzar
+      (mismo turno que ya jugamos). Llegar al último turno NO es motivo
+      para finalizar aquí: hay que JUGARLO. La finalización tras el último
+      turno la decide avanzarYContinuar() cuando expira su timer. */
+    if (idx === this.subTurnoActual()) {
+      this.finalizarDebate();
+      return;
+    }
+
+    setTimeout(() => this.iniciarSubTurno(idx), 800);
+  }
+
+  /* ----------------------------------------------------------
      obtenerRespuestaFiera()
      Lanza la petición al backend SIN mostrar nada todavía.
-     Devuelve el texto/audio (o null si falla/no hay backend)
-     para que iniciarSubTurno() lo muestre cuando corresponda.
+     Solo PROCESA el turno (no avanza — de eso se encarga
+     avanzarYContinuar al final del turno). Devuelve el
+     texto/audio (o null si falla/no hay backend) para que
+     iniciarSubTurno() lo muestre cuando corresponda.
   ---------------------------------------------------------- */
   private obtenerRespuestaFiera(sub: SubTurno): Promise<{ texto: string; audio: any } | null> {
     const debateActivo = this.debateService.getDebateActivo();
+    const turnId       = this.idTurnoActivoBackend() ?? sub.intervencionId;
 
     return new Promise((resolve) => {
-      if (debateActivo && sub.intervencionId) {
+      if (debateActivo && turnId) {
+        this.enviando = true;
         this.peticionPendiente.set(true);
 
-        this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, '').subscribe({
+        this.debateService.procesarTurno(debateActivo.id, turnId, '').subscribe({
           next: (res) => {
+            this.contenidoEnviado = true;
+            this.enviando = false;
+            this.peticionPendiente.set(false);
+
             const texto = res?.respuestaFiera?.mensaje ?? '';
             const audio = res?.respuestaFiera?.audio;
-
-            this.debateService.avanzarTurno(debateActivo.id).subscribe({
-              next : () => this.peticionPendiente.set(false),
-              error: () => this.peticionPendiente.set(false)
-            });
-
             resolve({ texto: texto || '(FIERA está preparando su respuesta...)', audio });
           },
           error: () => {
+            this.enviando = false;
             this.peticionPendiente.set(false);
             const texto = RESPUESTAS_FIERA[Math.floor(Math.random() * RESPUESTAS_FIERA.length)];
             resolve({ texto: `${texto} (simulado)`, audio: null });
@@ -435,8 +610,13 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   private enviarAudioAlBackend(audio: Blob): void {
+    /* Candado: no reenviar si ya hay un envío en vuelo o el
+       contenido de este turno ya se mandó (evita dobles avances). */
+    if (this.enviando || this.contenidoEnviado) return;
+
     const sub          = this.secuencia[this.subTurnoActual()];
     const debateActivo = this.debateService.getDebateActivo();
+    const turnId       = this.idTurnoActivoBackend() ?? sub.intervencionId;
 
     this.procesandoAudio.set(true);
     this.peticionPendiente.set(true);
@@ -448,12 +628,15 @@ export class PartidaDebate implements OnInit, OnDestroy {
       true
     );
 
-    if (debateActivo && sub.intervencionId) {
-      this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, '', audio)
+    if (debateActivo && turnId) {
+      /* Solo PROCESA. El avanzarTurno lo hará avanzarYContinuar()
+         al terminar el tiempo del turno. */
+      this.enviando = true;
+      this.debateService.procesarTurno(debateActivo.id, turnId, '', audio)
         .subscribe({
           next: (res) => {
             const transcripcion = res?.debateResponse?.intervenciones
-              ?.find((i: any) => i.id === sub.intervencionId)?.mensaje;
+              ?.find((i: any) => i.id === turnId)?.mensaje;
 
             if (transcripcion) {
               this.historial.update(h => {
@@ -464,15 +647,14 @@ export class PartidaDebate implements OnInit, OnDestroy {
               });
             }
 
+            this.contenidoEnviado = true;
+            this.enviando = false;
             this.procesandoAudio.set(false);
-
-            this.debateService.avanzarTurno(debateActivo.id).subscribe({
-              next : () => this.peticionPendiente.set(false),
-              error: () => this.peticionPendiente.set(false)
-            });
+            this.peticionPendiente.set(false);
             this.cdr.markForCheck();
           },
           error: () => {
+            this.enviando = false;
             this.procesandoAudio.set(false);
             this.peticionPendiente.set(false);
             this.cdr.markForCheck();
@@ -497,10 +679,13 @@ export class PartidaDebate implements OnInit, OnDestroy {
   }
 
   private enviarTexto(texto: string, input: HTMLInputElement): void {
-    if (!texto.trim()) return;
+    /* Candado: no reenviar si está vacío, si ya hay un envío en
+       vuelo, o si el contenido de este turno ya se mandó. */
+    if (!texto.trim() || this.enviando || this.contenidoEnviado) return;
 
     const sub          = this.secuencia[this.subTurnoActual()];
     const debateActivo = this.debateService.getDebateActivo();
+    const turnId       = this.idTurnoActivoBackend() ?? sub.intervencionId;
 
     this.añadirAlHistorial(
       `${sub.nombre} (${sub.postura === 'favor' ? 'A favor' : 'En contra'}) — Tú`,
@@ -509,17 +694,22 @@ export class PartidaDebate implements OnInit, OnDestroy {
     );
     input.value = '';
 
-    if (debateActivo && sub.intervencionId) {
+    if (debateActivo && turnId) {
+      /* Solo PROCESA. El avanzarTurno lo hará avanzarYContinuar()
+         al terminar el tiempo del turno. */
+      this.enviando = true;
       this.peticionPendiente.set(true);
-      this.debateService.procesarTurno(debateActivo.id, sub.intervencionId, texto.trim())
+      this.debateService.procesarTurno(debateActivo.id, turnId, texto.trim())
         .subscribe({
           next : () => {
-            this.debateService.avanzarTurno(debateActivo.id).subscribe({
-              next : () => this.peticionPendiente.set(false),
-              error: () => this.peticionPendiente.set(false)
-            });
+            this.contenidoEnviado = true;
+            this.enviando = false;
+            this.peticionPendiente.set(false);
           },
-          error: () => this.peticionPendiente.set(false)
+          error: () => {
+            this.enviando = false;
+            this.peticionPendiente.set(false);
+          }
         });
     }
   }
@@ -597,17 +787,12 @@ export class PartidaDebate implements OnInit, OnDestroy {
   cancelarSalir(): void {
     this.modalSalirAbierto.set(false);
     this.pausado = false;
-    this.intervalId = setInterval(() => {
-      if (this.pausado) return;
-      const restantes = this.segundosRest() - 1;
-      this.segundosRest.set(restantes);
-      this.timerUrgente.set(restantes <= 30);
-      this.actualizarSvg();
-      if (restantes <= 0) {
-        this.limpiarTimers();
-        setTimeout(() => this.iniciarSubTurno(this.subTurnoActual() + 1), 800);
-      }
-    }, 1000);
+    /* Reanudamos reutilizando arrancarTimerReal (que hace
+       limpiarTimers() primero, así no puede haber dos timers a
+       la vez) y recalcula el tiempo restante desde startedAt.
+       Antes se creaba aquí un setInterval paralelo y duplicado. */
+    const sub = this.secuencia[this.subTurnoActual()];
+    if (sub) this.arrancarTimerReal(sub);
   }
 
   confirmarSalir(): void {
@@ -669,15 +854,29 @@ export class PartidaDebate implements OnInit, OnDestroy {
     return this.secuencia[this.subTurnoActual()] ?? null;
   }
 
+  /* Un turno es interactivo en ESTE dispositivo solo si el
+     usuarioId real de la intervención coincide con el usuario
+     logueado aquí. Si el turno no trae usuarioId (backend viejo
+     o modo sin login estricto), cae en el comportamiento
+     anterior: cualquier turno no-FIERA es "tuyo". */
   get esTuTurno(): boolean {
-    return this.subTurnoInfo?.quien === 'equipo';
+    const sub = this.subTurnoInfo;
+    if (!sub || sub.quien === 'fiera') return false;
+
+    if (sub.usuarioId != null) {
+      return sub.usuarioId === this.auth.usuario()?.id;
+    }
+    return sub.quien === 'equipo';
   }
 
   get esRefutacion(): boolean {
     return this.subTurnoInfo?.id.startsWith('ref') ?? false;
   }
 
-    get textoBadgeTurno(): string {
+  /* Texto del badge de turno en el header — distingue "tú",
+     "FIERA" y, si hay otro humano y no eres tú, su nombre real
+     (buscado en la lista de usuarios del debate activo). */
+  get textoBadgeTurno(): string {
     const sub = this.subTurnoInfo;
     if (!sub || sub.quien === 'fiera') return 'TURNO DE FIERA';
     if (this.esTuTurno) return 'TU TURNO';

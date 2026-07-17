@@ -241,7 +241,7 @@ const STORAGE_SUBTURNOS  = 'fiera_subturnos';
 const STORAGE_DEBATE_ACT = 'fiera_debate_activo';
 
 /* ── Mapa nombre wizard → nombre backend ── */
-const NOMBRE_MAP: Record<string, string> = {
+export const NOMBRE_MAP: Record<string, string> = {
   'Introducción' : 'introductor',
   '1ª Refutación': 'refutador1',
   '2ª Refutación': 'refutador2',
