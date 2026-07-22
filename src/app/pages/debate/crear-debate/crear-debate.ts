@@ -498,6 +498,12 @@ export class CrearDebate implements OnInit {
      Iniciar debate
   ──────────────────────────────────────────── */
   iniciarDebate(): void {
+    // Aseguramos que el backend reciba el tipo real de práctica
+    // (academico/careo), no el valor por defecto 'completo'.
+    this.debateService.actualizarConfig({
+      modo: this.modoDebate() === 'careo' ? 'careo' : 'academico'
+    });
+
     const subturnos = this.expandirASubturnos();
     this.debateService.guardarConfig();
     this.debateService.guardarSubturnos(subturnos);

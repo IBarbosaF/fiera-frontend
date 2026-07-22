@@ -60,7 +60,7 @@
         </div>
         <div class="perfil-hero-stat-sep"></div>
         <div class="perfil-hero-stat">
-          <span class="perfil-hero-stat-val">#{{ ranking }}</span>
+          <span class="perfil-hero-stat-val">#{{ ranking() }}</span>
           <span class="perfil-hero-stat-label">ranking</span>
         </div>
         <div class="perfil-hero-stat-sep"></div>
@@ -249,8 +249,15 @@
                 <div class="perfil-historial-info">
                   <p class="perfil-historial-tema">{{ debate.tema }}</p>
                   <div class="perfil-historial-meta">
-                    @if (debate.fecha) {
+                    <!-- TODO: reactivar cuando el backend incluya 'creadoA' -->
+                    <!-- @if (debate.fecha) {
                       <span class="perfil-historial-fecha">{{ debate.fecha | date:'d MMM y' }}</span>
+                    } -->
+                    <span class="perfil-historial-modo">{{ debate.modo }}</span>
+                    @if (debate.postura) {
+                      <span class="perfil-historial-postura perfil-postura--{{ debate.postura }}">
+                        {{ debate.postura === 'pro' ? 'A favor' : 'En contra' }}
+                      </span>
                     }
                     <span class="perfil-historial-dif perfil-dif--{{ debate.dificultad }}">
                       {{ debate.dificultad }}
@@ -258,11 +265,13 @@
                   </div>
                 </div>
                 <div class="perfil-historial-puntos">
-                  @if (debate.puntuacion !== null) {
+                  @if (!debate.finalizado) {
+                    <span class="perfil-historial-estado perfil-estado--pendiente">Sin finalizar</span>
+                  } @else if (debate.puntuacion !== null) {
                     <span class="perfil-historial-pts">{{ debate.puntuacion }}</span>
                     <span class="perfil-historial-pts-label">pts</span>
                   } @else {
-                    <span class="perfil-historial-pts-label">Sin resultado</span>
+                    <span class="perfil-historial-estado perfil-estado--error">Sin resultado</span>
                   }
                 </div>
               </div>

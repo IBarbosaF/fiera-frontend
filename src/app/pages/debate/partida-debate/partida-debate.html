@@ -38,7 +38,7 @@
 
     <div class="debate-header-centro">
       <p class="debate-header-sub">
-        {{ debateService.config().modo === 'completo' ? 'Debate académico' : 'Debate express' }}
+        {{ debateService.config().modo === 'academico' ? 'Debate académico' : 'Careo' }}
         @if (subTurnoInfo) {
           · {{ subTurnoInfo.postura === 'favor' ? 'A favor' : 'En contra' }}
         }

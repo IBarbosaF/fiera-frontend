@@ -221,7 +221,7 @@
 ══════════════════════════════════════════════════════════════ */
 .perfil-grid {
   display              : grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 3fr;
   gap                  : 20px;
   align-items          : start;
 }
@@ -544,8 +544,7 @@
   color        : #e2e8f0;
   margin-bottom: 4px;
   overflow     : hidden;
-  text-overflow: ellipsis;
-  white-space  : nowrap;
+  line-height  : 1.4;
 }
 
 .perfil-historial-meta {
@@ -566,6 +565,38 @@
   padding       : 2px 8px;
   text-transform: capitalize;
   letter-spacing: 0.3px;
+}
+
+.perfil-historial-modo {
+  font-size     : 10px;
+  font-weight   : 600;
+  border-radius : 20px;
+  padding       : 2px 8px;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+  background    : rgba(255,255,255,0.06);
+  border        : 1px solid rgba(255,255,255,0.12);
+  color         : #e2e8f0;
+}
+
+.perfil-historial-postura {
+  font-size     : 10px;
+  font-weight   : 600;
+  border-radius : 20px;
+  padding       : 2px 8px;
+  letter-spacing: 0.3px;
+}
+
+.perfil-postura--pro {
+  background: rgba(3,210,110,0.1);
+  border    : 1px solid rgba(3,210,110,0.2);
+  color     : #03d26e;
+}
+
+.perfil-postura--contra {
+  background: rgba(255,58,114,0.1);
+  border    : 1px solid rgba(255,58,114,0.2);
+  color     : #ff3a72;
 }
 
 .perfil-dif--basico   { background: rgba(3,210,110,0.1);  color: #03d26e; border: 1px solid rgba(3,210,110,0.2);  }
@@ -589,6 +620,26 @@
 .perfil-historial-pts-label {
   font-size: 11px;
   color    : var(--texto-muted, #8a9ab8);
+}
+
+.perfil-historial-estado {
+  font-size     : 11px;
+  font-weight   : 600;
+  border-radius : 20px;
+  padding       : 4px 10px;
+  white-space   : nowrap;
+}
+
+.perfil-estado--pendiente {
+  background: rgba(240,167,66,0.1);
+  border    : 1px solid rgba(240,167,66,0.25);
+  color     : #f0a742;
+}
+
+.perfil-estado--error {
+  background: rgba(138,154,184,0.1);
+  border    : 1px solid rgba(138,154,184,0.2);
+  color     : #8a9ab8;
 }
 
 /* ══════════════════════════════════════════════════════════════

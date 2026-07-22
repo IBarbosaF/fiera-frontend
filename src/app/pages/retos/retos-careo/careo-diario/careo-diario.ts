@@ -175,7 +175,7 @@ export class CareoDiario implements OnInit, OnDestroy {
         const personalidad = PERSONALIDADES[Math.floor(Math.random() * PERSONALIDADES.length)];
 
         this.debateService.actualizarConfig({
-          modo        : 'express',
+          modo        : 'careo',
           dificultad  : 'medio',
           postura,
           tema        : { id: tema.id, enunciado: tema.enunciado, categoria: tema.categoria },

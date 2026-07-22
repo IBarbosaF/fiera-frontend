@@ -1,114 +1,36 @@
-import { Component, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+// src/app/pages/retos/retos-clash/clash-diario/clash-diario.ts
+
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
+import { DebateService } from '../../../../core/services/debate.service';
+import { ClashService, ClashApi, ClashIntervencionApi } from '../../../../core/services/clash.service';
 
 /* ============================================================
-   ClashDiario — Reto: encontrar el clash más importante del debate
+   ClashDiario — Reto: encontrar el clash más importante
 
-   Mock por ahora: banco de temas con argumentos y clash correcto
-   hardcodeados, con TODO para sustituir por el backend cuando
-   FIERA tenga el endpoint de generación/evaluación de clashes.
+   Conectado a ClashService (backend real). Solo modo Fácil
+   funcional — el modo Difícil se muestra bloqueado con un
+   aviso "Próximamente", según confirmó backend (María Rosa):
+   la IA ya genera el clash completo con argumentos, pero la
+   evaluación de texto libre (modo difícil) aún no está hecha.
 
-   Dos modos, toggle en la misma pantalla:
-   - Fácil:   elige 1 argumento a favor + 1 en contra entre opciones
-   - Difícil: escribe/dicta tú cuáles son los 2 argumentos
-
-   Bloqueo diario igual que Careo/Preguntón: localStorage con la
-   fecha de hoy.
+   El bloqueo diario se mantiene en localStorage (no confirmado
+   si el backend ya distingue "ya respondido" por usuario en el
+   propio Clash — hasta confirmarlo, replicamos el mismo patrón
+   que Careo/Preguntón).
 ============================================================ */
 
 const STORAGE_COMPLETADO = 'clash_reto_completado';
 
 type ModoClash = 'facil' | 'dificil';
 
-interface ArgumentoClash {
-  id   : string;
-  texto: string;
-}
-
-interface TemaClash {
-  id           : number;
-  pregunta     : string;
-  favor        : ArgumentoClash[];
-  contra       : ArgumentoClash[];
-  clashCorrecto: {
-    favorId     : string;
-    contraId    : string;
-    explicacion : string;
-  };
-}
-
 interface ClashCompletado {
-  fecha : string;
-  modo  : ModoClash;
-  puntos: number;
+  fecha        : string;
+  aciertoFavor : boolean;
+  aciertoContra: boolean;
+  puntos       : number;
+  feedback     : string;
 }
-
-/* ── Banco mock de temas de Clash — TODO: sustituir por GET /api/app/clash/temas ── */
-const BANCO_CLASH: TemaClash[] = [
-  {
-    id: 1,
-    pregunta: '¿Deben los gobiernos regular el uso de la inteligencia artificial?',
-    favor: [
-      { id: 'f1', texto: 'Sin regulación, las empresas priorizarán beneficios sobre seguridad.' },
-      { id: 'f2', texto: 'La IA puede automatizar decisiones discriminatorias sin control externo.' },
-      { id: 'f3', texto: 'Otros sectores tecnológicos ya están regulados por su impacto social.' },
-      { id: 'f4', texto: 'La regulación da confianza a los ciudadanos para adoptar la tecnología.' },
-    ],
-    contra: [
-      { id: 'c1', texto: 'La regulación excesiva frena la innovación frente a otros países.' },
-      { id: 'c2', texto: 'Los organismos públicos no tienen la capacidad técnica para regular bien.' },
-      { id: 'c3', texto: 'Las normas quedarían obsoletas antes de aprobarse por la velocidad del sector.' },
-      { id: 'c4', texto: 'La autorregulación de la industria ya cubre los riesgos principales.' },
-    ],
-    clashCorrecto: {
-      favorId: 'f1',
-      contraId: 'c1',
-      explicacion: 'El choque central es seguridad vs. innovación: regular protege frente a abusos, pero puede frenar el desarrollo tecnológico frente a países sin esas trabas.',
-    },
-  },
-  {
-    id: 2,
-    pregunta: '¿Debería ser obligatorio el voto en las elecciones?',
-    favor: [
-      { id: 'f1', texto: 'Aumenta la legitimidad democrática al reflejar a toda la población.' },
-      { id: 'f2', texto: 'Reduce la influencia desproporcionada de los votantes más movilizados.' },
-      { id: 'f3', texto: 'Fomenta el hábito cívico y el interés por la política.' },
-      { id: 'f4', texto: 'Otros países con voto obligatorio muestran mayor participación sostenida.' },
-    ],
-    contra: [
-      { id: 'c1', texto: 'Obligar a votar viola la libertad individual de abstenerse.' },
-      { id: 'c2', texto: 'Puede generar votos aleatorios o en blanco sin reflexión real.' },
-      { id: 'c3', texto: 'Es difícil de aplicar sin sanciones desproporcionadas.' },
-      { id: 'c4', texto: 'No garantiza un voto informado, solo la asistencia física.' },
-    ],
-    clashCorrecto: {
-      favorId: 'f1',
-      contraId: 'c1',
-      explicacion: 'El choque central es legitimidad democrática vs. libertad individual: votar refleja mejor a la sociedad, pero obligar restringe la libertad de no participar.',
-    },
-  },
-  {
-    id: 3,
-    pregunta: '¿Debería subir la edad mínima para usar redes sociales?',
-    favor: [
-      { id: 'f1', texto: 'Protege la salud mental de los menores frente a la comparación social.' },
-      { id: 'f2', texto: 'Reduce la exposición temprana a contenido inadecuado o adictivo.' },
-      { id: 'f3', texto: 'Da más tiempo para desarrollar pensamiento crítico antes de exponerse.' },
-      { id: 'f4', texto: 'Otros países ya han empezado a legislar en esa dirección.' },
-    ],
-    contra: [
-      { id: 'c1', texto: 'Es casi imposible verificar la edad real de forma efectiva.' },
-      { id: 'c2', texto: 'Aísla a los menores de espacios sociales donde ya está su entorno.' },
-      { id: 'c3', texto: 'La responsabilidad debería recaer en las familias, no en la ley.' },
-      { id: 'c4', texto: 'Puede empujar a los menores a plataformas menos reguladas aún.' },
-    ],
-    clashCorrecto: {
-      favorId: 'f1',
-      contraId: 'c1',
-      explicacion: 'El choque central es protección vs. viabilidad: la medida busca cuidar la salud mental, pero su aplicación práctica es muy difícil de garantizar.',
-    },
-  },
-];
 
 @Component({
   selector        : 'app-clash-diario',
@@ -118,98 +40,140 @@ const BANCO_CLASH: TemaClash[] = [
   styleUrl        : './clash-diario.css',
   changeDetection : ChangeDetectionStrategy.OnPush,
 })
-export class ClashDiario {
+export class ClashDiario implements OnInit {
 
-  constructor(private router: Router) {}
+  private debateService = inject(DebateService);
+  private clashService  = inject(ClashService);
+  private router        = inject(Router);
 
-  /* ──────────────────────────────────────────────────────────
-     TEMA DEL DÍA — mismo tema para todos, cambia cada 24h
-  ────────────────────────────────────────────────────────── */
-  readonly temaHoy: TemaClash = BANCO_CLASH[this.seedDelDia(this.fechaHoy()) % BANCO_CLASH.length];
+  /* ── Estado de carga inicial ── */
+  cargando   = signal(true);
+  errorCarga = signal(false);
 
-  /* ──────────────────────────────────────────────────────────
-     BLOQUEO DIARIO
-  ────────────────────────────────────────────────────────── */
+  /* ── Clash de hoy, tal como llega del backend ── */
+  clashActual = signal<ClashApi | null>(null);
+
+  /** Pregunta del día, sacada del propio clash */
+  pregunta = computed(() => this.clashActual()?.debate?.temaElegido ?? '');
+
+  /** Argumentos ya separados por postura para pintarlos en columnas.
+      Asunción: postura viene como 'pro'/'contra' (mismo enum que
+      usa el resto de intervenciones de debate) — si el backend
+      real usa otros valores, solo hay que ajustar este filtro. */
+  favorArgs = computed<ClashIntervencionApi[]>(() =>
+    (this.clashActual()?.debate?.intervenciones ?? []).filter(i => i.postura !== 'contra')
+  );
+  contraArgs = computed<ClashIntervencionApi[]>(() =>
+    (this.clashActual()?.debate?.intervenciones ?? []).filter(i => i.postura === 'contra')
+  );
+
+  /* ── Bloqueo diario ── */
   completadoHoy = signal<ClashCompletado | null>(this.cargarCompletadoHoy());
 
-  /* ──────────────────────────────────────────────────────────
-     MODO — Fácil / Difícil
-  ────────────────────────────────────────────────────────── */
+  /* ── Modo — Fácil funcional, Difícil bloqueado ── */
   modo = signal<ModoClash>('facil');
 
   cambiarModo(m: ModoClash): void {
-    if (this.enviado()) return; // no cambiar tras comprobar
+    if (m === 'dificil') return; // próximamente — el botón no hace nada aún
     this.modo.set(m);
-    this.favorSeleccionado.set(null);
-    this.contraSeleccionado.set(null);
-    this.favorTexto.set('');
-    this.contraTexto.set('');
   }
 
-  /* ──────────────────────────────────────────────────────────
-     MODO FÁCIL — selección entre opciones
-  ────────────────────────────────────────────────────────── */
-  favorSeleccionado  = signal<string | null>(null);
-  contraSeleccionado = signal<string | null>(null);
+  /* ── Selección modo fácil ── */
+  favorSeleccionado  = signal<number | null>(null);
+  contraSeleccionado = signal<number | null>(null);
 
-  seleccionarFavor(id: string): void {
+  seleccionarFavor(id: number): void {
     if (this.enviado()) return;
     this.favorSeleccionado.set(id);
   }
 
-  seleccionarContra(id: string): void {
+  seleccionarContra(id: number): void {
     if (this.enviado()) return;
     this.contraSeleccionado.set(id);
   }
 
-  puedeComprobarFacil = computed(() =>
+  puedeComprobar = computed(() =>
     this.favorSeleccionado() !== null && this.contraSeleccionado() !== null
   );
 
-  /* ──────────────────────────────────────────────────────────
-     MODO DIFÍCIL — texto libre (o dictado por mic, futuro)
-  ────────────────────────────────────────────────────────── */
-  favorTexto  = signal('');
-  contraTexto = signal('');
-
-  puedeComprobarDificil = computed(() =>
-    this.favorTexto().trim().length > 0 && this.contraTexto().trim().length > 0
-  );
+  /* ── Envío y resultado ── */
+  enviado   = signal(false);
+  enviando  = signal(false);
+  resultado = signal<{ aciertoFavor: boolean; aciertoContra: boolean; puntos: number; feedback: string } | null>(null);
 
   /* ──────────────────────────────────────────────────────────
-     COMPROBAR RESPUESTA
+     CARGA INICIAL
   ────────────────────────────────────────────────────────── */
-  enviado = signal(false);
-
-  /** Resultado del modo fácil: qué acertó exactamente */
-  resultadoFacil = signal<{ aciertoFavor: boolean; aciertoContra: boolean; puntos: number } | null>(null);
-
-  comprobar(): void {
-    if (this.modo() === 'facil') {
-      if (!this.puedeComprobarFacil()) return;
-
-      const aciertoFavor  = this.favorSeleccionado()  === this.temaHoy.clashCorrecto.favorId;
-      const aciertoContra = this.contraSeleccionado() === this.temaHoy.clashCorrecto.contraId;
-      const aciertos      = Number(aciertoFavor) + Number(aciertoContra);
-      const puntos        = aciertos === 2 ? 10 : aciertos === 1 ? 5 : 0;
-
-      this.resultadoFacil.set({ aciertoFavor, aciertoContra, puntos });
-      this.enviado.set(true);
-      this.guardarCompletadoHoy('facil', puntos);
-    } else {
-      if (!this.puedeComprobarDificil()) return;
-
-      // TODO: enviar favorTexto/contraTexto a FIERA para evaluación real por IA.
-      // De momento, participación fija: se muestra la corrección de FIERA sin
-      // puntuar automáticamente el acierto exacto del texto libre.
-      const puntos = 5;
-      this.enviado.set(true);
-      this.guardarCompletadoHoy('dificil', puntos);
+  ngOnInit(): void {
+    if (this.completadoHoy()) {
+      this.cargando.set(false);
+      return;
     }
+
+    this.debateService.getTemas().subscribe({
+      next: temas => {
+        this.clashService.obtenerOCrearClashDeHoy(temas).subscribe({
+          next: clash => {
+            this.clashActual.set(clash);
+            this.cargando.set(false);
+          },
+          error: () => {
+            this.errorCarga.set(true);
+            this.cargando.set(false);
+          }
+        });
+      },
+      error: () => {
+        this.errorCarga.set(true);
+        this.cargando.set(false);
+      }
+    });
   }
 
   /* ──────────────────────────────────────────────────────────
-     PERSISTENCIA — bloqueo diario
+     COMPROBAR — modo fácil
+  ────────────────────────────────────────────────────────── */
+  comprobar(): void {
+    if (!this.puedeComprobar() || this.enviando()) return;
+
+    const clash = this.clashActual();
+    if (!clash) return;
+
+    const favorId  = this.favorSeleccionado()!;
+    const contraId = this.contraSeleccionado()!;
+
+    const correctos     = clash.mejorClashId ?? [];
+    const aciertoFavor  = correctos.includes(favorId);
+    const aciertoContra = correctos.includes(contraId);
+    const aciertos      = Number(aciertoFavor) + Number(aciertoContra);
+    const puntos        = aciertos === 2 ? 10 : aciertos === 1 ? 5 : 0;
+
+    this.enviando.set(true);
+
+    this.clashService.responderClash(clash.id, favorId, contraId).subscribe({
+      next: res => {
+        const feedback = res?.feedback ?? 'FIERA no ha devuelto explicación esta vez.';
+        this.finalizar(aciertoFavor, aciertoContra, puntos, feedback);
+      },
+      error: () => {
+        // Si falla el PUT no bloqueamos al usuario: el resultado
+        // ya se calculó localmente con mejorClashId, así que se
+        // muestra igual, solo que sin persistir en backend.
+        this.finalizar(aciertoFavor, aciertoContra, puntos,
+          'No se ha podido guardar tu respuesta en el servidor, pero aquí tienes el resultado.');
+      }
+    });
+  }
+
+  private finalizar(aciertoFavor: boolean, aciertoContra: boolean, puntos: number, feedback: string): void {
+    this.resultado.set({ aciertoFavor, aciertoContra, puntos, feedback });
+    this.enviado.set(true);
+    this.enviando.set(false);
+    this.guardarCompletadoHoy(aciertoFavor, aciertoContra, puntos, feedback);
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     BLOQUEO DIARIO — localStorage
   ────────────────────────────────────────────────────────── */
   private cargarCompletadoHoy(): ClashCompletado | null {
     const datos = localStorage.getItem(STORAGE_COMPLETADO);
@@ -218,35 +182,24 @@ export class ClashDiario {
     return guardado.fecha === this.fechaHoy() ? guardado : null;
   }
 
-  private guardarCompletadoHoy(modo: ModoClash, puntos: number): void {
-    const registro: ClashCompletado = { fecha: this.fechaHoy(), modo, puntos };
+  private guardarCompletadoHoy(aciertoFavor: boolean, aciertoContra: boolean, puntos: number, feedback: string): void {
+    const registro: ClashCompletado = { fecha: this.fechaHoy(), aciertoFavor, aciertoContra, puntos, feedback };
     localStorage.setItem(STORAGE_COMPLETADO, JSON.stringify(registro));
     this.completadoHoy.set(registro);
   }
 
-  /* ──────────────────────────────────────────────────────────
-     HELPERS
-  ────────────────────────────────────────────────────────── */
   private fechaHoy(): string {
     return new Date().toISOString().split('T')[0];
   }
 
-  /** Mismo hash determinista que DebateService.getTemaDelDia — TODO: unificar en un util compartido si se repite en más sitios */
-  private seedDelDia(fecha: string): number {
-    let hash = 0;
-    for (let i = 0; i < fecha.length; i++) {
-      hash = (hash << 5) - hash + fecha.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash);
-  }
-
+  /* ──────────────────────────────────────────────────────────
+     HELPERS DE PLANTILLA
+  ────────────────────────────────────────────────────────── */
   volverAlHub(): void {
     this.router.navigate(['/retos']);
   }
 
-  /** Argumento por id, para pintar el resultado final */
-  argumentoPorId(lista: ArgumentoClash[], id: string): string {
-    return lista.find(a => a.id === id)?.texto ?? '';
+  esCorrecto(id: number): boolean {
+    return this.clashActual()?.mejorClashId?.includes(id) ?? false;
   }
 }

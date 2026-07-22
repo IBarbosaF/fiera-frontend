@@ -50,6 +50,55 @@
 }
 
 /* ══════════════════════════════════════════
+   ESTADOS — cargando / error
+══════════════════════════════════════════ */
+.cl-estado-card {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  gap            : 16px;
+  background     : #0d1a33;
+  border         : 1px solid #1e2d47;
+  border-radius  : 16px;
+  padding        : 48px 24px;
+  text-align     : center;
+}
+
+.cl-estado-card--error {
+  border-color: rgba(255, 77, 109, 0.3);
+  color       : #ff4d6d;
+}
+
+.cl-spinner {
+  width           : 32px;
+  height          : 32px;
+  border          : 3px solid #1e2d47;
+  border-top-color: #ff3a72;
+  border-radius   : 50%;
+  animation       : cl-spin 0.8s linear infinite;
+}
+
+@keyframes cl-spin { to { transform: rotate(360deg); } }
+
+.cl-estado-texto {
+  font-size: 0.9rem;
+  color    : #8a9ab8;
+}
+
+.cl-btn-volver-error {
+  background   : rgba(255, 77, 109, 0.1);
+  border       : 1px solid rgba(255, 77, 109, 0.3);
+  border-radius: 8px;
+  color        : #ff4d6d;
+  font-size    : 0.85rem;
+  font-weight  : 600;
+  padding      : 10px 20px;
+  cursor       : pointer;
+  font-family  : inherit;
+}
+
+/* ══════════════════════════════════════════
    COMPLETADO HOY
 ══════════════════════════════════════════ */
 .cl-completado-card {
@@ -152,6 +201,24 @@
   opacity: 0.7;
 }
 
+/* ── Badge "Próximamente" en Difícil ── */
+.cl-modo-btn--proximamente {
+  position: relative;
+}
+
+.cl-badge-proximamente {
+  display       : block;
+  font-size     : 0.6rem;
+  font-weight   : 600;
+  color         : #8a9ab8;
+  margin-top    : 2px;
+  letter-spacing: 0.2px;
+}
+
+.cl-modo-btn--proximamente.activo .cl-badge-proximamente {
+  color: rgba(255, 255, 255, 0.75);
+}
+
 /* ══════════════════════════════════════════
    MODO FÁCIL — columnas de argumentos
 ══════════════════════════════════════════ */
@@ -219,50 +286,35 @@
 }
 
 /* ══════════════════════════════════════════
-   MODO DIFÍCIL — texto libre
+   MODO DIFÍCIL — próximamente
 ══════════════════════════════════════════ */
-.cl-dificil-form {
-  display       : flex;
-  flex-direction: column;
-  gap           : 16px;
-  margin-bottom : 20px;
+.cl-proximamente-card {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  text-align     : center;
+  gap            : 10px;
+  background     : #0d1a33;
+  border         : 1px dashed #1e2d47;
+  border-radius  : 16px;
+  padding        : 40px 28px;
+  color          : #8a9ab8;
+  margin-bottom  : 20px;
 }
 
-.cl-dificil-campo {
-  display       : flex;
-  flex-direction: column;
-  gap           : 8px;
+.cl-proximamente-titulo {
+  font-size  : 1rem;
+  font-weight: 700;
+  color      : #ffffff;
+  margin-top : 4px;
 }
 
-.cl-dificil-label {
-  font-size    : 0.75rem;
-  font-weight  : 700;
-  letter-spacing: 0.3px;
-}
-
-.cl-dificil-label--favor  { color: #03d26e; }
-.cl-dificil-label--contra { color: #ff3a72; }
-
-.cl-textarea {
-  background   : #0d1a33;
-  border       : 1.5px solid #1e2d47;
-  border-radius: 10px;
-  padding      : 12px 14px;
-  color        : #ffffff;
-  font-size    : 0.88rem;
+.cl-proximamente-desc {
+  font-size    : 0.82rem;
   line-height  : 1.5;
-  font-family  : inherit;
-  resize       : vertical;
-  transition   : border-color 0.2s;
+  max-width    : 380px;
+  margin-bottom: 8px;
 }
-
-.cl-textarea:focus {
-  outline     : none;
-  border-color: #ff3a72;
-}
-
-.cl-textarea::placeholder { color: #3a4d6b; }
-.cl-textarea:disabled     { opacity: 0.6; cursor: not-allowed; }
 
 /* ══════════════════════════════════════════
    BOTÓN COMPROBAR
@@ -427,7 +479,9 @@
   }
 
   .cl-pregunta-card,
-  .cl-resultado-card {
+  .cl-resultado-card,
+  .cl-estado-card,
+  .cl-proximamente-card {
     padding: 20px 18px;
   }
 }

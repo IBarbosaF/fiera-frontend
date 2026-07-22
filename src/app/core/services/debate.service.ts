@@ -59,7 +59,7 @@ export interface TemaDebate {
 export interface ConfigDebate {
   tiempos      : TiemposDebate;
   dificultad   : 'basico' | 'medio' | 'avanzado';
-  modo         : 'completo' | 'express';
+  modo         : 'academico' | 'careo' | 'clash' | 'pregunton';
   postura      : 'favor' | 'contra' | 'aleatoria';
   tema         : TemaDebate | null;
   personalidad : 'agresiva' | 'elegante' | 'sarcastica' | null;
@@ -258,7 +258,7 @@ const CONFIG_INICIAL: ConfigDebate = {
     conclusion: 3,
   },
   dificultad  : 'medio',
-  modo        : 'completo',
+  modo        : 'academico',
   postura     : 'aleatoria',
   tema        : null,
   personalidad: null,
@@ -547,6 +547,17 @@ export class DebateService {
   ---------------------------------------------------------- */
   obtenerDebateCompleto(debateId: number) {
     return this.http.get<any>(`${API_BASE}/api/app/debates/${debateId}`);
+  }
+
+  /* ----------------------------------------------------------
+     obtenerResultadosPorUsuario()
+     GET /api/app/resultados/user-{id} — trae TODOS los
+     resultados de un usuario con el debateId correctamente
+     enlazado (a diferencia de usuario.resultados, que venía
+     con debateId=null por un bug de serialización).
+  ---------------------------------------------------------- */
+  obtenerResultadosPorUsuario(usuarioId: number) {
+    return this.http.get<ResultadoApi[]>(`${API_BASE}/api/app/resultados/user-${usuarioId}`);
   }
 
   /* ----------------------------------------------------------

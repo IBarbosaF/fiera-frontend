@@ -20,9 +20,35 @@
     </div>
 
     <!-- ══════════════════════════════════════════
+         ESTADO — Cargando
+    ══════════════════════════════════════════ -->
+    @if (cargando()) {
+      <div class="cl-estado-card">
+        <div class="cl-spinner"></div>
+        <p class="cl-estado-texto">Preparando el Clash de hoy...</p>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════
+         ESTADO — Error
+    ══════════════════════════════════════════ -->
+    @else if (errorCarga()) {
+      <div class="cl-estado-card cl-estado-card--error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p class="cl-estado-texto">No se ha podido preparar el Clash de hoy. Inténtalo más tarde.</p>
+        <button class="cl-btn-volver-error" (click)="volverAlHub()">Volver a Retos</button>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════
          ESTADO — Ya completado hoy
     ══════════════════════════════════════════ -->
-    @if (completadoHoy(); as completado) {
+    @else if (completadoHoy(); as completado) {
       <div class="cl-completado-card">
         <div class="cl-completado-icono">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -31,10 +57,14 @@
           </svg>
         </div>
         <h2 class="cl-completado-titulo">Ya has hecho el Clash de hoy</h2>
-        <p class="cl-completado-sub">
-          Modo {{ completado.modo === 'facil' ? 'Fácil' : 'Difícil' }} — {{ completado.puntos }} puntos
-        </p>
+        <p class="cl-completado-sub">{{ completado.puntos }} puntos</p>
         <p class="cl-completado-vuelve">Vuelve mañana para un nuevo clash.</p>
+
+        <div class="cl-resultado-explicacion">
+          <p class="cl-resultado-explicacion-label">FIERA EXPLICA</p>
+          <p>{{ completado.feedback }}</p>
+        </div>
+
         <button class="cl-btn-volver" (click)="volverAlHub()">Volver a Retos</button>
       </div>
     }
@@ -42,11 +72,11 @@
     <!-- ══════════════════════════════════════════
          ESTADO — Activo (jugando)
     ══════════════════════════════════════════ -->
-    @else {
+    @else if (clashActual()) {
 
       <!-- ── Pregunta del día ── -->
       <div class="cl-pregunta-card">
-        <p class="cl-pregunta-texto">{{ temaHoy.pregunta }}</p>
+        <p class="cl-pregunta-texto">{{ pregunta() }}</p>
       </div>
 
       <!-- ── Toggle de modo ── -->
@@ -57,11 +87,11 @@
                 (click)="cambiarModo('facil')">
           Fácil
         </button>
-        <button class="cl-modo-btn"
+        <button class="cl-modo-btn cl-modo-btn--proximamente"
                 [class.activo]="modo() === 'dificil'"
-                [disabled]="enviado()"
                 (click)="cambiarModo('dificil')">
           Difícil
+          <span class="cl-badge-proximamente">Próximamente</span>
         </button>
       </div>
 
@@ -74,14 +104,14 @@
           <!-- A favor -->
           <div class="cl-columna">
             <span class="cl-columna-label cl-columna-label--favor">A FAVOR</span>
-            @for (arg of temaHoy.favor; track arg.id) {
+            @for (arg of favorArgs(); track arg.id) {
               <button class="cl-arg-btn"
                       [class.seleccionado]="favorSeleccionado() === arg.id"
-                      [class.correcto]="enviado() && arg.id === temaHoy.clashCorrecto.favorId"
-                      [class.incorrecto]="enviado() && favorSeleccionado() === arg.id && arg.id !== temaHoy.clashCorrecto.favorId"
+                      [class.correcto]="enviado() && esCorrecto(arg.id)"
+                      [class.incorrecto]="enviado() && favorSeleccionado() === arg.id && !esCorrecto(arg.id)"
                       [disabled]="enviado()"
                       (click)="seleccionarFavor(arg.id)">
-                {{ arg.texto }}
+                {{ arg.mensaje }}
               </button>
             }
           </div>
@@ -89,14 +119,14 @@
           <!-- En contra -->
           <div class="cl-columna">
             <span class="cl-columna-label cl-columna-label--contra">EN CONTRA</span>
-            @for (arg of temaHoy.contra; track arg.id) {
+            @for (arg of contraArgs(); track arg.id) {
               <button class="cl-arg-btn"
                       [class.seleccionado]="contraSeleccionado() === arg.id"
-                      [class.correcto]="enviado() && arg.id === temaHoy.clashCorrecto.contraId"
-                      [class.incorrecto]="enviado() && contraSeleccionado() === arg.id && arg.id !== temaHoy.clashCorrecto.contraId"
+                      [class.correcto]="enviado() && esCorrecto(arg.id)"
+                      [class.incorrecto]="enviado() && contraSeleccionado() === arg.id && !esCorrecto(arg.id)"
                       [disabled]="enviado()"
                       (click)="seleccionarContra(arg.id)">
-                {{ arg.texto }}
+                {{ arg.mensaje }}
               </button>
             }
           </div>
@@ -105,97 +135,54 @@
 
         @if (!enviado()) {
           <button class="cl-btn-comprobar"
-                  [disabled]="!puedeComprobarFacil()"
+                  [disabled]="!puedeComprobar() || enviando()"
                   (click)="comprobar()">
-            Comprobar clash
+            {{ enviando() ? 'Comprobando...' : 'Comprobar clash' }}
           </button>
         }
       }
 
       <!-- ══════════════════════════════════════════
-           MODO DIFÍCIL — texto libre
+           MODO DIFÍCIL — próximamente
       ══════════════════════════════════════════ -->
       @else {
-        <div class="cl-dificil-form">
-
-          <div class="cl-dificil-campo">
-            <label class="cl-dificil-label cl-dificil-label--favor">Argumento a favor más fuerte</label>
-            <textarea
-              class="cl-textarea"
-              rows="2"
-              placeholder="Escribe el argumento a favor que consideres más potente..."
-              [value]="favorTexto()"
-              [disabled]="enviado()"
-              (input)="favorTexto.set($any($event.target).value)">
-            </textarea>
-          </div>
-
-          <div class="cl-dificil-campo">
-            <label class="cl-dificil-label cl-dificil-label--contra">Argumento en contra más fuerte</label>
-            <textarea
-              class="cl-textarea"
-              rows="2"
-              placeholder="Escribe el argumento en contra que consideres más potente..."
-              [value]="contraTexto()"
-              [disabled]="enviado()"
-              (input)="contraTexto.set($any($event.target).value)">
-            </textarea>
-          </div>
-
-          @if (!enviado()) {
-            <button class="cl-btn-comprobar"
-                    [disabled]="!puedeComprobarDificil()"
-                    (click)="comprobar()">
-              Enviar a FIERA
-            </button>
-          }
+        <div class="cl-proximamente-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <p class="cl-proximamente-titulo">Modo Difícil — Próximamente</p>
+          <p class="cl-proximamente-desc">
+            Pronto podrás escribir o dictar tú mismo los 2 argumentos del clash, y FIERA los evaluará con IA.
+            Mientras tanto, prueba el modo Fácil.
+          </p>
+          <button class="cl-btn-comprobar" (click)="cambiarModo('facil')">Volver a modo Fácil</button>
         </div>
       }
 
       <!-- ══════════════════════════════════════════
-           RESULTADO — tras comprobar (ambos modos)
+           RESULTADO — tras comprobar (modo fácil)
       ══════════════════════════════════════════ -->
-      @if (enviado()) {
+      @if (enviado() && resultado(); as r) {
         <div class="cl-resultado-card">
 
-          @if (modo() === 'facil' && resultadoFacil(); as r) {
-            <div class="cl-resultado-puntos">
-              <span class="cl-resultado-puntos-num">{{ r.puntos }}</span>
-              <span class="cl-resultado-puntos-label">puntos</span>
-            </div>
-            <div class="cl-resultado-chips">
-              <span class="cl-chip" [class.chip-ok]="r.aciertoFavor" [class.chip-ko]="!r.aciertoFavor">
-                {{ r.aciertoFavor ? '✓' : '✕' }} A favor
-              </span>
-              <span class="cl-chip" [class.chip-ok]="r.aciertoContra" [class.chip-ko]="!r.aciertoContra">
-                {{ r.aciertoContra ? '✓' : '✕' }} En contra
-              </span>
-            </div>
-          } @else {
-            <div class="cl-resultado-puntos">
-              <span class="cl-resultado-puntos-num">5</span>
-              <span class="cl-resultado-puntos-label">puntos de participación</span>
-            </div>
-            <p class="cl-resultado-nota">
-              La evaluación automática de texto libre llegará próximamente. Mientras tanto, compara tu respuesta con la corrección de FIERA:
-            </p>
-          }
-
-          <div class="cl-resultado-clash">
-            <p class="cl-resultado-clash-label">EL CLASH CORRECTO ERA</p>
-            <p class="cl-resultado-arg">
-              <strong class="favor">A favor:</strong>
-              {{ argumentoPorId(temaHoy.favor, temaHoy.clashCorrecto.favorId) }}
-            </p>
-            <p class="cl-resultado-arg">
-              <strong class="contra">En contra:</strong>
-              {{ argumentoPorId(temaHoy.contra, temaHoy.clashCorrecto.contraId) }}
-            </p>
+          <div class="cl-resultado-puntos">
+            <span class="cl-resultado-puntos-num">{{ r.puntos }}</span>
+            <span class="cl-resultado-puntos-label">puntos</span>
+          </div>
+          <div class="cl-resultado-chips">
+            <span class="cl-chip" [class.chip-ok]="r.aciertoFavor" [class.chip-ko]="!r.aciertoFavor">
+              {{ r.aciertoFavor ? '✓' : '✕' }} A favor
+            </span>
+            <span class="cl-chip" [class.chip-ok]="r.aciertoContra" [class.chip-ko]="!r.aciertoContra">
+              {{ r.aciertoContra ? '✓' : '✕' }} En contra
+            </span>
           </div>
 
           <div class="cl-resultado-explicacion">
             <p class="cl-resultado-explicacion-label">FIERA EXPLICA</p>
-            <p>{{ temaHoy.clashCorrecto.explicacion }}</p>
+            <p>{{ r.feedback }}</p>
           </div>
 
           <button class="cl-btn-volver" (click)="volverAlHub()">Volver a Retos</button>
